@@ -12,7 +12,7 @@ const slides = [
     {
         id: 1,
         title: 'INSPIRE',
-        subtitle: 'CELEBRATING ADVENTUROUS EXPERIENCES AND OUTDOOR ESCAPES',
+        subtitle: 'Top Destinations for Hassle-Free Visa Processing',
         topText: 'Welcome To',
         image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&h=1080&q=80',
     },
