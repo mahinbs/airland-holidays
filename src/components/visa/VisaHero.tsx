@@ -3,7 +3,7 @@ import { Sparkles, ChevronRight, PlayCircle } from 'lucide-react';
 
 export const VisaHero = () => {
     return (
-        <div className="relative pt-36 pb-28 px-4 overflow-hidden bg-slate-900 group">
+        <div className="relative min-h-[90vh] pt-36 pb-28 px-4 overflow-hidden bg-slate-900 group">
             <div className="absolute inset-0 z-0 overflow-hidden">
                 <video
                     autoPlay
@@ -13,7 +13,7 @@ export const VisaHero = () => {
                     className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-[20s] ease-out opacity-60"
                     poster="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=2000"
                 >
-                    <source src="https://www.pexels.com/download/video/36584879/" type="video/mp4" />
+                    <source src="/visa-hero.mp4" type="video/mp4" />
                     {/* Fallback Image */}
                     <img
                         src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=2000"
@@ -21,7 +21,7 @@ export const VisaHero = () => {
                         className="w-full h-full object-cover"
                     />
                 </video>
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-slate-900/40" />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-slate-900/20" />
             </div>
 
             <div className="content-container relative z-10 grid lg:grid-cols-2 gap-12 items-center">
