@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    MapPin, Star, Heart, Share2, CheckCircle2, XCircle, 
+    MapPin, Star, CheckCircle2, XCircle, 
     FileText, ChevronDown, Send, ChefHat, Trees, Waves, Sunset, 
     Landmark, ShieldCheck, ArrowRight, Quote, Info, Coffee, ShoppingBag, Moon
 } from 'lucide-react';

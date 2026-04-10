@@ -6,16 +6,12 @@ import { motion } from 'framer-motion';
 import { testimonials } from '../../data/visaData';
 
 export const VisaTestimonials = () => {
-    const [testiSlide, setTestiSlide] = useState(0);
-    const [testiLoaded, setTestiLoaded] = useState(false);
+        const [testiLoaded, setTestiLoaded] = useState(false);
     const [testiRef, testiInstanceRef] = useKeenSlider(
         {
             initial: 0,
             loop: true,
-            slideChanged(slider) {
-                setTestiSlide(slider.track.details.rel);
-            },
-            created() {
+                        created() {
                 setTestiLoaded(true);
             },
             slides: {
