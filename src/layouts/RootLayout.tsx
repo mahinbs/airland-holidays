@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import type { Location as RouterLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import FloatingLeadGen from "../components/common/FloatingLeadGen";
@@ -13,27 +13,15 @@ const PageTransition = ({
   location: RouterLocation;
 }) => {
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
-        className="flex-grow w-full"
-        onAnimationComplete={() => {
-          // Remove transform after animation completes to fix sticky positioning
-          const el = document.getElementById("page-transition-container");
-          if (el) {
-            el.style.transform = "none";
-          }
-        }}
-        id="page-transition-container"
-        style={{ transform: undefined }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={location.pathname}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="flex-grow w-full"
+    >
+      {children}
+    </motion.div>
   );
 };
 
@@ -78,7 +66,7 @@ export default function RootLayout() {
 
       <Navbar />
 
-      <main className={`flex-grow z-10 relative ${location.pathname !== "/" ? "pt-20" : ""}`}>
+      <main className="flex-grow z-10 relative">
         <PageTransition location={location}>
           <Outlet />
         </PageTransition>

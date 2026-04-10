@@ -17,6 +17,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Testimonials from './pages/Testimonials';
 import FAQ from './pages/FAQ';
+import Payment from './pages/Payment';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="testimonials" element={<Testimonials />} />
           <Route path="faq" element={<FAQ />} />
+          <Route path="payment" element={<Payment />} />
           {/* Default 404 can go here */}
         </Route>
       </Routes>
