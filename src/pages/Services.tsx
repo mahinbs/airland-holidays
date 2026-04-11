@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { useKeenSlider } from 'keen-slider/react';
+import 'keen-slider/keen-slider.min.css';
 import {
     Plane,
     Banknote,
@@ -195,11 +197,11 @@ const partners = {
         },
         {
             name: 'Qatar Airways',
-            logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/3/3c/Qatar_Airways_Logo.svg/200px-Qatar_Airways_Logo.svg.png',
+            logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9b/Qatar_Airways_Logo.svg/300px-Qatar_Airways_Logo.svg.png',
         },
         {
             name: 'Air India',
-            logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Air_India_logo.svg/200px-Air_India_logo.svg.png',
+            logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Air_India_Logo_2023.svg/300px-Air_India_Logo_2023.svg.png',
         },
         {
             name: 'British Airways',
@@ -207,7 +209,7 @@ const partners = {
         },
         {
             name: 'IndiGo',
-            logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/IndiGo_Airlines_logo.svg/200px-IndiGo_Airlines_logo.svg.png',
+            logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/IndiGo_Airlines_logo.svg/300px-IndiGo_Airlines_logo.svg.png',
         },
     ],
     hotels: [
@@ -382,6 +384,62 @@ export default function Services() {
     const trustRef = useRef(null);
     const trustInView = useInView(trustRef, { once: true, margin: '-80px' });
 
+    const [airlinesRef] = useKeenSlider<HTMLDivElement>(
+        {
+            loop: true,
+            renderMode: 'performance',
+            drag: false,
+            slides: { perView: 'auto', spacing: 56 },
+            created(s) {
+                s.moveToIdx(5, true, { duration: 15000, easing: (t) => t });
+            },
+            updated(s) {
+                s.moveToIdx(s.track.details.abs + 5, true, { duration: 15000, easing: (t) => t });
+            },
+            animationEnded(s) {
+                s.moveToIdx(s.track.details.abs + 5, true, { duration: 15000, easing: (t) => t });
+            },
+        },
+        [
+            (slider) => {
+                slider.container.addEventListener('mouseover', () => {
+                    slider.animator.stop();
+                });
+                slider.container.addEventListener('mouseout', () => {
+                    slider.moveToIdx(slider.track.details.abs + 5, true, { duration: 15000, easing: (t) => t });
+                });
+            },
+        ]
+    );
+
+    const [hotelsRef] = useKeenSlider<HTMLDivElement>(
+        {
+            loop: true,
+            renderMode: 'performance',
+            drag: false,
+            slides: { perView: 'auto', spacing: 56 },
+            created(s) {
+                s.moveToIdx(5, true, { duration: 20000, easing: (t) => t });
+            },
+            updated(s) {
+                s.moveToIdx(s.track.details.abs + 5, true, { duration: 20000, easing: (t) => t });
+            },
+            animationEnded(s) {
+                s.moveToIdx(s.track.details.abs + 5, true, { duration: 20000, easing: (t) => t });
+            },
+        },
+        [
+            (slider) => {
+                slider.container.addEventListener('mouseover', () => {
+                    slider.animator.stop();
+                });
+                slider.container.addEventListener('mouseout', () => {
+                    slider.moveToIdx(slider.track.details.abs + 5, true, { duration: 20000, easing: (t) => t });
+                });
+            },
+        ]
+    );
+
     return (
         <div className="bg-slate-50 min-h-screen overflow-x-clip pb-20 md:pb-0">
             {/* —— Hero —— */}
@@ -532,7 +590,7 @@ export default function Services() {
                                         <img
                                             src={srv.image}
                                             alt=""
-                                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-50"
                                             loading="lazy"
                                             decoding="async"
                                         />
@@ -551,7 +609,7 @@ export default function Services() {
                                             <p className="text-sm font-light leading-snug text-white/80">
                                                 {srv.valueStatement}
                                             </p>
-                                            <span className="mt-3 inline-flex translate-y-3 items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-3 py-1.5 text-xs font-bold text-white opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                                            <span className="mt-3 inline-flex translate-y-3 items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-3 py-1.5 text-xs font-bold text-white opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 w-fit">
                                                 Learn more
                                                 <ArrowRight className="h-3.5 w-3.5" />
                                             </span>
@@ -633,16 +691,17 @@ export default function Services() {
                         Airline Partners
                     </p>
                     <div className="overflow-hidden">
-                        <div className="partner-track-airlines flex w-max gap-14 whitespace-nowrap will-change-transform">
+                        <div ref={airlinesRef} className="keen-slider">
                             {[...partners.airlines, ...partners.airlines].map((p, i) => (
-                                <img
-                                    key={`${p.name}-${i}`}
-                                    src={p.logo}
-                                    alt={p.name}
-                                    className="h-8 shrink-0 cursor-pointer object-contain opacity-40 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0"
-                                    loading="lazy"
-                                    decoding="async"
-                                />
+                                <div key={`${p.name}-${i}`} className="keen-slider__slide flex items-center justify-center" style={{ minWidth: 140, maxWidth: 140 }}>
+                                    <img
+                                        src={p.logo}
+                                        alt={p.name}
+                                        className="h-8 w-full cursor-pointer object-contain opacity-100 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0 brightness-200"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -653,16 +712,17 @@ export default function Services() {
                         Hotel Partners
                     </p>
                     <div className="overflow-hidden">
-                        <div className="partner-track-hotels flex w-max gap-14 whitespace-nowrap will-change-transform">
+                        <div ref={hotelsRef} className="keen-slider">
                             {[...partners.hotels, ...partners.hotels].map((p, i) => (
-                                <img
-                                    key={`${p.name}-${i}`}
-                                    src={p.logo}
-                                    alt={p.name}
-                                    className="h-8 shrink-0 cursor-pointer object-contain opacity-40 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0"
-                                    loading="lazy"
-                                    decoding="async"
-                                />
+                                <div key={`${p.name}-${i}`} className="keen-slider__slide flex items-center justify-center" style={{ minWidth: 140, maxWidth: 140 }}>
+                                    <img
+                                        src={p.logo}
+                                        alt={p.name}
+                                        className="h-8 w-full cursor-pointer object-contain grayscale-0 brightness-200 transition-all duration-500 hover:opacity-100 hover:grayscale-0"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -735,7 +795,7 @@ export default function Services() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/50" />
                 <motion.div
-                    className="relative z-10 mx-auto max-w-3xl px-6 text-center"
+                    className="relative z-10 mx-auto max-w-3xl px-6 text-center py-10"
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}

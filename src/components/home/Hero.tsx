@@ -187,7 +187,7 @@ export default function Hero() {
                         transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
                       },
                     }}
-                    className="font-serif italic text-3xl md:text-4xl text-[#f59e0b] tracking-wide block"
+                    className="font-serif italic text-3xl md:text-4xl text-secondary tracking-wide block"
                   >
                     {currentSlide.topText}
                   </motion.span>
@@ -221,7 +221,7 @@ export default function Hero() {
                     className="mt-4 relative ml-4"
                   >
                     <svg
-                      className="w-64 h-3 text-[#f59e0b]"
+                      className="w-64 h-3 text-secondary"
                       preserveAspectRatio="none"
                       viewBox="0 0 250 15"
                       fill="none"
@@ -290,14 +290,14 @@ export default function Hero() {
           <button
             onClick={() => swiperRef.current?.slidePrev()}
             aria-label="Previous slide"
-            className="w-12 h-12 rounded-full border border-[#f59e0b] flex items-center justify-center text-[#f59e0b] hover:bg-[#f59e0b] hover:text-slate-900 transition-all backdrop-blur-sm group shadow-lg"
+            className="w-12 h-12 rounded-full border border-secondary flex items-center justify-center text-secondary hover:bg-secondary hover:text-slate-900 transition-all backdrop-blur-sm group shadow-lg"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => swiperRef.current?.slideNext()}
             aria-label="Next slide"
-            className="w-12 h-12 rounded-full border border-[#f59e0b] flex items-center justify-center text-[#f59e0b] hover:bg-[#f59e0b] hover:text-slate-900 transition-all backdrop-blur-sm group shadow-lg"
+            className="w-12 h-12 rounded-full border border-secondary flex items-center justify-center text-secondary hover:bg-secondary hover:text-slate-900 transition-all backdrop-blur-sm group shadow-lg"
           >
             <ArrowRight className="w-5 h-5" />
           </button>

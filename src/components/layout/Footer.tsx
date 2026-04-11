@@ -17,12 +17,7 @@ export default function Footer() {
                     {/* Brand - spans 4 cols */}
                     <div className="lg:col-span-4">
                         <a href="/" className="inline-flex items-center gap-2.5 group mb-6">
-                            <div className="w-11 h-11 bg-primary text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shadow-primary/25 group-hover:shadow-primary/40 transition-shadow">
-                                A
-                            </div>
-                            <span className="font-sans text-2xl font-bold text-white tracking-tight">
-                                Airland<span className="text-primary">.</span>
-                            </span>
+                            <img src="/logo-white.png" alt="Logo" className="w-[15rem]" />
                         </a>
                         <p className="text-slate-400 leading-relaxed max-w-sm mb-6">
                             Crafting premium, unforgettable travel experiences across the globe. Your journey begins with exceptional planning.
@@ -62,7 +57,7 @@ export default function Footer() {
                     {/* Explore - 2 cols */}
                     <div className="lg:col-span-2">
                         <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
-                            <Plane className="w-4 h-4 text-primary" />
+                            <Plane className="w-4 h-4 text-secondary" />
                             Explore
                         </h3>
                         <ul className="space-y-3">
@@ -75,9 +70,9 @@ export default function Footer() {
                                 { label: 'Testimonials', href: '/testimonials' },
                             ].map(({ label, href }) => (
                                 <li key={label}>
-                                    <a href={href} className="text-slate-400 hover:text-primary transition-colors inline-block py-1 group">
+                                    <a href={href} className="text-slate-400 hover:text-secondary transition-colors inline-block py-1 group">
                                         {label}
-                                        <span className="inline-block w-0 group-hover:w-2 h-px bg-primary ml-1 transition-all" />
+                                        <span className="inline-block w-0 group-hover:w-2 h-px bg-secondary ml-1 transition-all" />
                                     </a>
                                 </li>
                             ))}
@@ -96,9 +91,9 @@ export default function Footer() {
                                 { label: 'Help & FAQ', href: '/faq' },
                             ].map(({ label, href }) => (
                                 <li key={label}>
-                                    <a href={href} className="text-slate-400 hover:text-primary transition-colors inline-block py-1 group">
+                                    <a href={href} className="text-slate-400 hover:text-secondary transition-colors inline-block py-1 group">
                                         {label}
-                                        <span className="inline-block w-0 group-hover:w-2 h-px bg-primary ml-1 transition-all" />
+                                        <span className="inline-block w-0 group-hover:w-2 h-px bg-secondary ml-1 transition-all" />
                                     </a>
                                 </li>
                             ))}
@@ -111,19 +106,19 @@ export default function Footer() {
                         <div className="space-y-4">
                             <a href="/contact" className="flex gap-4 items-start group p-3 rounded-xl hover:bg-slate-800/50 transition-colors -m-3">
                                 <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
-                                    <MapPin className="w-5 h-5 text-primary" />
+                                    <MapPin className="w-5 h-5 text-secondary" />
                                 </div>
                                 <span className="text-slate-400 group-hover:text-slate-300">123 Premium Travel Boulevard, Mumbai, Maharashtra 400001</span>
                             </a>
                             <a href="tel:+18001234567" className="flex gap-4 items-center group p-3 rounded-xl hover:bg-slate-800/50 transition-colors -m-3">
                                 <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
-                                    <Phone className="w-5 h-5 text-primary" />
+                                    <Phone className="w-5 h-5 text-secondary" />
                                 </div>
                                 <span className="text-slate-400 group-hover:text-slate-300">+1 (800) 123-4567</span>
                             </a>
                             <a href="mailto:hello@airlandholidays.com" className="flex gap-4 items-center group p-3 rounded-xl hover:bg-slate-800/50 transition-colors -m-3">
                                 <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
-                                    <Mail className="w-5 h-5 text-primary" />
+                                    <Mail className="w-5 h-5 text-secondary" />
                                 </div>
                                 <span className="text-slate-400 group-hover:text-slate-300">hello@airlandholidays.com</span>
                             </a>

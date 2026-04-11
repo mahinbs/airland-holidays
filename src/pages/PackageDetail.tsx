@@ -167,7 +167,7 @@ export default function PackageDetail() {
             </section>
 
             {/* 2. Sticky Navigation */}
-            <div className="sticky top-[64px] z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200 hidden md:block">
+            <div className="sticky top-[64px] lg:top-[95px] z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200 hidden md:block">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16">
                     <div className="flex items-center gap-3 font-marcellus text-lg font-bold text-slate-900">
                         <span>🇮🇩</span> {packageData.title}

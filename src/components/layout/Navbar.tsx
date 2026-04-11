@@ -129,12 +129,7 @@ export default function Navbar() {
             <div className="content-container flex items-center justify-between">
                 {/* Logo */}
                 <a href="/" className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center font-bold text-xl">
-                        A
-                    </div>
-                    <span className="font-sans text-2xl font-bold text-slate-900 tracking-tight">
-                        Airland<span className="text-primary">.</span>
-                    </span>
+                   <img src="/logo.png" alt="Logo" className="w-[8rem]" />
                 </a>
 
                 {/* Desktop Navigation */}

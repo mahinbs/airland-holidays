@@ -7,16 +7,18 @@ module.exports = {
     theme: {
         extend: {
             colors: {
+                /** Deep Teal — primary brand */
                 primary: {
-                    light: '#f2685f',
-                    DEFAULT: '#de2e21',
-                    dark: '#b32217',
+                    light: '#1a6574',
+                    DEFAULT: '#0B3C49',
+                    dark: '#072a32',
                 },
+                /** Warm Gold — accent */
                 secondary: {
-                    light: '#fbde68',
-                    DEFAULT: '#F59E0B',
-                    dark: '#cca10a',
-                }
+                    light: '#d4c49a',
+                    DEFAULT: '#B8965A',
+                    dark: '#967a48',
+                },
             },
             fontFamily: {
                 sans: ['Marcellus', 'sans-serif'],

@@ -14,7 +14,6 @@ const topDestinations = [
     { id: 'maldives', name: 'Maldives', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80&w=800', description: 'Overwater bungalows and crystal oceans.' },
     { id: 'uae', name: 'United Arab Emirates', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800', description: 'A blend of modern luxury and heritage.' },
     { id: 'greece', name: 'Greece', image: 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&q=80&w=800', description: 'Ancient history and stunning islands.' },
-    { id: 'vietnam', name: 'Vietnam', image: 'https://images.unsplash.com/photo-1528127269322-53982823b5d2?auto=format&fit=crop&q=80&w=800', description: 'Vibrant culture and majestic scenery.' }
 ];
 
 export default function Destinations() {
@@ -50,13 +49,13 @@ export default function Destinations() {
                             <img src={dest.image} alt={dest.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
                             <div className="absolute bottom-0 left-0 w-full p-8">
-                                <div className="flex items-center gap-2 text-primary mb-2">
+                                <div className="flex items-center gap-2 text-secondary mb-2">
                                     <MapPin className="w-5 h-5" />
                                     <span className="font-semibold uppercase tracking-wider text-sm">Explore</span>
                                 </div>
                                 <h3 className="text-3xl font-sans font-bold text-white mb-3">{dest.name}</h3>
                                 <p className="text-slate-300 mb-6">{dest.description}</p>
-                                <span className="inline-flex items-center text-white font-medium group-hover:text-primary transition-colors border-b border-transparent group-hover:border-primary pb-1">
+                                <span className="inline-flex items-center text-white font-medium group-hover:text-secondary transition-colors border-b border-transparent group-hover:border-secondary pb-1">
                                     View Guide & Packages &rarr;
                                 </span>
                             </div>
