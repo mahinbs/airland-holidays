@@ -41,4 +41,46 @@
   }
 }
 
+@keyframes partnerScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.partner-track-airlines {
+  animation: partnerScroll 22s linear infinite;
+}
+.partner-track-airlines:hover {
+  animation-play-state: paused;
+}
+.partner-track-hotels {
+  animation: partnerScroll 28s linear infinite;
+}
+.partner-track-hotels:hover {
+  animation-play-state: paused;
+}
+
+@keyframes partnerScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.partner-track-airlines {
+  animation: partnerScroll 22s linear infinite;
+}
+
+.partner-track-airlines:hover {
+  animation-play-state: paused;
+}
+
+.partner-track-hotels {
+  animation: partnerScroll 28s linear infinite;
+}
+
+.partner-track-hotels:hover {
+  animation-play-state: paused;
+}
+
 

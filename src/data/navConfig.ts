@@ -76,36 +76,23 @@ export const navStructure = [
     ],
   },
   {
-    label: 'Cruise',
-    type: 'dropdown',
-    items: [
-      { label: 'International Cruises', href: '/cruise/international' },
-      { label: 'India Cruises', href: '/cruise/india' },
-    ],
+    label: 'Destinations',
+    type: 'link',
+    href: '/destinations',
   },
   {
-    label: 'Experiences',
+    label: 'Services',
     type: 'dropdown',
     items: [
-      { label: '🏔 Adventure', href: '/experiences/adventure' },
-      { label: '👑 Luxury', href: '/experiences/luxury' },
-      { label: '👨‍👩‍👧 Family', href: '/experiences/family' },
-      { label: '💍 Honeymoon', href: '/experiences/honeymoon' },
-    ],
-  },
-  {
-    label: 'Fun Trips',
-    type: 'dropdown',
-    items: [
-      { label: '🧔 Boys Trip', href: '/fun-trips/boys' },
-      { label: '👩 Girls Trip', href: '/fun-trips/girls' },
-    ],
-  },
-  {
-    label: 'Group Tours',
-    type: 'dropdown',
-    items: [
-      { label: 'Fixed Departures', href: '/group-tours/fixed-departures' },
+      { label: 'All Services', href: '/services' },
+      { label: 'Flight Booking', href: '/services/flight-booking' },
+      { label: 'Hotel Reservations', href: '/services/hotel-reservation' },
+      { label: 'Forex & Currency', href: '/services/forex' },
+      { label: 'Travel Insurance', href: '/services/travel-insurance' },
+      { label: 'Visa Assistance', href: '/visa' },
+      { label: 'Cruise Booking', href: '/services/cruise-booking' },
+      { label: 'Group Travel', href: '/services/group-travel' },
+      { label: 'Holiday Customisation', href: '/services/holiday-customisation' },
     ],
   },
   {
@@ -117,9 +104,9 @@ export const navStructure = [
     label: 'Guide',
     type: 'dropdown',
     items: [
-      { label: '✈ Travel Tips', href: '/guide/travel-tips' },
-      { label: '📝 Blogs', href: '/guide/blogs' },
-      { label: '🛂 Visa Guide', href: '/guide/visa-guide' },
+      { label: 'Travel Tips', href: '/guide/travel-tips' },
+      { label: 'Blogs', href: '/guide/blogs' },
+      { label: 'Visa Guide', href: '/guide/visa-guide' },
     ],
   },
   {
@@ -127,9 +114,10 @@ export const navStructure = [
     type: 'dropdown',
     items: [
       { label: 'About Us', href: '/about' },
-      { label: 'Our Team', href: '/team' },
-      { label: 'Gallery', href: '/gallery' },
-      { label: 'Awards & Recognition', href: '/awards' },
+      { label: 'Testimonials', href: '/testimonials' },
+      { label: 'FAQ', href: '/faq' },
+      { label: 'Contact', href: '/contact' },
+      { label: 'Pay Online', href: '/payment' },
     ],
   },
 ];

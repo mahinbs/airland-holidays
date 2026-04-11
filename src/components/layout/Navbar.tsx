@@ -89,10 +89,26 @@ export default function Navbar() {
         };
     }, [isMobileMenuOpen]);
 
+    /** Matches App.tsx routes: packages, destinations, visa, services, guide, about, testimonials, faq, contact, payment */
+    const matchNavHref = (pathname: string, href: string) => {
+        if (href === '/destinations') return pathname.startsWith('/destinations');
+        if (href === '/services') return pathname === '/services';
+        if (href.startsWith('/services/')) return pathname === href;
+        if (href === '/visa') return pathname.startsWith('/visa');
+        if (href.startsWith('/guide/')) return pathname === href;
+        if (href === '/about') return pathname === '/about';
+        if (href === '/testimonials') return pathname === '/testimonials';
+        if (href === '/faq') return pathname === '/faq';
+        if (href === '/contact') return pathname === '/contact';
+        if (href === '/payment') return pathname === '/payment';
+        return pathname === href;
+    };
+
     const isRouteActive = (item: { href?: string; type: string; items?: { href: string }[] }) => {
-        if (item.href && location.pathname === item.href) return true;
-        if (item.type === 'dropdown' && item.items?.some((sub) => location.pathname === sub.href)) return true;
-        if (item.type === 'mega' && location.pathname.startsWith('/packages')) return true;
+        if (item.type === 'mega') return location.pathname.startsWith('/packages');
+        if (item.type === 'link' && item.href) return matchNavHref(location.pathname, item.href);
+        if (item.type === 'dropdown' && item.items?.some((sub) => matchNavHref(location.pathname, sub.href)))
+            return true;
         return false;
     };
 
@@ -194,7 +210,7 @@ export default function Navbar() {
                                                                     href={subItem.href}
                                                                     className={clsx(
                                                                         "flex items-center gap-3 px-5 py-3 text-sm font-medium transition-all",
-                                                                        location.pathname === subItem.href 
+                                                                        matchNavHref(location.pathname, subItem.href)
                                                                             ? "text-primary bg-primary/5" 
                                                                             : "text-slate-700 hover:text-primary hover:bg-primary/5"
                                                                     )}
