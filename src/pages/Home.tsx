@@ -1,6 +1,7 @@
 import Hero from '../components/home/Hero';
 import FeaturedPackages from '../components/home/FeaturedPackages';
 import Destinations from '../components/home/Destinations';
+import FestivalsEvents from '../components/homepage/FestivalsEvents';
 import ServicesOverview from '../components/home/ServicesOverview';
 import VisaHighlight from '../components/home/VisaHighlight';
 import WhyUs from '../components/home/WhyUs';
@@ -19,6 +20,7 @@ export default function Home() {
             <Hero />
             <FeaturedPackages />
             <Destinations />
+            <FestivalsEvents />
             <WindowScroll />
             <ServicesOverview />
             <VisaHighlight />
