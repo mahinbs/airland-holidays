@@ -1,5 +1,8 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useKeenSlider } from 'keen-slider/react';
+
+import 'keen-slider/keen-slider.min.css';
 
 const destinations = [
     { id: 1, name: 'Maldives', tours: 12, image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80&w=800', tag: 'Trending' },
@@ -23,7 +26,62 @@ const item = {
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } }
 };
 
+type Destination = (typeof destinations)[0];
+
+function DestinationCard({ dest }: { dest: Destination }) {
+    return (
+        <a
+            href={`/destinations/${dest.name.toLowerCase().replace(', ', '-')}`}
+            className="group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 block h-full"
+        >
+            <div className="aspect-[4/5] relative overflow-hidden">
+                <motion.img
+                    src={dest.image}
+                    alt={dest.name}
+                    className="w-full h-full object-cover"
+                    whileHover={{ scale: 1.08 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                {dest.tag && (
+                    <div className="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide z-10">
+                        {dest.tag}
+                    </div>
+                )}
+
+                <div className="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="text-white font-sans text-2xl font-bold mb-1">{dest.name}</h3>
+                    <p className="text-slate-300 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">{dest.tours} Packages</p>
+                </div>
+            </div>
+        </a>
+    );
+}
+
 export default function Destinations() {
+    const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
+        loop: true,
+        slides: {
+            perView: 1.1,
+            spacing: 16
+        },
+        breakpoints: {
+            '(min-width: 640px)': {
+                slides: {
+                    perView: 1.4,
+                    spacing: 20
+                }
+            },
+            '(min-width: 768px)': {
+                slides: {
+                    perView: 2,
+                    spacing: 24
+                }
+            }
+        }
+    });
+
     return (
         <section className="section-padding bg-slate-50">
             <div className="content-container">
@@ -39,41 +97,48 @@ export default function Destinations() {
                     </a>
                 </div>
 
-                <motion.div 
+                <div ref={sliderRef} className="keen-slider overflow-visible lg:hidden">
+                    {destinations.map((dest) => (
+                        <div key={dest.id} className="keen-slider__slide">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: '-60px' }}
+                                transition={{ duration: 0.45, ease: "easeOut" }}
+                                className="h-full"
+                            >
+                                <DestinationCard dest={dest} />
+                            </motion.div>
+                        </div>
+                    ))}
+                </div>
+                <div className="flex items-center justify-center gap-4 mt-6 lg:hidden">
+                    <button
+                        onClick={() => instanceRef.current?.prev()}
+                        aria-label="Previous destination"
+                        className="w-11 h-11 rounded-full border border-slate-300 flex items-center justify-center text-slate-700 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                        onClick={() => instanceRef.current?.next()}
+                        aria-label="Next destination"
+                        className="w-11 h-11 rounded-full border border-slate-300 flex items-center justify-center text-slate-700 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300"
+                    >
+                        <ChevronRight className="w-5 h-5" />
+                    </button>
+                </div>
+
+                <motion.div
                     variants={container}
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: true, margin: "-100px" }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                    className="hidden lg:grid lg:grid-cols-4 gap-6"
                 >
                     {destinations.map((dest, index) => (
                         <motion.div key={dest.id} variants={item} className={`${index === 0 || index === 3 ? 'md:col-span-2 lg:col-span-1' : ''}`}>
-                            <a
-                                href={`/destinations/${dest.name.toLowerCase().replace(', ', '-')}`}
-                                className="group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 block h-full"
-                            >
-                                <div className="aspect-[4/5] relative overflow-hidden">
-                                    <motion.img
-                                        src={dest.image}
-                                        alt={dest.name}
-                                        className="w-full h-full object-cover"
-                                        whileHover={{ scale: 1.08 }}
-                                        transition={{ duration: 0.8, ease: "easeOut" }}
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                                    {dest.tag && (
-                                        <div className="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide z-10">
-                                            {dest.tag}
-                                        </div>
-                                    )}
-
-                                    <div className="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                                        <h3 className="text-white font-sans text-2xl font-bold mb-1">{dest.name}</h3>
-                                        <p className="text-slate-300 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">{dest.tours} Packages</p>
-                                    </div>
-                                </div>
-                            </a>
+                            <DestinationCard dest={dest} />
                         </motion.div>
                     ))}
                 </motion.div>

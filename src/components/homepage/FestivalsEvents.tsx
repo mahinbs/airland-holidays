@@ -375,7 +375,7 @@ export default function FestivalsEvents() {
                 </motion.div>
 
                 <div className="mb-8 flex justify-center">
-                    <div className="flex w-full max-w-xl gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
+                    <div className="flex sm:flex-row flex-col w-full max-w-xl gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
                         <button
                             onClick={() => setActiveTab('international')}
                             className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-300 md:px-6 ${
@@ -458,9 +458,6 @@ export default function FestivalsEvents() {
                         >
                             <ChevronLeft className="h-4 w-4" />
                         </button>
-                        <span className="text-xs font-medium text-slate-500">
-                            {filteredEvents.length === 0 ? 0 : currentSlide + 1} / {filteredEvents.length}
-                        </span>
                         <button
                             type="button"
                             onClick={() => instanceRef.current?.next()}
@@ -485,7 +482,7 @@ export default function FestivalsEvents() {
                             Our experts will match you with the perfect festival experience
                         </p>
                     </div>
-                    <div className="flex shrink-0 gap-3">
+                    <div className="flex flex-col sm:flex-row shrink-0 gap-3">
                         <a href="/contact" className="btn-primary flex items-center gap-2 px-7 py-3.5 text-sm">
                             <Calendar className="h-4 w-4" /> Plan Around an Event
                         </a>
@@ -495,7 +492,7 @@ export default function FestivalsEvents() {
                             )}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center gap-2 rounded-xl bg-green-500 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-green-600"
+                            className="flex items-center gap-2 rounded-xl bg-green-500 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-green-600 justify-center"
                         >
                             <MessageCircle className="h-4 w-4" /> WhatsApp
                         </a>

@@ -35,7 +35,7 @@ export const VisaHero = () => {
                     </span>
                     <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-[1.1]">
                         Seamless Visa <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-500">Processing</span>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-amber-500">Processing</span>
                     </h1>
                     <p className="text-slate-300 text-lg md:text-xl mb-10 max-w-lg">
                         Fast, secure, and hassle-free visa applications for 50+ countries. Let our experts handle the bureaucracy.
