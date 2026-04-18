@@ -60,7 +60,7 @@ function DestinationCard({ dest }: { dest: Destination }) {
 }
 
 export default function Destinations() {
-    const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
+    const [, instanceRef] = useKeenSlider<HTMLDivElement>({
         loop: true,
         slides: {
             perView: 1.1,

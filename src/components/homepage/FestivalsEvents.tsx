@@ -235,7 +235,7 @@ type EventCardProps = {
     index: number;
 };
 
-function EventCard({ event, index }: EventCardProps) {
+function EventCard({ event }: EventCardProps) {
     return (
         <div
             className="h-full"
@@ -303,7 +303,7 @@ function EventCard({ event, index }: EventCardProps) {
 export default function FestivalsEvents() {
     const [activeTab, setActiveTab] = useState<TabType>('international');
     const [activeMonth, setActiveMonth] = useState<number>(0);
-    const [currentSlide, setCurrentSlide] = useState<number>(0);
+    const [, setCurrentSlide] = useState<number>(0);
     const currentMonth = new Date().getMonth() + 1;
 
     const currentEvents = activeTab === 'international' ? internationalEvents : indiaEvents;
