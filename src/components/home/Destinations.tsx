@@ -96,22 +96,6 @@ export default function Destinations() {
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </a>
                 </div>
-
-                <div ref={sliderRef} className="keen-slider overflow-visible lg:hidden">
-                    {destinations.map((dest) => (
-                        <div key={dest.id} className="keen-slider__slide">
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: '-60px' }}
-                                transition={{ duration: 0.45, ease: "easeOut" }}
-                                className="h-full"
-                            >
-                                <DestinationCard dest={dest} />
-                            </motion.div>
-                        </div>
-                    ))}
-                </div>
                 <div className="flex items-center justify-center gap-4 mt-6 lg:hidden">
                     <button
                         onClick={() => instanceRef.current?.prev()}

@@ -80,9 +80,9 @@ export default function VisaHighlight() {
         <section className="py-14 md:py-20 bg-slate-50 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col lg:flex-row gap-10 md:gap-12 lg:gap-16 items-center">
-                    
+
                     {/* Left Authority Block (55%) */}
-                    <motion.div 
+                    <motion.div
                         variants={containerVariants}
                         initial="hidden"
                         whileInView="visible"
@@ -99,7 +99,7 @@ export default function VisaHighlight() {
                             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-3 md:mb-4 leading-tight">
                                 {sectionCopy.title}
                             </h2>
-                            <p className="text-base sm:text-lg text-slate-600 font-medium">
+                            <p className="text-base sm:text-lg text-slate-700 font-medium leading-relaxed">
                                 {sectionCopy.subtitle}
                             </p>
                         </motion.div>
@@ -109,8 +109,8 @@ export default function VisaHighlight() {
                             {trustPoints.map((point, idx) => {
                                 const Icon = point.icon;
                                 return (
-                                    <div 
-                                        key={idx} 
+                                    <div
+                                        key={idx}
                                         className={`flex flex-col gap-2 p-4 rounded-xl border ${point.special ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}
                                     >
                                         <div className={`p-2 rounded-lg w-fit ${point.special ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
@@ -118,7 +118,7 @@ export default function VisaHighlight() {
                                         </div>
                                         <div>
                                             <p className={`font-bold ${point.special ? 'text-amber-900' : 'text-slate-900'}`}>{point.title}</p>
-                                            <p className={`text-sm ${point.special ? 'text-amber-700' : 'text-slate-500'}`}>{point.subtitle}</p>
+                                            <p className={`text-sm ${point.special ? 'text-amber-700' : 'text-slate-600'}`}>{point.subtitle}</p>
                                         </div>
                                     </div>
                                 );
@@ -132,7 +132,7 @@ export default function VisaHighlight() {
 
                         {/* CTAs */}
                         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-3 md:mt-4">
-                            <a href="/visa" className="inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-5 sm:px-8 py-3.5 sm:py-4 rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 w-full sm:w-auto text-sm sm:text-base">
+                            <a href="/visa" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-5 sm:px-8 py-3.5 sm:py-4 rounded-xl hover:bg-secondary-dark transition-all shadow-lg shadow-secondary/20 hover:-translate-y-0.5 w-full sm:w-auto text-sm sm:text-base">
                                 {sectionCopy.primaryCta}
                                 <ArrowRight className="w-5 h-5" />
                             </a>
@@ -143,7 +143,7 @@ export default function VisaHighlight() {
                     </motion.div>
 
                     {/* Right Country Cards Horizontal Scroll (45%) */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, x: 30 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -155,7 +155,7 @@ export default function VisaHighlight() {
                                 <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                                 <h3 className="text-lg sm:text-xl font-bold text-slate-900 leading-snug">Specialised in High-Demand Destinations</h3>
                             </div>
-                            
+
                             {/* Flag pills row */}
                             <div className="flex flex-wrap gap-2">
                                 {sectionCopy.specialistSub.split('•').map((pill, idx) => (
@@ -183,14 +183,14 @@ export default function VisaHighlight() {
 
                                         {/* Top-left flag pill */}
                                         <div className="absolute top-4 left-4">
-                                            <span className="bg-white/90 backdrop-blur-sm text-slate-900 px-2 py-1 rounded-md text-sm font-bold shadow-sm flex items-center gap-1">
+                                            <span className="bg-white/95 backdrop-blur-sm text-slate-900 px-2 py-1 rounded-md text-sm font-bold shadow-sm flex items-center gap-1">
                                                 {country.flag} {country.slug.toUpperCase()}
                                             </span>
                                         </div>
 
                                         {/* Bottom-left highlight badge & Content */}
                                         <div className="absolute bottom-4 left-4 right-4">
-                                            <span className="inline-block bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded mb-2">
+                                            <span className="inline-block bg-secondary text-white text-xs font-bold px-2 py-1 rounded mb-2">
                                                 {country.highlight}
                                             </span>
                                             <h4 className="text-xl font-bold text-white mb-3">{country.name}</h4>

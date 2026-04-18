@@ -18,20 +18,20 @@ export const VisaCTA = () => {
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                             Ready to travel the world?
                         </h2>
-                        <p className="text-white/90 text-lg mb-10">
+                        <p className="text-white/95 text-lg mb-10">
                             Don't let visa rejections ruin your plans. Let our experts secure your
                             visa so you can pack your bags stress-free.
                         </p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
                             <a
                                 href="#all-countries"
-                                className="bg-slate-900 text-white font-bold px-8 py-4 rounded-xl hover:bg-slate-800 transition-transform transform hover:-translate-y-1 hover:shadow-lg"
+                                className="bg-primary text-white font-bold px-8 py-4 rounded-xl hover:bg-primary-dark transition-all transform hover:-translate-y-1 hover:shadow-lg shadow-md"
                             >
                                 Start Application
                             </a>
                             <a
                                 href="/contact"
-                                className="bg-white text-primary font-bold px-8 py-4 rounded-xl hover:bg-slate-50 transition-transform transform hover:-translate-y-1 hover:shadow-lg"
+                                className="bg-white/15 border-2 border-white/60 text-white font-bold px-8 py-4 rounded-xl hover:bg-white hover:text-primary transition-all transform hover:-translate-y-1 hover:shadow-lg"
                             >
                                 Talk to an Expert
                             </a>

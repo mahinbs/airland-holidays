@@ -369,20 +369,20 @@ export default function VisaDetail() {
     const [activeTab, setActiveTab] = useState<string>('overview');
     const [showSupportingDocs, setShowSupportingDocs] = useState(false);
     const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
-    
+
     const countryKey = country?.toLowerCase() || '';
     const data: VisaData = visaData[countryKey]
         ? visaData[countryKey]
         : {
-              ...fallbackData,
-              name: country ?? 'Country',
-              title: `${country ?? 'Country'} Visa Services`,
-          };
+            ...fallbackData,
+            name: country ?? 'Country',
+            title: `${country ?? 'Country'} Visa Services`,
+        };
 
     const scrollToSection = useCallback((id: string) => {
         const element = document.getElementById(id);
         if (!element) return;
-        const yOffset = -120; 
+        const yOffset = -120;
         const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: 'smooth' });
     }, []);
@@ -423,9 +423,9 @@ export default function VisaDetail() {
             <div className="relative min-h-[100svh] flex items-end pb-24 px-4 overflow-hidden bg-slate-900">
                 <div className="absolute inset-0 bg-cover bg-center bg-no-repeat brightness-50" style={{ backgroundImage: `url('${data.bgImage}')` }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/30 to-transparent mix-blend-overlay" />
-                
+
                 <div className="content-container relative z-10 w-full">
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
@@ -436,15 +436,15 @@ export default function VisaDetail() {
                                 animate={{ x: [0, -5, 0] }}
                                 transition={{ repeat: Infinity, duration: 1.5 }}
                             >
-                                <ArrowRight className="w-4 h-4 rotate-180" /> 
+                                <ArrowRight className="w-4 h-4 rotate-180" />
                             </motion.div>
                             Back to Visas
                         </Link>
-                        
+
                         <h1 className="text-6xl md:text-7xl lg:text-8xl text-white mb-8 tracking-tight capitalize leading-[1.1] font-medium" >
                             {data.title}
                         </h1>
-                        
+
                         <div className="flex flex-wrap items-center gap-4 mb-10">
                             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 flex items-center gap-3">
                                 <Clock className="w-5 h-5 text-amber-400" />
@@ -477,11 +477,10 @@ export default function VisaDetail() {
                                 <button
                                     type="button"
                                     onClick={() => scrollToSection(link.id)}
-                                    className={`font-semibold whitespace-nowrap transition-colors tracking-wide text-sm uppercase py-2 border-b-2 ${
-                                        activeTab === link.id 
-                                            ? 'text-primary border-primary' 
-                                            : 'text-slate-400 hover:text-slate-800 border-transparent'
-                                    }`}
+                                    className={`font-semibold whitespace-nowrap transition-colors tracking-wide text-sm uppercase py-2 border-b-2 ${activeTab === link.id
+                                            ? 'text-primary border-primary'
+                                            : 'text-slate-200 hover:text-slate-800 border-transparent'
+                                        }`}
                                 >
                                     {link.label}
                                 </button>
@@ -495,10 +494,10 @@ export default function VisaDetail() {
                 <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
                     {/* Main Content */}
                     <main className="lg:w-2/3 space-y-24">
-                        
+
                         {/* Overview */}
-                        <motion.section 
-                            id="overview" 
+                        <motion.section
+                            id="overview"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -514,7 +513,7 @@ export default function VisaDetail() {
                                     <p key={i}>{para}</p>
                                 ))}
                             </div>
-                            
+
                             <div className="mt-10 bg-slate-900 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl" />
                                 <div className="relative z-10 flex items-start gap-4">
@@ -528,7 +527,7 @@ export default function VisaDetail() {
                         </motion.section>
 
                         {/* Types of Visas */}
-                        <motion.section 
+                        <motion.section
                             id="types"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -537,23 +536,23 @@ export default function VisaDetail() {
                             <h2 className="text-4xl text-slate-900 mb-10 tracking-tight" >Visa Categories</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {data.visaTypes.map((visa: VisaType, idx: number) => (
-                                    <motion.div 
-                                        key={idx} 
+                                    <motion.div
+                                        key={idx}
                                         whileHover={{ y: -5 }}
                                         className="bg-white/60 backdrop-blur-xl border border-slate-200/60 rounded-[2rem] p-8 shadow-sm hover:shadow-xl transition-all"
                                     >
                                         <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-6 border-b border-slate-100">{visa.name}</h3>
                                         <div className="space-y-4">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-slate-500 flex items-center gap-2"><Clock className="w-4 h-4"/> Processing</span>
+                                                <span className="text-slate-500 flex items-center gap-2"><Clock className="w-4 h-4" /> Processing</span>
                                                 <span className="font-bold text-slate-900">{visa.processingTime}</span>
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-slate-500 flex items-center gap-2"><Calendar className="w-4 h-4"/> Stay Period</span>
+                                                <span className="text-slate-500 flex items-center gap-2"><Calendar className="w-4 h-4" /> Stay Period</span>
                                                 <span className="font-bold text-slate-900 text-right max-w-[50%]">{visa.stayPeriod}</span>
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-slate-500 flex items-center gap-2"><ShieldCheck className="w-4 h-4"/> Validity</span>
+                                                <span className="text-slate-500 flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Validity</span>
                                                 <span className="font-bold text-slate-900">{visa.validity}</span>
                                             </div>
                                             <div className="pt-4 mt-4 border-t border-slate-100">
@@ -580,7 +579,7 @@ export default function VisaDetail() {
 
                         {/* Sample Visa */}
                         {data.sampleVisa && (
-                            <motion.section 
+                            <motion.section
                                 id="sample-visa"
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -590,7 +589,7 @@ export default function VisaDetail() {
                                     {/* Diagonal Grid Lines */}
                                     <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(45deg, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
                                     <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 to-slate-900/40" />
-                                    
+
                                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
                                         <div className="max-w-xl">
                                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6 text-sm font-medium tracking-wide uppercase">
@@ -608,14 +607,14 @@ export default function VisaDetail() {
                         )}
 
                         {/* Documents Required */}
-                        <motion.section 
+                        <motion.section
                             id="documents"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
                             <h2 className="text-4xl text-slate-900 mb-10 tracking-tight" >Required Documents</h2>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                                 {data.documents.map((doc: string, idx: number) => (
                                     <div key={idx} className="relative bg-white border border-slate-200 p-6 rounded-2xl flex items-start gap-4 overflow-hidden group hover:border-primary/50 transition-colors">
@@ -632,7 +631,7 @@ export default function VisaDetail() {
 
                             {data.supportingDocuments && data.supportingDocuments.length > 0 && (
                                 <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
-                                    <button 
+                                    <button
                                         onClick={() => setShowSupportingDocs(!showSupportingDocs)}
                                         className="w-full px-8 py-6 flex items-center justify-between bg-slate-50/50 hover:bg-slate-50 transition-colors"
                                     >
@@ -641,7 +640,7 @@ export default function VisaDetail() {
                                     </button>
                                     <AnimatePresence>
                                         {showSupportingDocs && (
-                                            <motion.div 
+                                            <motion.div
                                                 initial={{ height: 0, opacity: 0 }}
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
@@ -651,7 +650,7 @@ export default function VisaDetail() {
                                                     <ul className="space-y-4">
                                                         {data.supportingDocuments.map((doc, idx) => (
                                                             <li key={idx} className="flex items-start gap-3 text-slate-600">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0 mt-2.5" />
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-slate-200 shrink-0 mt-2.5" />
                                                                 <span>{doc}</span>
                                                             </li>
                                                         ))}
@@ -665,7 +664,7 @@ export default function VisaDetail() {
                         </motion.section>
 
                         {/* Why Choose Us */}
-                        <motion.section 
+                        <motion.section
                             id="why-us"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -688,12 +687,12 @@ export default function VisaDetail() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {data.whyChooseUs.map((item, idx) => {
                                     const Icon = item.icon;
                                     return (
-                                        <motion.div 
+                                        <motion.div
                                             key={idx}
                                             whileHover={{ y: -5 }}
                                             className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm"
@@ -710,18 +709,18 @@ export default function VisaDetail() {
                         </motion.section>
 
                         {/* Process */}
-                        <motion.section 
+                        <motion.section
                             id="process"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
                             <h2 className="text-4xl text-slate-900 mb-12 tracking-tight text-center" >The Concierge Process</h2>
-                            
+
                             <div className="relative">
                                 {/* Mobile Vertical Line */}
                                 <div className="md:hidden absolute left-6 top-0 w-0.5 h-full bg-slate-200" />
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 relative z-10">
                                     {data.process.map((step, idx) => (
                                         <div key={idx} className="relative flex md:flex-col items-start md:items-center gap-6 md:gap-8 group">
@@ -739,7 +738,7 @@ export default function VisaDetail() {
                         </motion.section>
 
                         {/* FAQs */}
-                        <motion.section 
+                        <motion.section
                             id="faqs"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -749,7 +748,7 @@ export default function VisaDetail() {
                             <div className="space-y-4">
                                 {data.faqs.map((faq, idx) => (
                                     <div key={idx} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                                        <button 
+                                        <button
                                             className="w-full px-8 py-6 text-left flex justify-between items-center focus:outline-none"
                                             onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
                                         >
@@ -779,7 +778,7 @@ export default function VisaDetail() {
 
                         {/* Attractions */}
                         {data.attractions && data.attractions.length > 0 && (
-                            <motion.section 
+                            <motion.section
                                 id="attractions"
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -787,7 +786,7 @@ export default function VisaDetail() {
                             >
                                 <h2 className="text-4xl text-slate-900 mb-4 tracking-tight" >Curated Experiences</h2>
                                 <p className="text-slate-500 text-lg mb-10">Enhance your trip with our handpicked selection of premium attractions.</p>
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {data.attractions.map((attr, idx) => (
                                         <div key={idx} className={`group relative overflow-hidden rounded-3xl ${idx === 0 ? 'md:col-span-2 md:h-[500px]' : 'h-[400px]'}`}>
@@ -806,7 +805,7 @@ export default function VisaDetail() {
 
                         {/* Reviews Carousel */}
                         {data.reviews && data.reviews.length > 0 && (
-                            <motion.section 
+                            <motion.section
                                 id="reviews"
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -815,7 +814,7 @@ export default function VisaDetail() {
                             >
                                 <Quote className="absolute top-10 right-10 w-32 h-32 text-white/5 rotate-180" />
                                 <h2 className="text-4xl mb-12 tracking-tight" >Client Stories</h2>
-                                
+
                                 <div className="relative min-h-[200px]">
                                     <AnimatePresence mode="wait">
                                         <motion.div
@@ -839,7 +838,7 @@ export default function VisaDetail() {
                                         </motion.div>
                                     </AnimatePresence>
                                 </div>
-                                
+
                                 <div className="flex gap-4 mt-10">
                                     <button onClick={prevReview} className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors">
                                         <ChevronLeft className="w-5 h-5" />
@@ -852,7 +851,7 @@ export default function VisaDetail() {
                         )}
 
                         {/* Embassy */}
-                        <motion.section 
+                        <motion.section
                             id="embassy"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -895,7 +894,7 @@ export default function VisaDetail() {
                             <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50">
                                 <h3 className="text-3xl text-slate-900 mb-2" >Request Concierge</h3>
                                 <p className="text-slate-500 mb-8">Our visa experts will contact you shortly.</p>
-                                
+
                                 <form className="space-y-4">
                                     <div>
                                         <input type="text" placeholder="Full Name" className="w-full px-5 py-4 bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition-all" />
@@ -913,7 +912,7 @@ export default function VisaDetail() {
                                         Submit Request <ArrowRight className="w-5 h-5" />
                                     </button>
                                 </form>
-                                
+
                                 <div className="mt-6 flex items-center justify-center gap-2 text-slate-500 text-sm">
                                     <Lock className="w-4 h-4" />
                                     <span>Your data is 100% secure</span>
@@ -923,7 +922,7 @@ export default function VisaDetail() {
                             {/* Contact Info */}
                             <div className="bg-slate-900 text-white p-8 rounded-[2rem] shadow-xl relative overflow-hidden">
                                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-                                
+
                                 <h4 className="text-2xl mb-6 relative z-10" >Direct Support</h4>
                                 <div className="space-y-4 relative z-10">
                                     <a href="tel:02240666444" className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-all">

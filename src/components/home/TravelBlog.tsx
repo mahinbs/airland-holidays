@@ -125,7 +125,7 @@ export default function TravelBlog() {
                 >
                     <a
                         href="/guide"
-                        className="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors shadow-lg hover:shadow-xl"
+                        className="btn-primary inline-flex items-center gap-2 px-8 py-3 rounded-lg"
                     >
                         View All Posts
                         <ArrowRight className="w-4 h-4" />

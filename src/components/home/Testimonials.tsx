@@ -70,7 +70,7 @@ function TestimonialCard({ review }: { review: (typeof reviews)[0] }) {
                 />
                 <div>
                     <h4 className="text-white font-semibold">{review.name}</h4>
-                    <p className="text-slate-400 text-sm">{review.location}</p>
+                    <p className="text-slate-200 text-sm">{review.location}</p>
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@ export default function Testimonials() {
                 >
                     <span className="text-secondary font-bold tracking-wider uppercase text-sm mb-4 block drop-shadow-sm">Traveler Stories</span>
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Don&apos;t Just Take Our Word For It</h2>
-                    <p className="text-slate-400 text-lg">Read what thousands of satisfied adventurers have to say about their experiences with us.</p>
+                    <p className="text-slate-200 text-lg">Read what thousands of satisfied adventurers have to say about their experiences with us.</p>
                 </motion.div>
 
                 <div className="relative">
@@ -155,11 +155,10 @@ export default function Testimonials() {
                                     key={index}
                                     onClick={() => goToSlide(index)}
                                     aria-label={`Go to testimonial ${index + 1}`}
-                                    className={`h-2 rounded-full transition-all duration-300 ${
-                                        index === currentIndex
+                                    className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
                                             ? 'w-8 bg-primary'
                                             : 'w-2 bg-slate-600 hover:bg-slate-500'
-                                    }`}
+                                        }`}
                                 />
                             ))}
                         </div>

@@ -59,7 +59,7 @@ export default function Dropdown({
             >
                 <span className={!selectedOption ? 'text-slate-500' : ''}>{displayLabel}</span>
                 <ChevronDown
-                    className={`w-5 h-5 text-slate-400 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 text-slate-200 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                 />
             </button>
 
@@ -77,11 +77,10 @@ export default function Dropdown({
                                 onChange(opt.value);
                                 setIsOpen(false);
                             }}
-                            className={`px-4 py-2.5 cursor-pointer transition-colors ${
-                                opt.value === value
+                            className={`px-4 py-2.5 cursor-pointer transition-colors ${opt.value === value
                                     ? 'bg-primary/10 text-primary font-medium'
                                     : 'text-slate-700 hover:bg-slate-50'
-                            }`}
+                                }`}
                         >
                             {opt.label}
                         </li>

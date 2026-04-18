@@ -13,7 +13,7 @@ module.exports = {
                     DEFAULT: '#0B3C49',
                     dark: '#072a32',
                 },
-                /** Warm Gold — accent */
+                /** Warm Gold — secondary */
                 secondary: {
                     light: '#d4c49a',
                     DEFAULT: '#B8965A',

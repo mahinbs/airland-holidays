@@ -42,7 +42,7 @@ export default function About() {
                         <div className="absolute -inset-4 bg-secondary/10 rounded-3xl transform rotate-3 transition-transform group-hover:rotate-6"></div>
                         <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=1000" alt="Office" className="relative rounded-2xl shadow-2xl w-full" />
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-20 h-20 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <div className="w-20 h-20 bg-white/95 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
                                 <PlayCircle className="w-10 h-10 text-primary" />
                             </div>
                         </div>

@@ -1,5 +1,6 @@
 import Hero from '../components/home/Hero';
 import FeaturedPackages from '../components/home/FeaturedPackages';
+import Continents from '../components/home/Continents';
 import Destinations from '../components/home/Destinations';
 import FestivalsEvents from '../components/homepage/FestivalsEvents';
 import ServicesOverview from '../components/home/ServicesOverview';
@@ -19,6 +20,7 @@ export default function Home() {
         <div className="min-h-screen bg-white">
             <Hero />
             <FeaturedPackages />
+            <Continents />
             <Destinations />
             <FestivalsEvents />
             <WindowScroll />

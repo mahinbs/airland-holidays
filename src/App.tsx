@@ -7,6 +7,7 @@ import Packages from './pages/Packages';
 import PackageDetail from './pages/PackageDetail';
 import Destinations from './pages/Destinations';
 import DestinationDetail from './pages/DestinationDetail';
+import ContinentDetail from './pages/ContinentDetail';
 import Visa from './pages/Visa';
 import VisaDetail from './pages/VisaDetail';
 import Services from './pages/Services';
@@ -18,10 +19,12 @@ import Contact from './pages/Contact';
 import Testimonials from './pages/Testimonials';
 import FAQ from './pages/FAQ';
 import Payment from './pages/Payment';
+import ScrollToTopOnRouteChange from './components/common/ScrollToTopOnRouteChange';
 
 function App() {
   return (
     <Router>
+      <ScrollToTopOnRouteChange />
       <Routes>
         <Route path="/" element={<RootLayout />}>
           <Route index element={<Home />} />
@@ -29,6 +32,7 @@ function App() {
           <Route path="packages/:id" element={<PackageDetail />} />
           <Route path="destinations" element={<Destinations />} />
           <Route path="destinations/:country" element={<DestinationDetail />} />
+          <Route path="continents/:continent" element={<ContinentDetail />} />
           <Route path="visa" element={<Visa />} />
           <Route path="visa/:country" element={<VisaDetail />} />
           <Route path="services" element={<Services />} />

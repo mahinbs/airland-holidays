@@ -20,7 +20,7 @@ export default function Guide() {
                         Inspiring travel tales, expert tips, visa updates, and ultimate destination guides curated by our advisors.
                     </p>
                     <div className="max-w-xl mx-auto relative flex items-center">
-                        <Search className="absolute left-4 text-slate-400 w-5 h-5" />
+                        <Search className="absolute left-4 text-slate-200 w-5 h-5" />
                         <input type="text" placeholder="Search articles, guides, or destinations..." className="w-full pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-primary shadow-lg" />
                     </div>
                 </div>
@@ -58,7 +58,7 @@ export default function Guide() {
                         <a key={article.id} href={`/guide/${article.id}`} className="group bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full block">
                             <div className="relative aspect-[4/3] overflow-hidden">
                                 <img src={article.img} alt={article.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-slate-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                                <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-slate-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
                                     {article.category}
                                 </div>
                             </div>

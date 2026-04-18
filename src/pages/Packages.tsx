@@ -531,7 +531,8 @@ export default function Packages() {
     }
 
     if (activeContinent !== "all") {
-      list = list.filter((p) => p.continent === activeContinent);
+      const c = activeContinent.toLowerCase();
+      list = list.filter((p) => p.continent.toLowerCase() === c);
     }
 
     if (activeStyle !== "all") {
@@ -639,12 +640,7 @@ export default function Packages() {
       scroll0: el.scrollLeft,
       dragged: false,
     };
-    try {
-      el.setPointerCapture(e.pointerId);
-    } catch {
-      /* ignore */
-    }
-    setContinentGrabbing(e.pointerType === "mouse");
+    // No setPointerCapture here to allow clicks on simple taps
   };
 
   const onContinentStripPointerMove = (
@@ -654,9 +650,21 @@ export default function Packages() {
     if (!d.active || e.pointerId !== d.pointerId) return;
     const el = continentStripRef.current;
     if (!el) return;
+
     const dx = e.clientX - d.startX;
-    if (Math.abs(dx) > 6) d.dragged = true;
-    el.scrollLeft = d.scroll0 - dx;
+    if (Math.abs(dx) > 10 && !d.dragged) {
+      d.dragged = true;
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+      setContinentGrabbing(e.pointerType === "mouse");
+    }
+
+    if (d.dragged) {
+      el.scrollLeft = d.scroll0 - dx;
+    }
   };
 
   const endContinentStripDrag = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -696,7 +704,13 @@ export default function Packages() {
       e.stopPropagation();
       return;
     }
-    updateParams({ continent: contId === "all" ? null : contId });
+    updateParams({
+      continent: contId === "all" ? null : contId,
+      q: null,
+      countries: null,
+      dest: null,
+      destination: null,
+    });
   };
 
   return (
@@ -725,7 +739,7 @@ export default function Packages() {
               hidden: { y: 30, opacity: 0 },
               show: { y: 0, opacity: 1 },
             }}
-            className="bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-xs font-bold px-4 py-2 rounded-full inline-flex items-center gap-2 mb-6 uppercase tracking-widest"
+            className="bg-white/10 backdrop-blur-md border border-white/20 text-white/95 text-xs font-bold px-4 py-2 rounded-full inline-flex items-center gap-2 mb-6 uppercase tracking-widest"
           >
             <Globe className="w-4 h-4" /> Explore 50+ Destinations
           </motion.div>
@@ -763,12 +777,12 @@ export default function Packages() {
           >
             <div className="bg-white rounded-2xl shadow-2xl flex sm:flex-row flex-col items-center gap-3 px-5 py-4 overflow-hidden">
               <div className="flex-1 flex gap-3 items-center">
-                <Search className="text-slate-400 w-5 h-5 shrink-0 sm:block hidden" />
+                <Search className="text-slate-200 w-5 h-5 shrink-0 sm:block hidden" />
                 <input
                   type="search"
                   name="q"
                   placeholder="Search destination, or country..."
-                  className="flex-1 min-h-12 outline-none text-slate-800 placeholder:text-slate-400 text-base bg-transparent border-none focus:ring-0 p-0"
+                  className="flex-1 min-h-12 outline-none text-slate-800 placeholder:text-slate-200 text-base bg-transparent border-none focus:ring-0 p-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   autoComplete="off"
@@ -817,7 +831,7 @@ export default function Packages() {
                   <Icon className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-slate-400 text-[11px] uppercase tracking-wide font-bold">
+                  <div className="text-slate-200 text-[11px] uppercase tracking-wide font-bold">
                     {insight.label}
                   </div>
                   <div className="text-slate-900 font-bold text-sm">
@@ -848,20 +862,18 @@ export default function Packages() {
             onPointerUp={endContinentStripDrag}
             onPointerCancel={endContinentStripDrag}
             onLostPointerCapture={onContinentStripLostPointerCapture}
-            className={`flex gap-3 pb-2 overflow-x-auto overscroll-x-contain touch-none select-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
-              continentGrabbing ? "cursor-grabbing" : "cursor-grab"
-            }`}
+            className={`flex gap-3 pb-2 overflow-x-auto overscroll-x-contain touch-none select-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${continentGrabbing ? "cursor-grabbing" : "cursor-grab"
+              }`}
           >
             {continents.map((cont) => (
               <button
                 key={cont.id}
                 type="button"
                 onClick={onContinentPillClick(cont.id)}
-                className={`touch-none min-h-12 shrink-0 flex items-center gap-2.5 px-5 py-3 rounded-2xl border text-sm font-semibold whitespace-nowrap cursor-pointer transition-all ${
-                  activeContinent === cont.id
-                    ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
-                    : "bg-white border-slate-200 text-slate-700 hover:border-primary/40 hover:text-primary"
-                }`}
+                className={`min-h-12 shrink-0 flex items-center gap-2.5 px-5 py-3 rounded-2xl border text-sm font-semibold whitespace-nowrap cursor-pointer transition-all ${activeContinent === cont.id
+                  ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
+                  : "bg-white border-slate-200 text-slate-700 hover:border-primary/40 hover:text-primary"
+                  }`}
               >
                 <span>{cont.emoji}</span>
                 <span>{cont.label}</span>
@@ -888,11 +900,10 @@ export default function Packages() {
               onClick={() =>
                 updateParams({ style: style.id === "all" ? null : style.id })
               }
-              className={`min-h-12 flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-semibold cursor-pointer transition-all ${
-                activeStyle === style.id
-                  ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-primary/40"
-              }`}
+              className={`min-h-12 flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-semibold cursor-pointer transition-all ${activeStyle === style.id
+                ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                : "border-slate-200 bg-white text-slate-600 hover:border-primary/40"
+                }`}
             >
               <span>{style.icon}</span>
               <span>{style.label}</span>
@@ -1284,79 +1295,101 @@ export default function Packages() {
               }}
               className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
             >
-              {filteredPackages.map((pkg) => (
-                <motion.div
-                  key={pkg.id}
-                  variants={{
-                    hidden: { y: 20, opacity: 0 },
-                    show: { y: 0, opacity: 1 },
-                  }}
-                >
-                  <a
-                    href={`/packages/${pkg.id}`}
-                    className="group block bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+              {filteredPackages.length > 0 ? (
+                filteredPackages.map((pkg) => (
+                  <motion.div
+                    key={pkg.id}
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <img
-                        src={pkg.image}
-                        alt={pkg.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      {pkg.tags.length > 0 && (
-                        <div className="absolute top-3 left-3 bg-secondary text-slate-900 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wide z-10">
-                          {pkg.tags[0]}
-                        </div>
-                      )}
-                      <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 z-10">
-                        <Clock className="w-3 h-3" /> {pkg.duration}
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white text-primary font-bold text-xs px-5 py-2.5 rounded-xl opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 whitespace-nowrap z-10">
-                        View Package &rarr;
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-center gap-1 text-primary text-xs font-semibold mb-1.5">
-                        <MapPin className="w-3.5 h-3.5" /> {pkg.destination}
-                      </div>
-                      <h3 className="font-['Marcellus'] text-lg text-slate-900 group-hover:text-primary transition-colors mb-3 leading-snug">
-                        {pkg.title}
-                      </h3>
-                      <div className="flex items-center gap-4 text-slate-400 text-xs mb-4">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                          <span className="text-slate-900 font-semibold">
-                            {pkg.rating}
-                          </span>
-                          <span className="text-slate-400">
-                            {" "}
-                            ({pkg.reviews} reviews)
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                        <div>
-                          <div className="text-[10px] text-slate-400 uppercase tracking-wider">
-                            Starting From
+                    <a
+                      href={`/packages/${pkg.id}`}
+                      className="group block bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+                    >
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <img
+                          src={pkg.image}
+                          alt={pkg.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {pkg.tags.length > 0 && (
+                          <div className="absolute top-3 left-3 bg-secondary text-slate-900 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wide z-10">
+                            {pkg.tags[0]}
                           </div>
-                          <div className="font-['Marcellus'] text-2xl text-slate-900">
-                            ${pkg.price}
+                        )}
+                        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 z-10">
+                          <Clock className="w-3 h-3" /> {pkg.duration}
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white text-primary font-bold text-xs px-5 py-2.5 rounded-xl opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 whitespace-nowrap z-10">
+                          View Package &rarr;
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <div className="flex items-center gap-1 text-primary text-xs font-semibold mb-1.5">
+                          <MapPin className="w-3.5 h-3.5" /> {pkg.destination}
+                        </div>
+                        <h3 className="font-['Marcellus'] text-lg text-slate-900 group-hover:text-primary transition-colors mb-3 leading-snug">
+                          {pkg.title}
+                        </h3>
+                        <div className="flex items-center gap-4 text-slate-200 text-xs mb-4">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                            <span className="text-slate-900 font-semibold">
+                              {pkg.rating}
+                            </span>
+                            <span className="text-slate-200">
+                              {" "}
+                              ({pkg.reviews} reviews)
+                            </span>
                           </div>
                         </div>
-                        <a
-                          href="/contact"
-                          onClick={(e) => e.stopPropagation()}
-                          className="btn-primary text-xs px-4 py-2.5 min-h-12"
-                        >
-                          Enquire Now
-                        </a>
+                        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                          <div>
+                            <div className="text-[10px] text-slate-200 uppercase tracking-wider">
+                              Starting From
+                            </div>
+                            <div className="font-['Marcellus'] text-2xl text-slate-900">
+                              ${pkg.price}
+                            </div>
+                          </div>
+                          <a
+                            href="/contact"
+                            onClick={(e) => e.stopPropagation()}
+                            className="btn-primary text-xs px-4 py-2.5 min-h-12"
+                          >
+                            Enquire Now
+                          </a>
+                        </div>
                       </div>
-                    </div>
-                  </a>
+                    </a>
+                  </motion.div>
+                ))
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="col-span-full py-20 flex flex-col items-center text-center bg-white rounded-3xl border border-dashed border-slate-200"
+                >
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                    <Search className="w-10 h-10 text-slate-300" />
+                  </div>
+                  <h3 className="font-['Marcellus'] text-2xl text-slate-900 mb-2">
+                    No packages found
+                  </h3>
+                  <p className="text-slate-500 max-w-sm mb-8 font-light">
+                    We couldn't find any holiday packages matching your current
+                    filter selection. Try adjusting your search or resetting all
+                    filters.
+                  </p>
+                  <button
+                    onClick={clearAllFilters}
+                    className="btn-primary flex items-center gap-2 px-8"
+                  >
+                    Clear All Filters
+                  </button>
                 </motion.div>
-              ))}
+              )}
             </motion.div>
           </main>
         </div>

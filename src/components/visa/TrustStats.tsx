@@ -22,7 +22,7 @@ export const TrustStats = () => {
                                 <h4 className="text-4xl font-bold text-slate-900 mb-2">
                                     {stat.value}
                                 </h4>
-                                <p className="text-slate-500 font-medium">{stat.label}</p>
+                                <p className="text-slate-600 font-semibold">{stat.label}</p>
                             </motion.div>
                         );
                     })}

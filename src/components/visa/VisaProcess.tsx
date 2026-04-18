@@ -6,9 +6,9 @@ export const VisaProcess = () => {
         <div className="py-24 bg-slate-900 text-white relative overflow-hidden group">
             {/* Background Image & Overlay */}
             <div className="absolute inset-0 z-0 overflow-hidden">
-                <img 
-                    src="https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&q=80&w=2000" 
-                    alt="Process Background" 
+                <img
+                    src="https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&q=80&w=2000"
+                    alt="Process Background"
                     className="w-full h-full object-cover transition-transform duration-[15s] ease-out group-hover:scale-110 opacity-50"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900/80 to-slate-900 opacity-75" />
@@ -36,14 +36,14 @@ export const VisaProcess = () => {
                                 transition={{ delay: idx * 0.1 }}
                                 className="relative flex flex-col items-center text-center group"
                             >
-                                <div className="w-24 h-24 rounded-3xl bg-slate-800 border border-slate-700 flex items-center justify-center mb-6 relative z-10 group-hover:-translate-y-2 group-hover:bg-primary transition-all duration-300 shadow-xl">
-                                    <Icon className="w-10 h-10 text-slate-300 group-hover:text-white transition-colors" />
-                                    <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center border-2 border-slate-900 text-sm">
+                                <div className="w-24 h-24 rounded-3xl bg-slate-800 border border-slate-600 flex items-center justify-center mb-6 relative z-10 group-hover:-translate-y-2 group-hover:bg-primary transition-all duration-300 shadow-xl">
+                                    <Icon className="w-10 h-10 text-white/90 group-hover:text-white transition-colors" />
+                                    <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-secondary text-white font-bold flex items-center justify-center border-2 border-slate-900 text-sm">
                                         {idx + 1}
                                     </div>
                                 </div>
                                 <h3 className="text-xl font-bold mb-2 text-white">{step.title}</h3>
-                                <p className="text-slate-400 text-sm max-w-[200px]">{step.desc}</p>
+                                <p className="text-white/85 text-sm max-w-[200px] leading-relaxed">{step.desc}</p>
                             </motion.div>
                         );
                     })}

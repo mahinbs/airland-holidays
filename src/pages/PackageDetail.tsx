@@ -105,7 +105,7 @@ const HeroSection = ({ data, scrollToForm }: { data?: typeof packageData, scroll
                     <div className="inline-block bg-secondary text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-wider mb-4 shadow-lg shadow-black/20">
                         {data?.duration} • {data?.travelType} • {data?.visaInfo}
                     </div>
-                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1.5 rounded-full text-white/90 text-sm font-medium tracking-wide mb-6 shadow-sm inline-block ml-3">
+                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1.5 rounded-full text-white/95 text-sm font-medium tracking-wide mb-6 shadow-sm inline-block ml-3">
                         <span className="flex items-center gap-2">
                             <ShieldCheck className="w-4 h-4 text-secondary drop-shadow-md" /> Trusted by 20,000+ Travellers | 20+ Years Experience
                         </span>
@@ -114,7 +114,7 @@ const HeroSection = ({ data, scrollToForm }: { data?: typeof packageData, scroll
                     <h1 className="text-4xl md:text-6xl font-marcellus text-white mb-6 leading-tight drop-shadow-md">
                         {data?.title}
                     </h1>
-                    <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl font-light drop-shadow">
+                    <p className="text-lg md:text-xl text-white/95 mb-8 max-w-2xl font-light drop-shadow">
                         {data?.subtitle}
                     </p>
                     <div className="flex flex-wrap gap-4 items-center">
@@ -234,7 +234,7 @@ const QuickHighlights = ({ data }: { data?: typeof packageData, [key: string]: u
                         <item.icon className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1.5">{item.label}</p>
+                        <p className="text-[10px] text-slate-200 font-bold uppercase tracking-widest mb-1.5">{item.label}</p>
                         <p className="font-bold text-slate-800 text-[15px] leading-tight px-1">{item.value}</p>
                     </div>
                 </div>
@@ -366,7 +366,7 @@ const Itinerary = ({ data }: { data?: typeof packageData, [key: string]: unknown
                                 </div>
                                 <h3 className={`font-bold text-lg md:text-xl transition-colors ${openDay === day.day ? 'text-primary' : 'text-slate-800 group-hover:text-primary'}`}>{day.title}</h3>
                             </div>
-                            <ChevronDown className={`w-5 h-5 transition-transform duration-300 shrink-0 ${openDay === day.day ? 'rotate-180 text-primary' : 'text-slate-400 group-hover:text-primary'}`} />
+                            <ChevronDown className={`w-5 h-5 transition-transform duration-300 shrink-0 ${openDay === day.day ? 'rotate-180 text-primary' : 'text-slate-200 group-hover:text-primary'}`} />
                         </button>
                         <AnimatePresence>
                             {openDay === day.day && (
@@ -615,27 +615,27 @@ const SidebarLeadForm = ({ data }: { data?: typeof packageData }) => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-[12px] font-bold text-slate-600 uppercase tracking-widest">Name*</label>
-                            <input required type="text" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-400 text-sm font-medium" placeholder="John Doe" />
+                            <input required type="text" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-200 text-sm font-medium" placeholder="John Doe" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[12px] font-bold text-slate-600 uppercase tracking-widest">City*</label>
-                            <input required type="text" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-400 text-sm font-medium" placeholder="New York" />
+                            <input required type="text" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-200 text-sm font-medium" placeholder="New York" />
                         </div>
                     </div>
 
                     <div className="space-y-1.5">
                         <label className="text-[12px] font-bold text-slate-600 uppercase tracking-widest">Email Address*</label>
-                        <input required type="email" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-400 text-sm font-medium" placeholder="john@example.com" />
+                        <input required type="email" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-200 text-sm font-medium" placeholder="john@example.com" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-[12px] font-bold text-slate-600 uppercase tracking-widest">Phone*</label>
-                            <input required type="tel" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-400 text-sm font-medium" placeholder="+1..." />
+                            <input required type="tel" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-200 text-sm font-medium" placeholder="+1..." />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[12px] font-bold text-slate-600 uppercase tracking-widest">WhatsApp*</label>
-                            <input required type="tel" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-400 text-sm font-medium" placeholder="+1..." />
+                            <input required type="tel" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-200 text-sm font-medium" placeholder="+1..." />
                         </div>
                     </div>
 
@@ -646,7 +646,7 @@ const SidebarLeadForm = ({ data }: { data?: typeof packageData }) => {
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[12px] font-bold text-slate-600 uppercase tracking-widest">Travellers*</label>
-                            <input required type="number" min="1" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-400 text-sm font-medium" placeholder="2" />
+                            <input required type="number" min="1" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-slate-200 text-sm font-medium" placeholder="2" />
                         </div>
                     </div>
 
@@ -670,7 +670,7 @@ const SidebarLeadForm = ({ data }: { data?: typeof packageData }) => {
                         <span className="relative z-10 flex items-center gap-2">Get Quote Now <Send className="w-4 h-4" /></span>
                         <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
                     </button>
-                    <p className="text-[11px] text-center text-slate-400 font-medium pt-2">Secured & encrypted. No spam guaranteed.</p>
+                    <p className="text-[11px] text-center text-slate-200 font-medium pt-2">Secured & encrypted. No spam guaranteed.</p>
                 </form>
             </div>
         </div>
@@ -758,7 +758,7 @@ const PartnerTrust = () => {
     return (
         <section className="bg-white py-12 border-t border-slate-200 overflow-hidden mt-20 rounded-3xl shadow-sm border">
             <div className="content-container px-6 mb-8 text-center">
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Our Global Hospitality Partners</p>
+                <p className="text-sm font-bold text-slate-200 uppercase tracking-widest">Our Global Hospitality Partners</p>
             </div>
             <div className="mx-auto px-6 lg:px-8">
                 <div ref={sliderRef} className="keen-slider opacity-50 hover:opacity-100 transition-opacity duration-500">
@@ -849,32 +849,32 @@ const FinalCTA = ({ scrollToForm }: { scrollToForm?: () => void, [key: string]: 
 };
 
 // 14. MEDIA LIGHTBOX MODAL
-const MediaModal = ({ 
-    isOpen, 
-    onClose, 
-    gallery, 
-    currentIndex, 
-    onNavigate 
-}: { 
-    isOpen: boolean, 
-    onClose: () => void, 
+const MediaModal = ({
+    isOpen,
+    onClose,
+    gallery,
+    currentIndex,
+    onNavigate
+}: {
+    isOpen: boolean,
+    onClose: () => void,
     gallery: typeof packageData.socialGallery,
     currentIndex: number,
     onNavigate: (index: number) => void
 }) => {
     const currentItem = gallery[currentIndex];
-    
+
     return createPortal(
         <AnimatePresence>
             {isOpen && currentItem && (
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-[10000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10"
                     onClick={onClose}
                 >
-                    <motion.button 
+                    <motion.button
                         className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-[10010] bg-black/20 p-2 rounded-full"
                         onClick={onClose}
                     >
@@ -882,22 +882,22 @@ const MediaModal = ({
                     </motion.button>
 
                     {/* Navigation Buttons */}
-                    <button 
+                    <button
                         className="absolute left-4 md:left-10 z-[10010] p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all disabled:opacity-20"
                         onClick={(e) => { e.stopPropagation(); onNavigate(currentIndex - 1); }}
                         disabled={currentIndex === 0}
                     >
                         <ChevronLeft className="w-8 h-8" />
                     </button>
-                    <button 
+                    <button
                         className="absolute right-4 md:right-10 z-[10010] p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all disabled:opacity-20"
                         onClick={(e) => { e.stopPropagation(); onNavigate(currentIndex + 1); }}
                         disabled={currentIndex === gallery.length - 1}
                     >
                         <ChevronRight className="w-8 h-8" />
                     </button>
-                    
-                    <motion.div 
+
+                    <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}

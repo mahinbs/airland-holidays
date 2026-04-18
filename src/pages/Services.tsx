@@ -43,12 +43,12 @@ const trustItems: {
     numeric: boolean;
     target?: number;
 }[] = [
-    { icon: Award, value: 'IATA', label: 'Certified Agency', numeric: false },
-    { icon: Clock, value: '20+', label: 'Years of Experience', numeric: true, target: 20 },
-    { icon: Users, value: '10,000+', label: 'Happy Customers', numeric: true, target: 10000 },
-    { icon: Globe, value: '100+', label: 'Countries Covered', numeric: true, target: 100 },
-    { icon: Handshake, value: 'Global', label: 'Airline & Hotel Partnerships', numeric: false },
-];
+        { icon: Award, value: 'IATA', label: 'Certified Agency', numeric: false },
+        { icon: Clock, value: '20+', label: 'Years of Experience', numeric: true, target: 20 },
+        { icon: Users, value: '10,000+', label: 'Happy Customers', numeric: true, target: 10000 },
+        { icon: Globe, value: '100+', label: 'Countries Covered', numeric: true, target: 100 },
+        { icon: Handshake, value: 'Global', label: 'Airline & Hotel Partnerships', numeric: false },
+    ];
 
 const services = [
     {
@@ -475,7 +475,7 @@ export default function Services() {
                     <div className="w-full max-w-3xl text-center md:text-left">
                         <motion.span
                             variants={heroChild}
-                            className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/90 backdrop-blur-md"
+                            className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/95 backdrop-blur-md"
                         >
                             <Sparkles className="h-3.5 w-3.5 shrink-0" />
                             Premium Travel Services
@@ -530,9 +530,8 @@ export default function Services() {
                                 <motion.div
                                     key={item.label}
                                     variants={trustChild}
-                                    className={`flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left ${
-                                        idx !== trustItems.length - 1 ? 'md:border-r md:border-slate-200 md:pr-4' : ''
-                                    }`}
+                                    className={`flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left ${idx !== trustItems.length - 1 ? 'md:border-r md:border-slate-200 md:pr-4' : ''
+                                        }`}
                                 >
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                         <Icon className="h-5 w-5" />

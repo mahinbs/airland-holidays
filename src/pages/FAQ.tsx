@@ -37,7 +37,7 @@ export default function FAQ() {
                         Find answers to the most common questions about booking, visas, and our premium travel services.
                     </p>
                     <div className="max-w-xl mx-auto relative flex items-center">
-                        <Search className="absolute left-4 text-slate-400 w-5 h-5" />
+                        <Search className="absolute left-4 text-slate-200 w-5 h-5" />
                         <input type="text" placeholder="Search for a question..." className="w-full pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-primary shadow-lg" />
                     </div>
                 </div>
@@ -59,7 +59,7 @@ export default function FAQ() {
                                         onClick={() => setOpenQ(openQ === item.q ? null : item.q)}
                                     >
                                         <span className="font-bold text-slate-800 text-lg">{item.q}</span>
-                                        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${openQ === item.q ? 'rotate-180 text-primary' : ''}`} />
+                                        <ChevronDown className={`w-5 h-5 text-slate-200 transition-transform duration-300 ${openQ === item.q ? 'rotate-180 text-primary' : ''}`} />
                                     </button>
 
                                     <div className={`px-6 pb-6 overflow-hidden transition-all duration-300 ease-in-out ${openQ === item.q ? 'block opacity-100' : 'hidden opacity-0'}`}>

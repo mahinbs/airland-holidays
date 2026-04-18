@@ -88,11 +88,11 @@ export default function WhyUs() {
                                         whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
                                         className={`bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center justify-center text-center ${index % 2 !== 0 ? 'translate-y-8' : ''}`}
                                     >
-                                        <div className="w-16 h-16 rounded-2xl bg-slate-50 text-secondary mb-6 flex items-center justify-center shadow-inner">
+                                        <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-6 flex items-center justify-center shadow-sm border border-primary/10">
                                             <Icon className="w-8 h-8" />
                                         </div>
                                         <div className="text-4xl font-bold text-slate-900 mb-2">{stat.value}</div>
-                                        <div className="text-slate-500 font-medium uppercase tracking-wide text-xs">{stat.label}</div>
+                                        <div className="text-slate-600 font-semibold uppercase tracking-wide text-xs">{stat.label}</div>
                                     </motion.div>
                                 )
                             })}

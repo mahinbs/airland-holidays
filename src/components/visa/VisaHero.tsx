@@ -37,19 +37,19 @@ export const VisaHero = () => {
                         Seamless Visa <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-amber-500">Processing</span>
                     </h1>
-                    <p className="text-slate-300 text-lg md:text-xl mb-10 max-w-lg">
+                    <p className="text-white/90 text-lg md:text-xl mb-10 max-w-lg leading-relaxed">
                         Fast, secure, and hassle-free visa applications for 50+ countries. Let our experts handle the bureaucracy.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4">
                         <a
                             href="#all-countries"
-                            className="bg-primary hover:bg-primary/90 text-white font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(222,46,33,0.3)]"
+                            className="bg-primary hover:bg-primary-dark text-white font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:-translate-y-1 shadow-lg shadow-primary/30"
                         >
                             Apply Now <ChevronRight className="w-5 h-5" />
                         </a>
                         <a
                             href="/contact"
-                            className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all"
+                            className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all"
                         >
                             <PlayCircle className="w-5 h-5" /> Get Assistance
                         </a>

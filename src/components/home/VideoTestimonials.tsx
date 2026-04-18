@@ -32,7 +32,7 @@ export default function VideoTestimonials() {
                         <div key={v.id} className="group relative rounded-2xl overflow-hidden aspect-video bg-slate-200 cursor-pointer">
                             <img src={v.thumb} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             <div className="absolute inset-0 bg-slate-900/40 flex flex-col items-center justify-center">
-                                <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div className="w-16 h-16 rounded-full bg-white/95 flex items-center justify-center group-hover:scale-110 transition-transform">
                                     <PlayCircle className="w-10 h-10 text-primary ml-1 -translate-x-0.5" />
                                 </div>
                                 <p className="text-white font-bold mt-4 text-center px-4">{v.title}</p>

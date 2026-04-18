@@ -72,16 +72,16 @@ export default function FeaturedPackages() {
           <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
             <button
               onClick={() => setActiveTab('domestic')}
-              className={`px-5 py-2 text-sm rounded-lg transition-colors ${
-                activeTab === 'domestic' ? 'bg-primary text-white' : 'text-slate-600 hover:text-primary'
+              className={`px-5 py-2 text-sm rounded-lg font-semibold transition-colors ${
+                activeTab === 'domestic' ? 'bg-primary text-white shadow-sm' : 'text-slate-700 hover:text-primary'
               }`}
             >
               Domestic
             </button>
             <button
               onClick={() => setActiveTab('international')}
-              className={`px-5 py-2 text-sm rounded-lg transition-colors ${
-                activeTab === 'international' ? 'bg-primary text-white' : 'text-slate-600 hover:text-primary'
+              className={`px-5 py-2 text-sm rounded-lg font-semibold transition-colors ${
+                activeTab === 'international' ? 'bg-primary text-white shadow-sm' : 'text-slate-700 hover:text-primary'
               }`}
             >
               International
@@ -127,16 +127,16 @@ export default function FeaturedPackages() {
             {filteredDestinations.map((destination) => (
               <SwiperSlide key={destination.id}>
                 <a href={destination.href} className="group block">
-                  <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-primary/30">
+                  <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-md transition-all duration-300 hover:shadow-xl hover:border-primary/20">
                     <div className="aspect-[3/4] overflow-hidden relative">
                       <img
                         src={destination.image}
                         alt={destination.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         loading="lazy"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/65 via-slate-900/20 to-transparent" />
-                      <span className="absolute bottom-3 left-3 right-3 text-center text-white font-['Marcellus'] text-lg leading-tight drop-shadow-sm">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+                      <span className="absolute bottom-4 left-3 right-3 text-center text-white/95 font-bold font-['Marcellus'] text-lg leading-tight tracking-wide drop-shadow-md">
                         {destination.name}
                       </span>
                     </div>

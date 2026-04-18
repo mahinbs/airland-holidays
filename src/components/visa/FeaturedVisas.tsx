@@ -71,8 +71,8 @@ export const FeaturedVisas = ({ countries }: FeaturedVisasProps) => {
             <div className="content-container">
                 <div className="flex justify-between items-end mb-10">
                     <div>
-                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Top Destinations</h2>
-                        <p className="text-slate-500">Most popular choices for business and leisure.</p>
+                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Top Visa Destinations</h2>
+                        <p className="text-slate-600">Most popular choices for business and leisure travellers.</p>
                     </div>
                     <a
                         href="#all-countries"
@@ -101,7 +101,7 @@ export const FeaturedVisas = ({ countries }: FeaturedVisasProps) => {
                                 e.stopPropagation();
                                 instanceRef.current?.prev();
                             }}
-                            className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-900 border border-slate-100 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 group/btn"
+                            className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-800 border border-slate-200 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
                         >
                             <ChevronRight className="w-6 h-6 rotate-180" />
                         </button>
@@ -110,7 +110,7 @@ export const FeaturedVisas = ({ countries }: FeaturedVisasProps) => {
                                 e.stopPropagation();
                                 instanceRef.current?.next();
                             }}
-                            className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-900 border border-slate-100 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 group/btn"
+                            className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-800 border border-slate-200 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
                         >
                             <ChevronRight className="w-6 h-6" />
                         </button>

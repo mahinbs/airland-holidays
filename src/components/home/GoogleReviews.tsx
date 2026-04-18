@@ -51,7 +51,7 @@ export default function GoogleReviews() {
                             <p className="text-slate-700 mb-4">&ldquo;{r.text}&rdquo;</p>
                             <div className="flex justify-between items-center">
                                 <span className="font-semibold text-slate-900">{r.name}</span>
-                                <span className="text-slate-400 text-sm">{r.date}</span>
+                                <span className="text-slate-200 text-sm">{r.date}</span>
                             </div>
                         </div>
                     ))}

@@ -282,7 +282,7 @@ function EventCard({ event, index }: EventCardProps) {
                         {event.travelerTypes.map((type) => (
                             <span
                                 key={type}
-                                className="rounded-full border border-white/30 bg-white/20 px-2.5 py-1 text-[10px] font-semibold text-white/90"
+                                className="rounded-full border border-white/30 bg-white/20 px-2.5 py-1 text-[10px] font-semibold text-white/95"
                             >
                                 {type}
                             </span>
@@ -378,22 +378,20 @@ export default function FestivalsEvents() {
                     <div className="flex sm:flex-row flex-col w-full max-w-xl gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
                         <button
                             onClick={() => setActiveTab('international')}
-                            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-300 md:px-6 ${
-                                activeTab === 'international'
+                            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-300 md:px-6 ${activeTab === 'international'
                                     ? 'bg-primary text-white shadow-lg shadow-primary/30'
                                     : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                            }`}
+                                }`}
                             type="button"
                         >
                             <Globe className="h-4 w-4" /> International Events
                         </button>
                         <button
                             onClick={() => setActiveTab('india')}
-                            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-300 md:px-6 ${
-                                activeTab === 'india'
+                            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-300 md:px-6 ${activeTab === 'india'
                                     ? 'bg-primary text-white shadow-lg shadow-primary/30'
                                     : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                            }`}
+                                }`}
                             type="button"
                         >
                             <span>🇮🇳</span> India Events
@@ -407,11 +405,10 @@ export default function FestivalsEvents() {
                             <button
                                 key={month.num}
                                 onClick={() => setActiveMonth(month.num)}
-                                className={`relative whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 ${
-                                    activeMonth === month.num
+                                className={`relative whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 ${activeMonth === month.num
                                         ? 'border-primary/40 bg-primary/20 text-primary shadow-sm shadow-primary/20'
                                         : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800'
-                                }`}
+                                    }`}
                                 type="button"
                             >
                                 {month.label}

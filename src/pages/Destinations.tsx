@@ -28,7 +28,7 @@ export default function Destinations() {
                         From the sun-kissed beaches of the Maldives to the snow-capped peaks of the Swiss Alps, find your next adventure.
                     </p>
                     <div className="max-w-xl mx-auto relative flex items-center">
-                        <Search className="absolute left-4 text-slate-400 w-5 h-5" />
+                        <Search className="absolute left-4 text-slate-200 w-5 h-5" />
                         <input type="text" placeholder="Search a country or city..." className="w-full pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-primary shadow-lg" />
                     </div>
                 </div>

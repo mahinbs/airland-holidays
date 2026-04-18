@@ -77,8 +77,16 @@ export const navStructure = [
   },
   {
     label: 'Destinations',
-    type: 'link',
-    href: '/destinations',
+    type: 'dropdown',
+    items: [
+      { label: 'All Destinations', href: '/destinations' },
+      { label: 'Asia', href: '/continents/asia' },
+      { label: 'Europe', href: '/continents/europe' },
+      { label: 'Middle East', href: '/continents/middle-east' },
+      { label: 'Americas', href: '/continents/americas' },
+      { label: 'Africa', href: '/continents/africa' },
+      { label: 'Australia & Pacific', href: '/continents/pacific' },
+    ],
   },
   {
     label: 'Services',

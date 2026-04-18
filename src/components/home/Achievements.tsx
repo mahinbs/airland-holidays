@@ -55,15 +55,13 @@ export default function Achievements() {
                                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-60" />
                                 )}
                                 <div className="relative p-5 md:p-6 flex flex-col items-center justify-center min-h-[120px] md:min-h-[140px]">
-                                    <div className={`rounded-xl flex items-center justify-center mb-3 transition-colors ${
-                                        featured ? 'w-14 h-14 bg-primary/25 group-hover:bg-primary/35' : 'w-11 h-11 bg-primary/20 group-hover:bg-primary/30'
-                                    }`}>
+                                    <div className={`rounded-xl flex items-center justify-center mb-3 transition-colors ${featured ? 'w-14 h-14 bg-primary/25 group-hover:bg-primary/35' : 'w-11 h-11 bg-primary/20 group-hover:bg-primary/30'
+                                        }`}>
                                         <Icon className={featured ? 'w-7 h-7 text-primary' : 'w-5 h-5 text-primary'} strokeWidth={2} />
                                     </div>
-                                    <p className={`font-bold text-white tabular-nums tracking-tight mb-0.5 ${
-                                        featured ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl'
-                                    }`}>{a.value}</p>
-                                    <p className="text-slate-400 text-xs md:text-sm font-medium">{a.label}</p>
+                                    <p className={`font-bold text-white tabular-nums tracking-tight mb-0.5 ${featured ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl'
+                                        }`}>{a.value}</p>
+                                    <p className="text-slate-200 text-xs md:text-sm font-medium">{a.label}</p>
                                 </div>
                             </motion.div>
                         );

@@ -18,9 +18,8 @@ export const CountryCard = ({ country, index = 0, large = false }: CountryCardPr
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.05, duration: 0.5 }}
-            className={`group block relative rounded-3xl overflow-hidden bg-slate-900 shadow-lg hover:shadow-2xl transition-all duration-500 ${
-                large ? 'h-[400px] min-w-[280px]' : 'h-[320px]'
-            }`}
+            className={`group block relative rounded-3xl overflow-hidden bg-slate-900 shadow-lg hover:shadow-2xl transition-all duration-500 ${large ? 'h-[400px] min-w-[280px]' : 'h-[320px]'
+                }`}
         >
             {/* Background Image & Overlay */}
             <div className="absolute inset-0 z-0">
@@ -48,7 +47,7 @@ export const CountryCard = ({ country, index = 0, large = false }: CountryCardPr
 
                 <div>
                     {country.highlightText && (
-                        <span className="inline-block px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-md text-white/90 text-xs font-medium mb-3">
+                        <span className="inline-block px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-md text-white/95 text-xs font-medium mb-3">
                             {country.highlightText}
                         </span>
                     )}
@@ -57,13 +56,13 @@ export const CountryCard = ({ country, index = 0, large = false }: CountryCardPr
                     </h3>
                     <div className="flex items-end justify-between">
                         <div>
-                            <p className="text-sm text-white/70 mb-1">Starts From</p>
+                            <p className="text-sm text-white/80 mb-1">Starts From</p>
                             <p className="text-xl font-bold text-white">${country.price}</p>
                         </div>
 
                         {/* Slide-in CTA */}
                         <div className="overflow-hidden">
-                            <div className="flex items-center gap-2 text-white font-bold text-sm bg-primary px-4 py-2 rounded-full lg:translate-y-12 lg:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                            <div className="flex items-center gap-2 text-white font-bold text-sm bg-secondary px-4 py-2 rounded-full lg:translate-y-12 lg:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                                 Apply Now <ChevronRight className="w-4 h-4" />
                             </div>
                         </div>

@@ -7,9 +7,9 @@ export default function UtilityBar() {
 
   const getIcon = (platform: string) => {
     switch (platform) {
-      case 'Instagram': return <Instagram className="w-3.5 h-3.5 text-white/60 hover:text-white transition-colors" />;
-      case 'Facebook': return <Facebook className="w-3.5 h-3.5 text-white/60 hover:text-white transition-colors" />;
-      case 'Youtube': return <Youtube className="w-3.5 h-3.5 text-white/60 hover:text-white transition-colors" />;
+      case 'Instagram': return <Instagram className="w-3.5 h-3.5 text-white/95 hover:text-white transition-colors" />;
+      case 'Facebook': return <Facebook className="w-3.5 h-3.5 text-white/95 hover:text-white transition-colors" />;
+      case 'Youtube': return <Youtube className="w-3.5 h-3.5 text-white/95 hover:text-white transition-colors" />;
       default: return null;
     }
   };
@@ -20,7 +20,7 @@ export default function UtilityBar() {
       <div className="flex items-center gap-4">
         <a 
           href={`tel:${phone}`} 
-          className="flex items-center gap-1.5 text-white/80 hover:text-white text-xs font-medium transition-colors"
+          className="flex items-center gap-1.5 text-white/95 hover:text-white text-xs font-medium transition-colors"
         >
           <Phone className="w-3 h-3" /> {phone}
         </a>
@@ -29,7 +29,7 @@ export default function UtilityBar() {
           href={`https://wa.me/${whatsapp}`} 
           target="_blank" 
           rel="noreferrer" 
-          className="flex items-center gap-1.5 text-white/80 hover:text-white text-xs font-medium transition-colors"
+          className="flex items-center gap-1.5 text-white/95 hover:text-white text-xs font-medium transition-colors"
         >
           <MessageCircle className="w-3 h-3" /> WhatsApp
         </a>
@@ -40,7 +40,7 @@ export default function UtilityBar() {
         <div className="flex gap-10 whitespace-nowrap utility-marquee absolute left-0 h-full items-center">
           {loopItems.map((item, index) => (
             <div key={index} className="flex items-center gap-6 sm:gap-10">
-              <span className="text-white/70 text-[10px] sm:text-xs font-medium">{item}</span>
+              <span className="text-white/95 text-[10px] sm:text-xs font-medium">{item}</span>
               <span className="text-white/20 select-none">•</span>
             </div>
           ))}

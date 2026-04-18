@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Phone, MessageCircle, Copy, IndianRupee, 
-  Building2, ExternalLink, Upload, Send, 
+import {
+  Phone, MessageCircle, Copy, IndianRupee,
+  Building2, ExternalLink, Upload, Send,
   CheckCircle2, Share2, AlertTriangle
 } from 'lucide-react';
 import { headerConfig, paymentConfig } from '../data/paymentConfig';
@@ -37,7 +37,7 @@ export default function Payment() {
         setShowToast(true);
         setTimeout(() => setShowToast(false), 2500);
       }
-    } catch {}
+    } catch { }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,13 +75,13 @@ export default function Payment() {
       {/* Main Content */}
       <div className="content-container mt-10 px-4">
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
-          
+
           {/* LEFT COLUMN */}
           <div className="lg:w-2/3 space-y-10">
             {/* PAYMENT METHODS */}
-            
+
             {/* Bank Transfer */}
-            <motion.div 
+            <motion.div
               initial={{ y: 30, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -99,7 +99,7 @@ export default function Payment() {
                   <div key={item.id} className="flex items-baseline gap-2 text-slate-700 text-sm py-1.5 border-b border-slate-50 last:border-0 hover:bg-slate-50 rounded px-2 transition-colors">
                     <span className="font-bold text-slate-500 min-w-[100px]">{item.label}:</span>
                     <span className="font-mono text-slate-900 font-semibold">{item.value}</span>
-                    <button 
+                    <button
                       onClick={() => handleCopy(item.value, item.id)}
                       className="ml-auto text-xs text-primary hover:underline flex items-center gap-1"
                     >
@@ -117,7 +117,7 @@ export default function Payment() {
             <div className="border-t border-slate-200 my-8"></div>
 
             {/* UPI Payment */}
-            <motion.div 
+            <motion.div
               initial={{ y: 30, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -132,7 +132,7 @@ export default function Payment() {
                     <span className="font-bold text-slate-500">UPI us at (Google Pay/BHIM/PhonePe):</span>
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-slate-900 font-semibold text-base">{paymentConfig.upi.id}</span>
-                      <button 
+                      <button
                         onClick={() => handleCopy(paymentConfig.upi.id, 'upi')}
                         className="text-xs text-primary hover:underline flex items-center gap-1"
                       >
@@ -159,7 +159,7 @@ export default function Payment() {
             <div className="border-t border-slate-200 my-8"></div>
 
             {/* Razorpay Link */}
-            <motion.div 
+            <motion.div
               initial={{ y: 30, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -170,7 +170,7 @@ export default function Payment() {
               </div>
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <p className="font-bold text-slate-500 text-sm mb-2">Payment via Razorpay:</p>
-                <a 
+                <a
                   href={paymentConfig.razorpay.link}
                   target="_blank"
                   rel="noreferrer"
@@ -206,7 +206,7 @@ export default function Payment() {
                   </thead>
                   <tbody>
                     {paymentConfig.shortHaulPolicy.rows.map((row, i) => (
-                      <motion.tr 
+                      <motion.tr
                         key={i}
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -241,7 +241,7 @@ export default function Payment() {
                   </thead>
                   <tbody>
                     {paymentConfig.longHaulPolicy.rows.map((row, i) => (
-                      <motion.tr 
+                      <motion.tr
                         key={i}
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -267,17 +267,17 @@ export default function Payment() {
             <div className="mt-16">
               <h2 className="text-2xl text-slate-900 mb-2 font-serif" style={{ fontFamily: 'Marcellus, serif' }}>Submit Payment Proof</h2>
               <p className="text-slate-500 text-sm mb-8">Complete your payment using any method above, then fill in the details below</p>
-              
-              <motion.div 
+
+              <motion.div
                 initial={{ y: 40, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden"
               >
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary" />
-                
+
                 {isSubmitted ? (
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="flex flex-col items-center justify-center text-center py-10"
@@ -297,25 +297,25 @@ export default function Payment() {
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <input 
+                      <input
                         required
-                        type="text" 
-                        placeholder="Full Name *" 
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        type="text"
+                        placeholder="Full Name *"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
-                      <input 
+                      <input
                         required
-                        type="tel" 
-                        placeholder="Mobile Number *" 
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        type="tel"
+                        placeholder="Mobile Number *"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
-                      <input 
+                      <input
                         required
-                        type="number" 
-                        placeholder="Amount Paid ₹ *" 
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        type="number"
+                        placeholder="Amount Paid ₹ *"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
-                      <select 
+                      <select
                         required
                         defaultValue=""
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
@@ -323,21 +323,21 @@ export default function Payment() {
                         <option value="" disabled>Select Service *</option>
                         {paymentConfig.services.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
-                      <input 
-                        type="text" 
-                        placeholder="Transaction ID / Ref No." 
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      <input
+                        type="text"
+                        placeholder="Transaction ID / Ref No."
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
-                      <input 
-                        type="date" 
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      <input
+                        type="date"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
-                    
-                    <textarea 
-                      rows={3} 
+
+                    <textarea
+                      rows={3}
                       placeholder="Notes / Additional Info"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                     />
 
                     {formData.screenshot ? (
@@ -353,25 +353,25 @@ export default function Payment() {
                             </p>
                           </div>
                         </div>
-                        <button 
-                          type="button" 
-                          onClick={() => setFormData({...formData, screenshot: null})}
-                          className="w-8 h-8 flex items-center justify-center bg-white rounded-full text-slate-400 hover:text-red-500 border border-slate-200 shadow-sm transition-colors"
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, screenshot: null })}
+                          className="w-8 h-8 flex items-center justify-center bg-white rounded-full text-slate-200 hover:text-red-500 border border-slate-200 shadow-sm transition-colors"
                         >
                           ✕
                         </button>
                       </div>
                     ) : (
                       <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-primary/50 rounded-2xl p-8 cursor-pointer transition-colors bg-slate-50 hover:bg-primary/5">
-                        <Upload className="w-8 h-8 text-slate-400 mb-3" />
+                        <Upload className="w-8 h-8 text-slate-200 mb-3" />
                         <span className="font-semibold text-slate-600 text-sm">Upload Payment Screenshot</span>
-                        <span className="text-slate-400 text-xs mt-1">JPG, PNG, PDF — Max 10MB</span>
+                        <span className="text-slate-200 text-xs mt-1">JPG, PNG, PDF — Max 10MB</span>
                         <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileChange} />
                       </label>
                     )}
 
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="w-full bg-primary hover:bg-primary/90 text-white text-lg py-4 rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 mt-2 font-serif"
                       style={{ fontFamily: 'Marcellus, serif' }}
                     >
@@ -381,7 +381,7 @@ export default function Payment() {
                 )}
               </motion.div>
             </div>
-            
+
           </div>
 
           {/* RIGHT COLUMN - Sticky */}

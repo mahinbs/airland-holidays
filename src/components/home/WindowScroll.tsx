@@ -48,7 +48,7 @@ export default function WindowScroll() {
                         style={{ y: textY, opacity: textOpacity, scale: textScale }}
                         className="max-w-4xl"
                     >
-                        <span className="text-white/90 font-serif italic text-2xl md:text-3xl mb-4 block">
+                        <span className="text-white/95 font-serif italic text-2xl md:text-3xl mb-4 block">
                             Discover the Unseen
                         </span>
                         <h2 className="text-white text-5xl md:text-7xl font-bold uppercase tracking-widest">
