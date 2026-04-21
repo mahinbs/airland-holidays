@@ -15,7 +15,7 @@ export default function UtilityBar() {
   };
 
   return (
-    <div className="bg-slate-900 h-9 hidden lg:flex items-center justify-between px-3 md:px-8">
+    <div className="bg-primary h-9 hidden lg:flex items-center justify-between px-3 md:px-8">
       {/* Zone 1 - Left */}
       <div className="flex items-center gap-4">
         <a 
