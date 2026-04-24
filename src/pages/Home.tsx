@@ -1,5 +1,6 @@
 import Hero from '../components/home/Hero';
 import FeaturedPackages from '../components/home/FeaturedPackages';
+import FixedDepartures from '../components/home/FixedDepartures';
 import Continents from '../components/home/Continents';
 import Destinations from '../components/home/Destinations';
 import FestivalsEvents from '../components/homepage/FestivalsEvents';
@@ -20,6 +21,7 @@ export default function Home() {
         <div className="min-h-screen bg-white">
             <Hero />
             <FeaturedPackages />
+            <FixedDepartures />
             <Continents />
             <Destinations />
             <FestivalsEvents />
