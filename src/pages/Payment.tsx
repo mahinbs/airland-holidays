@@ -54,7 +54,7 @@ export default function Payment() {
   return (
     <div className="bg-[#FAFAFA] min-h-screen pb-20 md:pb-12">
       {/* Page Header Strip */}
-      <div className="bg-white border-b border-slate-200 py-8 px-4">
+      <div className="bg-white border-b border-slate-700 py-8 px-4">
         <div className="content-container flex flex-col md:flex-row items-center gap-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 text-primary bg-primary/10 rounded-2xl p-2 flex items-center justify-center">
@@ -64,7 +64,7 @@ export default function Payment() {
               <h1 className="font-sans text-3xl md:text-4xl text-slate-900 font-serif" style={{ fontFamily: 'Marcellus, serif' }}>
                 Pay us at
               </h1>
-              <p className="text-slate-500 text-sm mt-1">
+              <p className="text-slate-600 text-sm mt-1">
                 All payments are manually verified by our team within 2 business hours
               </p>
             </div>
@@ -90,14 +90,14 @@ export default function Payment() {
                 <Building2 className="w-3.5 h-3.5" />
                 Bank Transfer
               </div>
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div className="bg-white p-6 rounded-2xl border border-slate-700 shadow-sm">
                 {[
                   { label: 'A/C No', value: paymentConfig.bankTransfer.accountNumber, id: 'acc' },
                   { label: 'A/C Name', value: paymentConfig.bankTransfer.accountName, id: 'name' },
                   { label: 'IFSC Code', value: paymentConfig.bankTransfer.ifscCode, id: 'ifsc' },
                 ].map((item) => (
                   <div key={item.id} className="flex items-baseline gap-2 text-slate-700 text-sm py-1.5 border-b border-slate-50 last:border-0 hover:bg-slate-50 rounded px-2 transition-colors">
-                    <span className="font-bold text-slate-500 min-w-[100px]">{item.label}:</span>
+                    <span className="font-bold text-slate-600 min-w-[100px]">{item.label}:</span>
                     <span className="font-mono text-slate-900 font-semibold">{item.value}</span>
                     <button
                       onClick={() => handleCopy(item.value, item.id)}
@@ -114,7 +114,7 @@ export default function Payment() {
               </div>
             </motion.div>
 
-            <div className="border-t border-slate-200 my-8"></div>
+            <div className="border-t border-slate-700 my-8"></div>
 
             {/* UPI Payment */}
             <motion.div
@@ -126,10 +126,10 @@ export default function Payment() {
                 <IndianRupee className="w-3.5 h-3.5" />
                 UPI Payment
               </div>
-              <div className="flex flex-col md:flex-row gap-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm items-start">
+              <div className="flex flex-col md:flex-row gap-8 bg-white p-6 rounded-2xl border border-slate-700 shadow-sm items-start">
                 <div className="flex-1 w-full space-y-2">
                   <div className="flex flex-col gap-1 text-sm py-1.5 px-2 hover:bg-slate-50 rounded transition-colors">
-                    <span className="font-bold text-slate-500">UPI us at (Google Pay/BHIM/PhonePe):</span>
+                    <span className="font-bold text-slate-600">UPI us at (Google Pay/BHIM/PhonePe):</span>
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-slate-900 font-semibold text-base">{paymentConfig.upi.id}</span>
                       <button
@@ -145,18 +145,18 @@ export default function Payment() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-sm py-1.5 px-2">
-                    <span className="font-bold text-slate-500 min-w-[100px]">UPI Name:</span>
+                    <span className="font-bold text-slate-600 min-w-[100px]">UPI Name:</span>
                     <span className="font-mono text-slate-900 font-semibold">{paymentConfig.upi.name}</span>
                   </div>
                 </div>
                 <div className="flex flex-col items-center flex-shrink-0 md:ml-auto w-full md:w-auto">
                   <img src={paymentConfig.upi.qrImage} loading="lazy" alt="UPI QR Code" className="w-[160px] h-[160px] border-4 border-slate-100 rounded-2xl shadow-sm" />
-                  <span className="text-xs text-slate-500 text-center mt-2 font-medium">Scan to Pay</span>
+                  <span className="text-xs text-slate-600 text-center mt-2 font-medium">Scan to Pay</span>
                 </div>
               </div>
             </motion.div>
 
-            <div className="border-t border-slate-200 my-8"></div>
+            <div className="border-t border-slate-700 my-8"></div>
 
             {/* Razorpay Link */}
             <motion.div
@@ -168,8 +168,8 @@ export default function Payment() {
                 <ExternalLink className="w-3.5 h-3.5" />
                 Razorpay Link
               </div>
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <p className="font-bold text-slate-500 text-sm mb-2">Payment via Razorpay:</p>
+              <div className="bg-white p-6 rounded-2xl border border-slate-700 shadow-sm">
+                <p className="font-bold text-slate-600 text-sm mb-2">Payment via Razorpay:</p>
                 <a
                   href={paymentConfig.razorpay.link}
                   target="_blank"
@@ -187,21 +187,21 @@ export default function Payment() {
             {/* PAYMENT POLICY SECTION */}
             <div className="mt-16">
               <h2 className="text-2xl text-slate-900 mb-4 font-serif" style={{ fontFamily: 'Marcellus, serif' }}>Payment Policy</h2>
-              <div className="text-slate-600 text-sm leading-relaxed mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+              <div className="text-slate-600 text-sm leading-relaxed mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-700">
                 <p className="mb-2"><span className="font-bold text-slate-800">Short Haul:</span> {paymentConfig.shortHaulPolicy.description.replace('For Short Haul Destinations: ', '')}</p>
                 <p><span className="font-bold text-slate-800">Long Haul:</span> {paymentConfig.longHaulPolicy.description.replace('For Long Haul Destinations: ', '')}</p>
               </div>
 
               {/* Short Haul Table */}
-              <div className="mb-12 overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+              <div className="mb-12 overflow-x-auto rounded-xl border border-slate-700 shadow-sm">
                 <div className="inline-flex bg-slate-900 text-white text-xs font-black px-4 py-2 rounded-br-2xl uppercase tracking-widest absolute shrink-0 z-10 shadow-sm">
                   {paymentConfig.shortHaulPolicy.label}
                 </div>
                 <table className="w-full border-collapse text-sm min-w-[600px] mt-10">
                   <thead>
                     <tr className="bg-slate-100 text-slate-700 font-bold">
-                      <th className="w-2/5 px-4 py-3 text-left border-y border-r border-slate-200">Number Of Days Prior To Tour Date</th>
-                      <th className="px-4 py-3 text-left border-y border-slate-200">Amount need to be paid</th>
+                      <th className="w-2/5 px-4 py-3 text-left border-y border-r border-slate-700">Number Of Days Prior To Tour Date</th>
+                      <th className="px-4 py-3 text-left border-y border-slate-700">Amount need to be paid</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -214,13 +214,13 @@ export default function Payment() {
                         transition={{ delay: i * 0.04 }}
                         className="odd:bg-white even:bg-slate-50/50 hover:bg-slate-50 transition-colors"
                       >
-                        <td className="px-4 py-3 border border-slate-200 text-slate-700 leading-relaxed font-medium">{row.days}</td>
-                        <td className="px-4 py-3 border border-slate-200 text-slate-700 leading-relaxed">{row.amount}</td>
+                        <td className="px-4 py-3 border border-slate-700 text-slate-700 leading-relaxed font-medium">{row.days}</td>
+                        <td className="px-4 py-3 border border-slate-700 text-slate-700 leading-relaxed">{row.amount}</td>
                       </motion.tr>
                     ))}
                     {paymentConfig.shortHaulPolicy.notes.map((note, i) => (
                       <tr key={`note-${i}`} className="bg-slate-100 font-semibold text-slate-800 text-xs">
-                        <td colSpan={2} className="px-4 py-2.5 border border-slate-200">{note}</td>
+                        <td colSpan={2} className="px-4 py-2.5 border border-slate-700">{note}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -228,15 +228,15 @@ export default function Payment() {
               </div>
 
               {/* Long Haul Table */}
-              <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm relative">
+              <div className="overflow-x-auto rounded-xl border border-slate-700 shadow-sm relative">
                 <div className="inline-flex bg-slate-900 text-white text-xs font-black px-4 py-2 rounded-br-2xl uppercase tracking-widest absolute top-0 left-0 z-10 shadow-sm">
                   {paymentConfig.longHaulPolicy.label}
                 </div>
                 <table className="w-full border-collapse text-sm min-w-[600px] mt-10">
                   <thead>
                     <tr className="bg-slate-100 text-slate-700 font-bold">
-                      <th className="w-2/5 px-4 py-3 text-left border-y border-r border-slate-200">Number Of Days Prior To Tour Date</th>
-                      <th className="px-4 py-3 text-left border-y border-slate-200">Amount need to be paid</th>
+                      <th className="w-2/5 px-4 py-3 text-left border-y border-r border-slate-700">Number Of Days Prior To Tour Date</th>
+                      <th className="px-4 py-3 text-left border-y border-slate-700">Amount need to be paid</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -249,13 +249,13 @@ export default function Payment() {
                         transition={{ delay: i * 0.04 }}
                         className="odd:bg-white even:bg-slate-50/50 hover:bg-slate-50 transition-colors"
                       >
-                        <td className="px-4 py-3 border border-slate-200 text-slate-700 leading-relaxed font-medium">{row.days}</td>
-                        <td className="px-4 py-3 border border-slate-200 text-slate-700 leading-relaxed">{row.amount}</td>
+                        <td className="px-4 py-3 border border-slate-700 text-slate-700 leading-relaxed font-medium">{row.days}</td>
+                        <td className="px-4 py-3 border border-slate-700 text-slate-700 leading-relaxed">{row.amount}</td>
                       </motion.tr>
                     ))}
                     {paymentConfig.longHaulPolicy.notes.map((note, i) => (
                       <tr key={`note-${i}`} className="bg-slate-100 font-semibold text-slate-800 text-xs">
-                        <td colSpan={2} className="px-4 py-2.5 border border-slate-200">{note}</td>
+                        <td colSpan={2} className="px-4 py-2.5 border border-slate-700">{note}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -266,13 +266,13 @@ export default function Payment() {
             {/* MANUAL FORM SECTION */}
             <div className="mt-16">
               <h2 className="text-2xl text-slate-900 mb-2 font-serif" style={{ fontFamily: 'Marcellus, serif' }}>Submit Payment Proof</h2>
-              <p className="text-slate-500 text-sm mb-8">Complete your payment using any method above, then fill in the details below</p>
+              <p className="text-slate-600 text-sm mb-8">Complete your payment using any method above, then fill in the details below</p>
 
               <motion.div
                 initial={{ y: 40, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
-                className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden"
+                className="bg-white border border-slate-700 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden"
               >
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary" />
 
@@ -286,7 +286,7 @@ export default function Payment() {
                       <CheckCircle2 className="w-10 h-10 text-green-500" />
                     </div>
                     <h3 className="text-3xl text-slate-900 mb-4 font-serif" style={{ fontFamily: 'Marcellus, serif' }}>Payment Details Received!</h3>
-                    <p className="text-slate-500 text-base leading-relaxed max-w-md mx-auto mb-8">
+                    <p className="text-slate-600 text-base leading-relaxed max-w-md mx-auto mb-8">
                       Our team will verify your payment within 2 business hours and send confirmation to your contact details.
                     </p>
                     <div className="flex gap-4 w-full md:w-auto">
@@ -301,24 +301,24 @@ export default function Payment() {
                         required
                         type="text"
                         placeholder="Full Name *"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                       <input
                         required
                         type="tel"
                         placeholder="Mobile Number *"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                       <input
                         required
                         type="number"
                         placeholder="Amount Paid ₹ *"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                       <select
                         required
                         defaultValue=""
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
+                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
                       >
                         <option value="" disabled>Select Service *</option>
                         {paymentConfig.services.map(s => <option key={s} value={s}>{s}</option>)}
@@ -326,18 +326,18 @@ export default function Payment() {
                       <input
                         type="text"
                         placeholder="Transaction ID / Ref No."
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                       <input
                         type="date"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
 
                     <textarea
                       rows={3}
                       placeholder="Notes / Additional Info"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                      className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-600 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                     />
 
                     {formData.screenshot ? (
@@ -348,7 +348,7 @@ export default function Payment() {
                             <p className="text-sm font-semibold text-slate-800 truncate max-w-[200px] md:max-w-[400px]">
                               {(formData.screenshot as File).name}
                             </p>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-slate-600">
                               {((formData.screenshot as File).size / (1024 * 1024)).toFixed(2)} MB
                             </p>
                           </div>
@@ -356,16 +356,16 @@ export default function Payment() {
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, screenshot: null })}
-                          className="w-8 h-8 flex items-center justify-center bg-white rounded-full text-slate-200 hover:text-red-500 border border-slate-200 shadow-sm transition-colors"
+                          className="w-8 h-8 flex items-center justify-center bg-white rounded-full text-slate-700 hover:text-red-500 border border-slate-700 shadow-sm transition-colors"
                         >
                           ✕
                         </button>
                       </div>
                     ) : (
                       <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-primary/50 rounded-2xl p-8 cursor-pointer transition-colors bg-slate-50 hover:bg-primary/5">
-                        <Upload className="w-8 h-8 text-slate-200 mb-3" />
+                        <Upload className="w-8 h-8 text-slate-700 mb-3" />
                         <span className="font-semibold text-slate-600 text-sm">Upload Payment Screenshot</span>
-                        <span className="text-slate-200 text-xs mt-1">JPG, PNG, PDF — Max 10MB</span>
+                        <span className="text-slate-700 text-xs mt-1">JPG, PNG, PDF — Max 10MB</span>
                         <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileChange} />
                       </label>
                     )}
@@ -426,7 +426,7 @@ export default function Payment() {
       </div>
 
       {/* MOBILE BOTTOM STICKY ACTIONS */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 p-4 flex gap-3 md:hidden shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-700 p-4 flex gap-3 md:hidden shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <a href={`tel:${headerConfig.phone}`} className="flex-1 flex items-center justify-center gap-2 border border-slate-300 text-slate-700 font-bold py-3 rounded-xl text-sm hover:bg-slate-50 transition-colors">
           <Phone className="w-4 h-4" /> Call Us
         </a>

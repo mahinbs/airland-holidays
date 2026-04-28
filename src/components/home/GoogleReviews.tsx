@@ -30,7 +30,7 @@ export default function GoogleReviews() {
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900">4.9</p>
-                            <p className="text-slate-500 text-sm">Based on 500+ reviews</p>
+                            <p className="text-slate-600 text-sm">Based on 500+ reviews</p>
                         </div>
                     </div>
                 </motion.div>
@@ -51,7 +51,7 @@ export default function GoogleReviews() {
                             <p className="text-slate-700 mb-4">&ldquo;{r.text}&rdquo;</p>
                             <div className="flex justify-between items-center">
                                 <span className="font-semibold text-slate-900">{r.name}</span>
-                                <span className="text-slate-200 text-sm">{r.date}</span>
+                                <span className="text-slate-700 text-sm">{r.date}</span>
                             </div>
                         </div>
                     ))}

@@ -777,12 +777,12 @@ export default function Packages() {
           >
             <div className="bg-white rounded-2xl shadow-2xl flex sm:flex-row flex-col items-center gap-3 px-5 py-4 overflow-hidden">
               <div className="flex-1 flex gap-3 items-center">
-                <Search className="text-slate-200 w-5 h-5 shrink-0 sm:block hidden" />
+                <Search className="text-slate-700 w-5 h-5 shrink-0 sm:block hidden" />
                 <input
                   type="search"
                   name="q"
                   placeholder="Search destination, or country..."
-                  className="flex-1 min-h-12 outline-none text-slate-800 placeholder:text-slate-200 text-base bg-transparent border-none focus:ring-0 p-0"
+                  className="flex-1 min-h-12 outline-none text-slate-800 placeholder:text-slate-700 text-base bg-transparent border-none focus:ring-0 p-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   autoComplete="off"
@@ -818,20 +818,20 @@ export default function Packages() {
         </motion.div>
       </div>
 
-      <div className="bg-white border-b border-slate-100 py-5">
+      <div className="bg-white border-b border-slate-700 py-5">
         <div className="content-container grid grid-cols-2 md:grid-cols-5 gap-4">
           {quickInsights.map((insight, i) => {
             const Icon = insight.icon;
             return (
               <div
                 key={insight.label}
-                className={`flex items-center gap-3 ${i !== quickInsights.length - 1 ? "md:border-r md:border-slate-100" : ""}`}
+                className={`flex items-center gap-3 ${i !== quickInsights.length - 1 ? "md:border-r md:border-slate-700" : ""}`}
               >
                 <div className="w-9 h-9 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-slate-200 text-[11px] uppercase tracking-wide font-bold">
+                  <div className="text-slate-700 text-[11px] uppercase tracking-wide font-bold">
                     {insight.label}
                   </div>
                   <div className="text-slate-900 font-bold text-sm">
@@ -845,7 +845,7 @@ export default function Packages() {
       </div>
 
       <div className="content-container pt-12">
-        <div className="text-slate-500 text-xs uppercase tracking-widest font-bold mb-4">
+        <div className="text-slate-600 text-xs uppercase tracking-widest font-bold mb-4">
           Browse by Region
         </div>
         {/* motion must NOT wrap the overflow scroller — transform breaks touch/native horizontal scroll */}
@@ -872,7 +872,7 @@ export default function Packages() {
                 onClick={onContinentPillClick(cont.id)}
                 className={`min-h-12 shrink-0 flex items-center gap-2.5 px-5 py-3 rounded-2xl border text-sm font-semibold whitespace-nowrap cursor-pointer transition-all ${activeContinent === cont.id
                   ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
-                  : "bg-white border-slate-200 text-slate-700 hover:border-primary/40 hover:text-primary"
+                  : "bg-white border-slate-700 text-slate-700 hover:border-primary/40 hover:text-primary"
                   }`}
               >
                 <span>{cont.emoji}</span>
@@ -889,7 +889,7 @@ export default function Packages() {
       </div>
 
       <div className="content-container mt-8">
-        <div className="text-slate-500 text-xs uppercase tracking-widest font-bold mb-4">
+        <div className="text-slate-600 text-xs uppercase tracking-widest font-bold mb-4">
           Filter by Travel Style
         </div>
         <div className="flex flex-wrap gap-2">
@@ -902,7 +902,7 @@ export default function Packages() {
               }
               className={`min-h-12 flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-semibold cursor-pointer transition-all ${activeStyle === style.id
                 ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
-                : "border-slate-200 bg-white text-slate-600 hover:border-primary/40"
+                : "border-slate-700 bg-white text-slate-600 hover:border-primary/40"
                 }`}
             >
               <span>{style.icon}</span>
@@ -972,7 +972,7 @@ export default function Packages() {
         <div className="flex flex-col lg:flex-row gap-8">
           <button
             type="button"
-            className="lg:hidden min-h-12 w-full flex items-center justify-center gap-2 bg-white border border-slate-200 rounded-2xl py-3.5 text-slate-700 font-semibold shadow-sm mb-4"
+            className="lg:hidden min-h-12 w-full flex items-center justify-center gap-2 bg-white border border-slate-700 rounded-2xl py-3.5 text-slate-700 font-semibold shadow-sm mb-4"
             onClick={() => setShowFilters((v) => !v)}
           >
             <SlidersHorizontal className="w-5 h-5" />
@@ -982,8 +982,8 @@ export default function Packages() {
           <aside
             className={`lg:w-1/4 ${showFilters ? "block" : "hidden lg:block"}`}
           >
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sticky top-28">
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+            <div className="bg-white rounded-3xl border border-slate-700 shadow-sm p-6 sticky top-28">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
                 <div className="flex items-center gap-2">
                   <Filter className="w-4 h-4 text-primary" />
                   <h2 className="font-['Marcellus'] text-lg text-slate-900">
@@ -1302,7 +1302,7 @@ export default function Packages() {
                   >
                     <a
                       href={`/packages/${pkg.id}`}
-                      className="group block bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+                      className="group block bg-white rounded-3xl overflow-hidden border border-slate-700 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
                     >
                       <div className="relative aspect-[4/3] overflow-hidden">
                         <img
@@ -1332,21 +1332,21 @@ export default function Packages() {
                         <h3 className="font-['Marcellus'] text-lg text-slate-900 group-hover:text-primary transition-colors mb-3 leading-snug">
                           {pkg.title}
                         </h3>
-                        <div className="flex items-center gap-4 text-slate-200 text-xs mb-4">
+                        <div className="flex items-center gap-4 text-slate-700 text-xs mb-4">
                           <div className="flex items-center gap-1">
                             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                             <span className="text-slate-900 font-semibold">
                               {pkg.rating}
                             </span>
-                            <span className="text-slate-200">
+                            <span className="text-slate-700">
                               {" "}
                               ({pkg.reviews} reviews)
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <div className="flex items-center justify-between pt-4 border-t border-slate-700">
                           <div>
-                            <div className="text-[10px] text-slate-200 uppercase tracking-wider">
+                            <div className="text-[10px] text-slate-700 uppercase tracking-wider">
                               Starting From
                             </div>
                             <div className="font-['Marcellus'] text-2xl text-slate-900">
@@ -1369,7 +1369,7 @@ export default function Packages() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="col-span-full py-20 flex flex-col items-center text-center bg-white rounded-3xl border border-dashed border-slate-200"
+                  className="col-span-full py-20 flex flex-col items-center text-center bg-white rounded-3xl border border-dashed border-slate-700"
                 >
                   <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                     <Search className="w-10 h-10 text-slate-300" />
@@ -1377,7 +1377,7 @@ export default function Packages() {
                   <h3 className="font-['Marcellus'] text-2xl text-slate-900 mb-2">
                     No packages found
                   </h3>
-                  <p className="text-slate-500 max-w-sm mb-8 font-light">
+                  <p className="text-slate-600 max-w-sm mb-8 font-light">
                     We couldn't find any holiday packages matching your current
                     filter selection. Try adjusting your search or resetting all
                     filters.

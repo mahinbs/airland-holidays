@@ -28,7 +28,7 @@ export default function Destinations() {
                         From the sun-kissed beaches of the Maldives to the snow-capped peaks of the Swiss Alps, find your next adventure.
                     </p>
                     <div className="max-w-xl mx-auto relative flex items-center">
-                        <Search className="absolute left-4 text-slate-200 w-5 h-5" />
+                        <Search className="absolute left-4 text-slate-700 w-5 h-5" />
                         <input type="text" placeholder="Search a country or city..." className="w-full pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-primary shadow-lg" />
                     </div>
                 </div>
@@ -37,7 +37,7 @@ export default function Destinations() {
             <div className="content-container mt-12">
                 <div className="flex flex-wrap gap-4 mb-12 justify-center">
                     {regions.map(r => (
-                        <button key={r.name} className="px-6 py-2 rounded-full border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 hover:border-slate-300 transition-colors">
+                        <button key={r.name} className="px-6 py-2 rounded-full border border-slate-700 bg-white text-slate-700 font-medium hover:bg-slate-50 hover:border-slate-300 transition-colors">
                             {r.name} ({r.count})
                         </button>
                     ))}

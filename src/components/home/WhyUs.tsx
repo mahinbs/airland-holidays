@@ -123,7 +123,7 @@ export default function WhyUs() {
                                 {content.brandStory}
                             </p>
 
-                            <div className="text-slate-500 text-base italic border-l-4 border-primary/30 pl-4 py-1 mb-8">
+                            <div className="text-slate-600 text-base italic border-l-4 border-primary/30 pl-4 py-1 mb-8">
                                 {content.brandStorySub}
                             </div>
 
@@ -168,7 +168,7 @@ export default function WhyUs() {
                                                 hidden: { y: 20, opacity: 0 },
                                                 visible: { y: 0, opacity: 1 }
                                             }}
-                                            className="bg-slate-50 border border-slate-200/80 rounded-2xl px-5 py-4 flex items-start gap-4 hover:border-primary/30 hover:bg-primary/[0.02] hover:shadow-md transition-all duration-300 group cursor-default"
+                                            className="bg-slate-50 border border-slate-700/80 rounded-2xl px-5 py-4 flex items-start gap-4 hover:border-primary/30 hover:bg-primary/[0.02] hover:shadow-md transition-all duration-300 group cursor-default"
                                         >
                                             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
                                                 <Icon className="w-5 h-5 text-primary" />
@@ -280,8 +280,8 @@ export default function WhyUs() {
                                     <div
                                         key={i}
                                         className={`keen-slider__slide rounded-2xl overflow-hidden border border-white/10 group ${img.aspect === 'portrait'
-                                                ? 'min-w-[130px] h-[180px] sm:min-w-[160px] sm:h-[220px]'
-                                                : 'min-w-[260px] h-[180px] sm:min-w-[320px] sm:h-[220px]'
+                                            ? 'min-w-[130px] h-[180px] sm:min-w-[160px] sm:h-[220px]'
+                                            : 'min-w-[260px] h-[180px] sm:min-w-[320px] sm:h-[220px]'
                                             }`}
                                         style={{
                                             width: img.aspect === 'portrait' ? '160px' : '320px',

@@ -182,7 +182,7 @@ export default function ServicesOverview() {
                                     href={srv.path}
                                     className="block bg-white border border-slate-100 rounded-2xl p-5 sm:p-6 group hover:border-primary/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden h-full shadow-sm"
                                 >
-                                    <span className="absolute top-4 right-4 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-slate-200 text-slate-200 group-hover:border-primary/20 group-hover:text-primary/70 transition-colors">
+                                    <span className="absolute top-4 right-4 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-slate-700 text-slate-700 group-hover:border-primary/20 group-hover:text-primary/70 transition-colors">
                                         {srv.badge}
                                     </span>
 

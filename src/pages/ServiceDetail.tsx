@@ -46,7 +46,7 @@ export default function ServiceDetail() {
             <div className="content-container mt-12">
                 <div className="flex flex-col lg:flex-row gap-12">
                     <main className="lg:w-2/3">
-                        <div className="bg-white p-8 rounded-2xl border border-slate-100 mb-8">
+                        <div className="bg-white p-8 rounded-2xl border border-slate-700 mb-8">
                             <h2 className="text-2xl font-bold text-slate-900 mb-6">What We Offer</h2>
                             <ul className="space-y-4">
                                 {service.features.map((f, i) => (
@@ -60,13 +60,13 @@ export default function ServiceDetail() {
                     </main>
 
                     <aside className="lg:w-1/3">
-                        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl sticky top-28">
+                        <div className="bg-white p-8 rounded-3xl border border-slate-700 shadow-xl sticky top-28">
                             <h3 className="text-xl font-bold text-slate-900 mb-6">Enquire Now</h3>
                             <form className="space-y-4">
-                                <input type="text" placeholder="Your Name" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary" />
-                                <input type="email" placeholder="Email" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary" />
-                                <input type="tel" placeholder="Phone" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary" />
-                                <textarea rows={3} placeholder="Your requirements" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary resize-none" />
+                                <input type="text" placeholder="Your Name" className="w-full px-4 py-3 rounded-xl border border-slate-700 focus:ring-2 focus:ring-primary" />
+                                <input type="email" placeholder="Email" className="w-full px-4 py-3 rounded-xl border border-slate-700 focus:ring-2 focus:ring-primary" />
+                                <input type="tel" placeholder="Phone" className="w-full px-4 py-3 rounded-xl border border-slate-700 focus:ring-2 focus:ring-primary" />
+                                <textarea rows={3} placeholder="Your requirements" className="w-full px-4 py-3 rounded-xl border border-slate-700 focus:ring-2 focus:ring-primary resize-none" />
                                 <button type="button" className="w-full btn-primary flex items-center justify-center gap-2">
                                     <Send className="w-5 h-5" /> Send Enquiry
                                 </button>

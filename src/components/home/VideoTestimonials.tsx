@@ -29,7 +29,7 @@ export default function VideoTestimonials() {
                     className="grid grid-cols-1 md:grid-cols-3 gap-6"
                 >
                     {videos.map((v) => (
-                        <div key={v.id} className="group relative rounded-2xl overflow-hidden aspect-video bg-slate-200 cursor-pointer">
+                        <div key={v.id} className="group relative rounded-2xl overflow-hidden aspect-video bg-slate-700 cursor-pointer">
                             <img src={v.thumb} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             <div className="absolute inset-0 bg-slate-900/40 flex flex-col items-center justify-center">
                                 <div className="w-16 h-16 rounded-full bg-white/95 flex items-center justify-center group-hover:scale-110 transition-transform">

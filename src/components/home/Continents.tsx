@@ -100,14 +100,14 @@ export default function Continents() {
                     <button
                         onClick={() => instanceRef.current?.prev()}
                         aria-label="Previous continent"
-                        className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-700 hover:border-primary hover:text-white hover:bg-primary hover:scale-105 transition-all duration-300 shadow-sm"
+                        className="w-12 h-12 rounded-full border border-slate-700 flex items-center justify-center text-slate-700 hover:border-primary hover:text-white hover:bg-primary hover:scale-105 transition-all duration-300 shadow-sm"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <button
                         onClick={() => instanceRef.current?.next()}
                         aria-label="Next continent"
-                        className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-700 hover:border-primary hover:text-white hover:bg-primary hover:scale-105 transition-all duration-300 shadow-sm"
+                        className="w-12 h-12 rounded-full border border-slate-700 flex items-center justify-center text-slate-700 hover:border-primary hover:text-white hover:bg-primary hover:scale-105 transition-all duration-300 shadow-sm"
                     >
                         <ChevronRight className="w-6 h-6" />
                     </button>

@@ -204,11 +204,11 @@ export default function Navbar() {
                                                                 animate={{ opacity: 1, y: 0 }}
                                                                 exit={{ opacity: 0, y: -6 }}
                                                                 transition={{ duration: 0.15 }}
-                                                                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-2xl border border-slate-200/80 shadow-xl shadow-slate-900/10 py-2 min-w-[200px]"
+                                                                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-2xl border border-slate-700 shadow-xl shadow-slate-900/10 py-2 min-w-[200px]"
                                                             >
                                                                 {item.items?.map((subItem, idx) => (
                                                                     <div key={subItem.label}>
-                                                                        {idx > 0 && <div className="border-t border-slate-100 mt-1 pt-1" />}
+                                                                        {idx > 0 && <div className="border-t border-slate-700 mt-1 pt-1" />}
                                                                         <a
                                                                             href={subItem.href}
                                                                             className={clsx(
@@ -387,14 +387,14 @@ export default function Navbar() {
                             className="w-full max-w-2xl"
                         >
                             <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden">
-                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-200" />
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-700" />
                                 <input
                                     ref={searchInputRef}
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search packages, destinations..."
-                                    className="w-full pl-14 pr-24 py-5 text-lg text-slate-900 placeholder-slate-200 focus:outline-none"
+                                    className="w-full pl-14 pr-24 py-5 text-lg text-slate-900 placeholder-slate-700 focus:outline-none"
                                 />
                                 <button
                                     type="submit"
@@ -431,7 +431,7 @@ export default function Navbar() {
                             </a>
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-950 hover:bg-slate-50"
+                                className="w-10 h-10 rounded-xl border border-slate-700 flex items-center justify-center text-slate-950 hover:bg-slate-50"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -456,7 +456,7 @@ export default function Navbar() {
                                                 className="w-full flex items-center justify-between py-4 font-bold text-slate-900 font-['Marcellus'] text-lg"
                                             >
                                                 {item.label}
-                                                <ChevronRight className={clsx("w-5 h-5 text-slate-200 transition-transform", expandedMobile[item.label] && "rotate-90")} />
+                                                <ChevronRight className={clsx("w-5 h-5 text-slate-700 transition-transform", expandedMobile[item.label] && "rotate-90")} />
                                             </button>
 
                                             <AnimatePresence initial={false}>
@@ -492,7 +492,7 @@ export default function Navbar() {
                                                                                         className="w-full flex items-center justify-between pl-8 py-3 text-slate-950 text-sm font-medium"
                                                                                     >
                                                                                         {col.heading}
-                                                                                        <ChevronRight className={clsx("w-3.5 h-3.5 text-slate-200 transition-transform", expandedMobile[`${item.label}-${tab.id}-${col.heading}`] && "rotate-90")} />
+                                                                                        <ChevronRight className={clsx("w-3.5 h-3.5 text-slate-700 transition-transform", expandedMobile[`${item.label}-${tab.id}-${col.heading}`] && "rotate-90")} />
                                                                                     </button>
 
                                                                                     <AnimatePresence initial={false}>

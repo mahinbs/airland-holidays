@@ -130,7 +130,7 @@ export default function ContinentDetail() {
             </div>
 
             {/* 2. FLOATING STRIP */}
-            <div className="bg-slate-100 border-b border-slate-200 py-4 shadow-sm w-full">
+            <div className="bg-white border-b border-slate-700 py-4 shadow-sm w-full">
                 <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
                         <Search className="w-5 h-5 text-primary" />
@@ -183,29 +183,29 @@ export default function ContinentDetail() {
                     </div>
 
                     {/* A. QUICK STATS ROW */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+                    <div className="bg-white border border-slate-700 rounded-xl p-6 flex flex-col md:flex-row items-center gap-6 shadow-sm">
                         <div className="w-40 shrink-0 hidden md:block">
                             <img src={data.mapImage} alt={`${data.name} Map`} className="w-full opacity-80" />
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
                             <div>
-                                <p className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1 mb-1"><CloudSun className="w-3 h-3" /> Climate</p>
+                                <p className="text-xs font-bold text-slate-600 uppercase flex items-center gap-1 mb-1"><CloudSun className="w-3 h-3" /> Climate</p>
                                 <p className="font-semibold text-sm">{data.overview.climate}</p>
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1 mb-1"><Calendar className="w-3 h-3" /> Best Time</p>
+                                <p className="text-xs font-bold text-slate-600 uppercase flex items-center gap-1 mb-1"><Calendar className="w-3 h-3" /> Best Time</p>
                                 <p className="font-semibold text-sm">{data.overview.timeToVisit}</p>
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1 mb-1"><Clock className="w-3 h-3" /> Duration</p>
+                                <p className="text-xs font-bold text-slate-600 uppercase flex items-center gap-1 mb-1"><Clock className="w-3 h-3" /> Duration</p>
                                 <p className="font-semibold text-sm">{data.overview.avgDuration}</p>
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1 mb-1"><Wallet className="w-3 h-3" /> Currency</p>
+                                <p className="text-xs font-bold text-slate-600 uppercase flex items-center gap-1 mb-1"><Wallet className="w-3 h-3" /> Currency</p>
                                 <p className="font-semibold text-sm">{data.overview.currency}</p>
                             </div>
                             <div className="md:col-span-2">
-                                <p className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1 mb-1"><FileCheck className="w-3 h-3" /> Visa</p>
+                                <p className="text-xs font-bold text-slate-600 uppercase flex items-center gap-1 mb-1"><FileCheck className="w-3 h-3" /> Visa</p>
                                 <p className="font-semibold text-sm">{data.overview.visa}</p>
                             </div>
                         </div>
@@ -238,7 +238,7 @@ export default function ContinentDetail() {
 
                     {/* D. TOP COUNTRIES GRID/STACK */}
                     <div>
-                        <h2 className="text-3xl font-bold text-slate-900 mb-8 border-b-2 border-slate-100 pb-4">Top {data.name} Destinations</h2>
+                        <h2 className="text-3xl font-bold text-slate-900 mb-8 border-b-2 border-slate-700 pb-4">Top {data.name} Destinations</h2>
 
                         {/* Mobile View: Stack of Cards */}
                         <div className="flex justify-center sm:hidden mb-8">
@@ -261,7 +261,7 @@ export default function ContinentDetail() {
                                                     {dest.packageCount} Packages
                                                 </div>
                                                 <h4 className="font-bold text-2xl text-slate-900 mb-2">{dest.name}</h4>
-                                                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 mb-6">
+                                                <p className="text-xs font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 mb-6">
                                                     <Clock className="w-4 h-4 text-primary" /> {dest.nights}
                                                 </p>
                                             </div>
@@ -293,7 +293,7 @@ export default function ContinentDetail() {
                                     <div className="p-5 flex-1 flex flex-col justify-between">
                                         <div>
                                             <h4 className="font-bold text-lg text-slate-900 mb-1">{dest.name}</h4>
-                                            <p className="text-sm text-slate-500 flex items-center gap-1 mb-4">
+                                            <p className="text-sm text-slate-600 flex items-center gap-1 mb-4">
                                                 <Clock className="w-3.5 h-3.5" /> {dest.nights}
                                             </p>
                                         </div>
@@ -345,24 +345,24 @@ export default function ContinentDetail() {
                         </div>
 
                         {/* CONTACT INFO BOX */}
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                        <div className="bg-white border border-slate-700 rounded-xl p-6">
                             <h4 className="font-bold text-slate-800 mb-4 text-center">Need Immediate Assistance?</h4>
                             <div className="space-y-4">
-                                <a href="tel:+1234567890" className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-200 hover:border-primary hover:shadow-md transition-all group">
+                                <a href="tel:+1234567890" className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-700 hover:border-primary hover:shadow-md transition-all group">
                                     <div className="bg-primary/10 p-2 rounded-full text-primary group-hover:bg-primary group-hover:text-white transition-colors">
                                         <Phone className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-500 font-semibold uppercase">Call Us Now</p>
+                                        <p className="text-xs text-slate-600 font-semibold uppercase">Call Us Now</p>
                                         <p className="font-bold text-slate-800">+1 234 567 890</p>
                                     </div>
                                 </a>
-                                <a href="#" className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-200 hover:border-green-500 hover:shadow-md transition-all group">
+                                <a href="#" className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-700 hover:border-green-500 hover:shadow-md transition-all group">
                                     <div className="bg-green-100 p-2 rounded-full text-green-600 group-hover:bg-green-500 group-hover:text-white transition-colors">
                                         <MessageCircle className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-500 font-semibold uppercase">WhatsApp</p>
+                                        <p className="text-xs text-slate-600 font-semibold uppercase">WhatsApp</p>
                                         <p className="font-bold text-slate-800">Chat with Experts</p>
                                     </div>
                                 </a>

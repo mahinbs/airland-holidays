@@ -36,7 +36,7 @@ export default function Testimonials() {
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900">4.9</p>
-                            <p className="text-slate-500 text-sm">Based on 500+ reviews</p>
+                            <p className="text-slate-600 text-sm">Based on 500+ reviews</p>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -56,7 +56,7 @@ export default function Testimonials() {
                                     <img src={r.avatar} alt={r.name} className="w-12 h-12 rounded-full object-cover" />
                                     <div>
                                         <p className="font-bold text-slate-900">{r.name}</p>
-                                        <p className="text-slate-500 text-sm">{r.location}</p>
+                                        <p className="text-slate-600 text-sm">{r.location}</p>
                                     </div>
                                 </div>
                             </motion.div>
@@ -74,7 +74,7 @@ export default function Testimonials() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="group relative rounded-2xl overflow-hidden aspect-video bg-slate-200 cursor-pointer"
+                                className="group relative rounded-2xl overflow-hidden aspect-video bg-slate-700 cursor-pointer"
                             >
                                 <img src={v.thumb} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-slate-900/40 flex flex-col items-center justify-center">

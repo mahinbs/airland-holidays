@@ -283,7 +283,7 @@ export default function DestinationDetail() {
             </section>
 
             {/* 2. QUICK COUNTRY OVERVIEW BAR */}
-            <div className="bg-white border-b border-slate-100 py-5 shadow-sm relative w-full overflow-hidden hidden md:block">
+            <div className="bg-white border-b border-slate-700 py-5 shadow-sm relative w-full overflow-hidden hidden md:block">
                 <motion.div
                     initial={{ x: -20, opacity: 0 }}
                     whileInView={{ x: 0, opacity: 1 }}
@@ -291,34 +291,34 @@ export default function DestinationDetail() {
                     className="content-container overflow-x-auto scrollbar-hide"
                 >
                     <div className="flex items-center justify-between gap-8 md:gap-4 lg:gap-8 min-w-max w-full px-4 md:px-0">
-                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-100">
+                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-700">
                             <Clock className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1" />
-                            <span className="text-slate-200 text-[10px] uppercase tracking-widest font-bold">Time Zone</span>
+                            <span className="text-slate-700 text-[10px] uppercase tracking-widest font-bold">Time Zone</span>
                             <span className="text-slate-900 font-bold text-[13px] lg:text-sm font-marcellus whitespace-nowrap">{data.overview.timeZone}</span>
                         </div>
-                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-100">
+                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-700">
                             <Wallet className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1" />
-                            <span className="text-slate-200 text-[10px] uppercase tracking-widest font-bold">Currency</span>
+                            <span className="text-slate-700 text-[10px] uppercase tracking-widest font-bold">Currency</span>
                             <span className="text-slate-900 font-bold text-[13px] lg:text-sm font-marcellus whitespace-nowrap">{data.overview.currency}</span>
                         </div>
-                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-100">
+                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-700">
                             <MapPin className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1" />
-                            <span className="text-slate-200 text-[10px] uppercase tracking-widest font-bold">Language</span>
+                            <span className="text-slate-700 text-[10px] uppercase tracking-widest font-bold">Language</span>
                             <span className="text-slate-900 font-bold text-[13px] lg:text-sm font-marcellus whitespace-nowrap">{data.overview.language}</span>
                         </div>
-                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-100">
+                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-700">
                             <Info className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1" />
-                            <span className="text-slate-200 text-[10px] uppercase tracking-widest font-bold">Calling Code</span>
+                            <span className="text-slate-700 text-[10px] uppercase tracking-widest font-bold">Calling Code</span>
                             <span className="text-slate-900 font-bold text-[13px] lg:text-sm font-marcellus whitespace-nowrap">{data.overview.callingCode}</span>
                         </div>
-                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-100">
+                        <div className="flex flex-col items-center text-center gap-1 md:pr-4 lg:pr-8 md:border-r border-slate-700">
                             <FileCheck className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1" />
-                            <span className="text-slate-200 text-[10px] uppercase tracking-widest font-bold">Visa Type</span>
+                            <span className="text-slate-700 text-[10px] uppercase tracking-widest font-bold">Visa Type</span>
                             <span className="text-slate-900 font-bold text-[13px] lg:text-sm font-marcellus whitespace-nowrap">{data.overview.visaType}</span>
                         </div>
                         <div className="flex flex-col items-center text-center gap-1">
                             <Sun className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1" />
-                            <span className="text-slate-200 text-[10px] uppercase tracking-widest font-bold">Best Time</span>
+                            <span className="text-slate-700 text-[10px] uppercase tracking-widest font-bold">Best Time</span>
                             <span className="text-slate-900 font-bold text-[13px] lg:text-sm font-marcellus whitespace-nowrap">{data.overview.bestTime}</span>
                         </div>
                     </div>
@@ -331,7 +331,7 @@ export default function DestinationDetail() {
                     {/* 3. TRAVEL INSIGHTS & VISITOR STATISTICS */}
                     <section className="bg-slate-50 rounded-3xl p-5 md:p-6 mb-8 border border-slate-100 overflow-hidden">
                         <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-1">Who Travels to {data.name}?</h2>
-                        <p className="text-slate-500 font-light text-sm mb-6">Real visitor data to help you plan with confidence</p>
+                        <p className="text-slate-600 font-light text-sm mb-6">Real visitor data to help you plan with confidence</p>
 
                         <motion.div
                             initial="hidden"
@@ -341,10 +341,10 @@ export default function DestinationDetail() {
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                         >
                             {/* Key Metrics */}
-                            <motion.div variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-center">
+                            <motion.div variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="bg-white rounded-2xl p-5 border border-slate-700 shadow-sm flex flex-col justify-center">
                                 <div className="mb-4 border-b border-slate-100 pb-3">
                                     <h4 className="font-marcellus text-4xl text-primary mb-1">{data.insights.annualVisitors}</h4>
-                                    <span className="text-slate-500 text-xs font-medium uppercase tracking-widest">Annual Visitors</span>
+                                    <span className="text-slate-600 text-xs font-medium uppercase tracking-widest">Annual Visitors</span>
                                 </div>
                                 <div>
                                     <div className="flex justify-between text-xs font-bold mb-2 text-slate-700">
@@ -359,7 +359,7 @@ export default function DestinationDetail() {
                             </motion.div>
 
                             {/* Travel Purpose */}
-                            <motion.div variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                            <motion.div variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="bg-white rounded-2xl p-5 border border-slate-700 shadow-sm">
                                 <h3 className="font-marcellus text-lg text-slate-900 mb-4">Travel Purpose</h3>
                                 <div className="flex flex-col gap-3">
                                     {data.insights.travelPurpose.map((p, i) => (
@@ -382,11 +382,11 @@ export default function DestinationDetail() {
                             </motion.div>
 
                             {/* Top Cities */}
-                            <motion.div variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="bg-gradient-to-br from-primary/5 to-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                            <motion.div variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="bg-gradient-to-br from-primary/5 to-white rounded-2xl p-6 border border-slate-700 shadow-sm">
                                 <h3 className="font-marcellus text-xl text-slate-900 mb-5">Top Cities from India</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {data.insights.topIndianCities.map((city, i) => (
-                                        <div key={i} className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+                                        <div key={i} className="flex items-center gap-2 bg-white border border-slate-700 rounded-full px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
                                             <span>🇮🇳</span> {city}
                                         </div>
                                     ))}
@@ -427,7 +427,7 @@ export default function DestinationDetail() {
                                         </div>
                                         <h3 className="font-marcellus text-lg text-slate-900">{reason.title}</h3>
                                     </div>
-                                    <p className="text-slate-500 text-xs leading-relaxed">{reason.desc}</p>
+                                    <p className="text-slate-600 text-xs leading-relaxed">{reason.desc}</p>
                                 </motion.div>
                             ))}
                         </motion.div>
@@ -436,7 +436,7 @@ export default function DestinationDetail() {
                     {/* 6. BEST TIME TO VISIT */}
                     <section className="mb-10">
                         <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-1">Best Time to Visit {data.name}</h2>
-                        <p className="text-slate-500 font-light text-sm mb-6">Plan your trip around the best weather and seasonal experiences.</p>
+                        <p className="text-slate-600 font-light text-sm mb-6">Plan your trip around the best weather and seasonal experiences.</p>
 
                         <motion.div
                             initial="hidden"
@@ -456,8 +456,8 @@ export default function DestinationDetail() {
                                                 }`}
                                         />
                                     </div>
-                                    <span className="text-[11px] font-bold text-slate-500 uppercase">{item.month}</span>
-                                    <span className="text-[9px] text-slate-200 text-center uppercase tracking-tighter hidden md:block">{item.weather}</span>
+                                    <span className="text-[11px] font-bold text-slate-600 uppercase">{item.month}</span>
+                                    <span className="text-[9px] text-slate-700 text-center uppercase tracking-tighter hidden md:block">{item.weather}</span>
                                 </div>
                             ))}
                         </motion.div>
@@ -575,7 +575,7 @@ export default function DestinationDetail() {
                     {/* 9. INSTAGRAM SPOTS */}
                     <section className="mb-10 overflow-hidden bg-slate-50 p-5 md:p-8 rounded-3xl border border-slate-100">
                         <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-1">Instagram Spots</h2>
-                        <p className="text-slate-500 font-light text-sm mb-6">Trending locations for your travel gallery</p>
+                        <p className="text-slate-600 font-light text-sm mb-6">Trending locations for your travel gallery</p>
 
                         <div ref={sliderRef} className="keen-slider py-4">
                             {data.instagramSpots.map((spot, i) => (
@@ -600,9 +600,9 @@ export default function DestinationDetail() {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
                             <div>
                                 <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-1">Packages for {data.name}</h2>
-                                <p className="text-slate-500 font-light text-sm">Curated itineraries crafted by destination experts.</p>
+                                <p className="text-slate-600 font-light text-sm">Curated itineraries crafted by destination experts.</p>
                             </div>
-                            <div className="flex justify-between items-center bg-white border border-slate-200 shadow-sm rounded-lg px-3 py-2 shrink-0">
+                            <div className="flex justify-between items-center bg-white border border-slate-700 shadow-sm rounded-lg px-3 py-2 shrink-0">
                                 <select className="bg-transparent text-xs font-bold text-slate-700 outline-none w-full cursor-pointer">
                                     <option>Popular</option>
                                     <option>Price: Low to High</option>
@@ -618,14 +618,14 @@ export default function DestinationDetail() {
                                     <button
                                         key={cat}
                                         onClick={() => setActivePackageCat(cat)}
-                                        className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-wider font-bold transition-all shadow-sm border ${activePackageCat === cat ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200 hover:border-primary/40'
+                                        className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-wider font-bold transition-all shadow-sm border ${activePackageCat === cat ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-700 hover:border-primary/40'
                                             }`}
                                     >
                                         {cat}
                                     </button>
                                 ))}
                             </div>
-                            <p className="text-slate-200 text-xs font-bold uppercase tracking-wider hidden sm:block">{filteredPackages.length} found</p>
+                            <p className="text-slate-700 text-xs font-bold uppercase tracking-wider hidden sm:block">{filteredPackages.length} found</p>
                         </div>
 
                         <motion.div
@@ -638,7 +638,7 @@ export default function DestinationDetail() {
                         >
                             {filteredPackages.map((pkg) => (
                                 <motion.div key={pkg.id} variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}>
-                                    <Link to={`/packages/${pkg.id}`} className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-400 h-full flex flex-col">
+                                    <Link to={`/packages/${pkg.id}`} className="group block bg-white rounded-2xl overflow-hidden border border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-400 h-full flex flex-col">
                                         <div className="relative aspect-[4/3] overflow-hidden">
                                             <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-[1.08] transition-transform duration-500" loading="lazy" />
                                             <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
@@ -653,7 +653,7 @@ export default function DestinationDetail() {
                                             </div>
                                         </div>
                                         <div className="p-4 flex flex-col flex-1">
-                                            <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold mb-2 uppercase tracking-widest">
+                                            <div className="flex items-center gap-1.5 text-slate-600 text-[10px] font-bold mb-2 uppercase tracking-widest">
                                                 <MapPin className="w-3 h-3 text-secondary" /> {pkg.destination}
                                             </div>
                                             <h3 className="text-lg font-marcellus font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
@@ -666,7 +666,7 @@ export default function DestinationDetail() {
                                             </div>
                                             <div className="mt-auto flex items-center justify-between pt-3 border-t border-slate-100">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[9px] uppercase tracking-widest text-slate-200 font-bold mb-0.5">From</span>
+                                                    <span className="text-[9px] uppercase tracking-widest text-slate-700 font-bold mb-0.5">From</span>
                                                     <div className="flex items-baseline gap-0.5">
                                                         <span className="text-base font-bold text-slate-900">${pkg.price}</span>
                                                     </div>
@@ -691,7 +691,7 @@ export default function DestinationDetail() {
                     {/* 11. AUDIENCE-BASED SUGGESTIONS */}
                     <section className="mb-10 bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-100">
                         <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 text-center mb-1">Plan by Travel Style</h2>
-                        <p className="text-slate-500 font-light text-sm text-center mb-6">Select a curated path tailored to your group.</p>
+                        <p className="text-slate-600 font-light text-sm text-center mb-6">Select a curated path tailored to your group.</p>
 
                         <motion.div
                             initial="hidden"
@@ -752,7 +752,7 @@ export default function DestinationDetail() {
                                         <div className="flex flex-col justify-center py-0.5">
                                             <h4 className="font-marcellus font-bold text-slate-900 text-xs mb-1 group-hover:text-primary transition-colors line-clamp-2 leading-tight">{pkg.title}</h4>
                                             <div className="flex items-center justify-between mt-auto">
-                                                <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">{pkg.duration}</span>
+                                                <span className="text-slate-600 text-[10px] font-bold uppercase tracking-wider">{pkg.duration}</span>
                                                 <span className="text-primary font-bold text-xs">${pkg.price}</span>
                                             </div>
                                         </div>

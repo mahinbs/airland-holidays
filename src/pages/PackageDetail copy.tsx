@@ -8,7 +8,6 @@ import {
     Send, ArrowRight, Phone, Camera, PlayCircle, Briefcase, ChevronLeft, ChevronRight, FileText
 } from 'lucide-react';
 import { useKeenSlider } from 'keen-slider/react';
-import PackageCardStack from '../components/common/PackageCardStack';
 
 const packageData = {
     title: 'Bali 5 Nights / 6 Days – Premium Island Escape',
@@ -105,40 +104,41 @@ const packageData = {
 const HeroSection = ({ data, scrollToForm }: { data?: typeof packageData, scrollToForm?: () => void, [key: string]: unknown }) => {
     return (
         <section className="relative min-h-[75vh] md:min-h-[85vh] w-full flex items-center bg-primary-dark overflow-hidden pb-10">
-            <img src={data?.images[0]} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-[0.95]" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a1628]/85 via-[#0a1628]/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628]/50 via-transparent to-transparent" />
+            <img src={data?.images[0]} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-[0.85]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a1628]/95 via-[#0a1628]/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628]/60 via-transparent to-transparent" />
 
-            <div className="relative z-10 content-container px-6 lg:px-8 w-full mt-16 md:mt-20 pb-8 flex flex-col justify-between h-full min-h-[60vh]">
+            <div className="relative z-10 content-container px-6 lg:px-8 w-full mt-24 pb-8 flex flex-col justify-between h-full min-h-[60vh]">
                 <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-3xl">
 
-                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-marcellus text-white mb-4 leading-[1.1] drop-shadow-lg">
+                    <div className="flex flex-wrap gap-2.5 mb-6">
+                        <span className="bg-secondary/90 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" /> {data?.duration}
+                        </span>
+                        <span className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm flex items-center gap-1.5">
+                            <Map className="w-3.5 h-3.5" /> {data?.destination}
+                        </span>
+                        <span className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5" /> {data?.travelType}
+                        </span>
+                        <span className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" /> Best Time: {data?.bestTime}
+                        </span>
+                    </div>
+
+                    <h1 className="text-4xl md:text-6xl font-marcellus text-white mb-4 leading-tight drop-shadow-lg">
                         {data?.title}
                     </h1>
-                    <p className="text-lg md:text-xl text-white/95 mb-6 max-w-2xl font-medium drop-shadow">
+                    <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl font-light drop-shadow">
                         {data?.subtitle}
                     </p>
 
-                    <div className="flex flex-col md:flex-row md:items-end gap-6 mb-7">
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-4 rounded-2xl inline-block shadow-lg shrink-0">
+                    <div className="flex items-end gap-3 mb-8">
+                        <div className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-4 rounded-2xl inline-block shadow-lg">
                             <p className="text-white/80 text-xs font-bold uppercase tracking-wider mb-1">Starting Price</p>
                             <p className="text-4xl md:text-5xl font-bold text-secondary drop-shadow-md flex items-end gap-2">
                                 ${data?.price} <span className="text-lg text-white/70 font-medium mb-1">/ person</span>
                             </p>
-                        </div>
-                        <div className="flex flex-wrap gap-2.5 pb-1">
-                            <span className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm flex items-center gap-1.5 hover:bg-white/20 transition-colors">
-                                <Clock className="w-3.5 h-3.5" /> {data?.duration}
-                            </span>
-                            <span className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm flex items-center gap-1.5 hover:bg-white/20 transition-colors">
-                                <Map className="w-3.5 h-3.5" /> {data?.destination}
-                            </span>
-                            <span className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm flex items-center gap-1.5 hover:bg-white/20 transition-colors">
-                                <Users className="w-3.5 h-3.5" /> {data?.travelType}
-                            </span>
-                            <span className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm flex items-center gap-1.5 hover:bg-white/20 transition-colors">
-                                <Calendar className="w-3.5 h-3.5" /> Best Time: {data?.bestTime}
-                            </span>
                         </div>
                     </div>
 
@@ -193,14 +193,14 @@ const StickyNav = ({ activeSection }: { activeSection: string }) => {
     };
 
     return (
-        <div className="sticky top-[4.25rem] md:top-[4rem] lg:top-[6.5rem] z-40 bg-white border-b border-slate-200 shadow-sm w-full font-sans hide-scrollbar">
+        <div className="sticky top-[6.5rem] md:top-[6.5rem] lg:top-[6.5rem] z-40 bg-white border-b border-slate-200 shadow-sm w-full font-sans hide-scrollbar">
             <div className="content-container px-6 lg:px-8">
                 <div className="flex overflow-x-auto gap-4 md:gap-8 no-scrollbar scroll-smooth py-3">
                     {navItems.map(item => (
                         <button
                             key={item.id}
                             onClick={() => scrollToSection(item.id)}
-                            className={`px-4 py-2 whitespace-nowrap text-[13px] md:text-sm font-bold uppercase tracking-wider transition-all rounded-lg shrink-0 ${activeSection === item.id ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-slate-800 font-semibold hover:bg-primary/8 hover:text-primary'}`}
+                            className={`px-4 py-2 whitespace-nowrap text-[13px] md:text-sm font-bold uppercase tracking-wider transition-all rounded-lg shrink-0 ${activeSection === item.id ? 'bg-primary/10 text-primary' : 'bg-transparent text-slate-600 hover:bg-slate-50 hover:text-primary'}`}
                         >
                             {item.label}
                         </button>
@@ -244,10 +244,10 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof packageData,
         <div className="flex flex-col gap-8 pt-4">
             <div className="space-y-4 max-w-4xl">
                 <h2 className="text-3xl font-marcellus text-primary mb-2">The Experience</h2>
-                <p className="text-slate-700 leading-relaxed text-lg font-medium">{data?.overview}</p>
+                <p className="text-slate-700 leading-relaxed text-lg">{data?.overview}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2 relative rounded-3xl overflow-hidden shadow-xl group bg-slate-900 aspect-[4/3] md:aspect-auto md:h-[400px] border border-slate-100">
                     <video
                         ref={videoRef}
@@ -267,7 +267,7 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof packageData,
                         </button>
                     </div>
                 </div>
-
+                
                 <div className="grid grid-cols-2 md:grid-cols-1 gap-4 h-[200px] md:h-[400px]">
                     <div
                         onClick={() => onMediaClick("https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=2000")}
@@ -288,7 +288,7 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof packageData,
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 };
@@ -373,13 +373,6 @@ const Itinerary = ({ data }: { data?: typeof packageData, [key: string]: unknown
 
 // 5. INCLUSIONS & EXCLUSIONS
 const InclusionsExclusions = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
-    const [inclExpanded, setInclExpanded] = useState(false);
-    const [exclExpanded, setExclExpanded] = useState(false);
-    const SHOW_LIMIT = 4;
-
-    const visibleInclusions = inclExpanded ? data?.inclusions : data?.inclusions.slice(0, SHOW_LIMIT);
-    const visibleExclusions = exclExpanded ? data?.exclusions : data?.exclusions.slice(0, SHOW_LIMIT);
-
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-emerald-50/50 rounded-3xl p-8 border border-emerald-100 relative overflow-hidden flex flex-col h-full">
@@ -389,9 +382,9 @@ const InclusionsExclusions = ({ data }: { data?: typeof packageData, [key: strin
                 <h3 className="text-2xl font-marcellus text-emerald-900 mb-6 flex items-center gap-3">
                     <CheckCircle2 className="w-6 h-6 text-emerald-600" /> What's Included
                 </h3>
-                <div className="relative z-10">
+                <div className="overflow-y-auto max-h-[300px] custom-scrollbar pr-4 relative z-10">
                     <ul className="space-y-4">
-                        {visibleInclusions?.map((item: string, i: number) => (
+                        {data?.inclusions.map((item: string, i: number) => (
                             <li key={i} className="flex items-start gap-3">
                                 <span className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
                                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -400,15 +393,6 @@ const InclusionsExclusions = ({ data }: { data?: typeof packageData, [key: strin
                             </li>
                         ))}
                     </ul>
-                    {(data?.inclusions.length ?? 0) > SHOW_LIMIT && (
-                        <button
-                            onClick={() => setInclExpanded(!inclExpanded)}
-                            className="mt-4 text-emerald-700 font-bold text-sm flex items-center gap-1.5 hover:text-emerald-900 transition-colors"
-                        >
-                            <ChevronDown className={`w-4 h-4 transition-transform ${inclExpanded ? 'rotate-180' : ''}`} />
-                            {inclExpanded ? 'Show Less' : `Show ${(data?.inclusions.length ?? 0) - SHOW_LIMIT} More`}
-                        </button>
-                    )}
                 </div>
             </div>
             <div className="bg-rose-50/50 rounded-3xl p-8 border border-rose-100 relative overflow-hidden flex flex-col h-full">
@@ -418,9 +402,9 @@ const InclusionsExclusions = ({ data }: { data?: typeof packageData, [key: strin
                 <h3 className="text-2xl font-marcellus text-rose-900 mb-6 flex items-center gap-3">
                     <XCircle className="w-6 h-6 text-rose-500" /> What's Excluded
                 </h3>
-                <div className="relative z-10">
+                <div className="overflow-y-auto max-h-[300px] custom-scrollbar pr-4 relative z-10">
                     <ul className="space-y-4">
-                        {visibleExclusions?.map((item: string, i: number) => (
+                        {data?.exclusions.map((item: string, i: number) => (
                             <li key={i} className="flex items-start gap-3">
                                 <span className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center shrink-0 mt-0.5">
                                     <XCircle className="w-4 h-4 text-rose-500" />
@@ -429,15 +413,6 @@ const InclusionsExclusions = ({ data }: { data?: typeof packageData, [key: strin
                             </li>
                         ))}
                     </ul>
-                    {(data?.exclusions.length ?? 0) > SHOW_LIMIT && (
-                        <button
-                            onClick={() => setExclExpanded(!exclExpanded)}
-                            className="mt-4 text-rose-700 font-bold text-sm flex items-center gap-1.5 hover:text-rose-900 transition-colors"
-                        >
-                            <ChevronDown className={`w-4 h-4 transition-transform ${exclExpanded ? 'rotate-180' : ''}`} />
-                            {exclExpanded ? 'Show Less' : `Show ${(data?.exclusions.length ?? 0) - SHOW_LIMIT} More`}
-                        </button>
-                    )}
                 </div>
             </div>
         </div>
@@ -464,7 +439,7 @@ const DestinationInsights = ({ data }: { data?: typeof packageData, [key: string
             </div>
 
             <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow mb-6">
-                <div className="flex flex-wrap border-b border-slate-100 bg-slate-100/80">
+                <div className="flex flex-wrap border-b border-slate-100 bg-slate-50/50">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
@@ -476,14 +451,14 @@ const DestinationInsights = ({ data }: { data?: typeof packageData, [key: string
                         </button>
                     ))}
                 </div>
-                <div className="p-8 min-h-[280px] flex items-center bg-white relative">
+                <div className="p-8 min-h-[200px] flex items-center bg-white relative">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="text-slate-700 leading-relaxed text-lg max-h-[380px] overflow-y-auto custom-scrollbar w-full"
+                            className="text-slate-700 leading-relaxed text-lg max-h-[300px] overflow-y-auto custom-scrollbar w-full"
                         >
                             {data?.insights[activeTab as keyof typeof data.insights]}
                         </motion.div>
@@ -536,7 +511,7 @@ const FAQSection = ({ data }: { data?: typeof packageData, [key: string]: unknow
             </div>
             <div className="space-y-3">
                 {data?.faqs.map((faq: { question: string, answer: string }, idx: number) => (
-                    <div key={idx} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:border-primary/30 transition-colors">
+                    <div key={idx} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:border-slate-300 transition-colors">
                         <button
                             onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                             className="w-full flex items-center justify-between p-5 text-left focus:outline-none"
@@ -634,7 +609,7 @@ const SidebarLeadForm = ({ data }: { data?: typeof packageData }) => {
     }
 
     return (
-        <div id="lead-form" className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200 overflow-hidden text-slate-800 flex flex-col mt-6 lg:mt-16">
+        <div id="lead-form" className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200 overflow-hidden text-slate-800 flex flex-col sticky top-[8.5rem] mt-6 lg:mt-0">
             <div className="bg-primary px-8 py-8 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4" />
                 <h3 className="font-marcellus text-2xl mb-2 relative z-10 text-white">Enquire About This Tour</h3>
@@ -751,16 +726,16 @@ const PartnerTrust = () => {
     );
 
     return (
-        <section className="bg-slate-50 py-12 border-t border-slate-200 overflow-hidden shadow-sm relative">
+        <section className="bg-primary-dark py-12 border-t border-white/10 overflow-hidden shadow-sm relative">
             <div className="content-container px-6 mb-8 text-center">
-                <p className="text-sm font-bold text-slate-600 uppercase tracking-widest">Our Global Hospitality Partners</p>
+                <p className="text-sm font-bold text-white/50 uppercase tracking-widest">Our Global Hospitality Partners</p>
             </div>
             <div className="mx-auto px-6 lg:px-8">
-                <div ref={sliderRef} className="keen-slider opacity-80 hover:opacity-100 transition-opacity duration-500">
+                <div ref={sliderRef} className="keen-slider opacity-70 hover:opacity-100 transition-opacity duration-500">
                     {['Emirates', 'Marriott Bonvoy', 'Four Seasons', 'Singapore Airlines', 'Qatar Airways', 'Hilton Honors'].map((partner, i) => (
                         <div key={i} className="keen-slider__slide flex items-center justify-center">
-                            <span className="text-lg md:text-xl font-marcellus font-bold text-slate-700 flex items-center gap-2 whitespace-nowrap">
-                                {i % 2 === 0 ? <Plane className="w-5 h-5 text-primary" /> : <Hotel className="w-5 h-5 text-primary" />} {partner}
+                            <span className="text-lg md:text-xl font-marcellus font-bold text-white/80 flex items-center gap-2 whitespace-nowrap">
+                                {i % 2 === 0 ? <Plane className="w-5 h-5" /> : <Hotel className="w-5 h-5" />} {partner}
                             </span>
                         </div>
                     ))}
@@ -831,38 +806,36 @@ const RelatedPackages = ({ data }: { data?: typeof packageData, [key: string]: u
                         ))}
                     </div>
 
-                    <div className="lg:hidden w-full flex justify-center pb-8 mt-4">
-                        <PackageCardStack>
-                            {(data?.related || []).map((p) => (
-                                <div key={p.id} className="w-full h-full relative group cursor-pointer overflow-hidden">
-                                    <img
-                                        src={p.image}
-                                        alt={p.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                    <div ref={sliderRef} className="keen-slider lg:hidden pb-8 hide-scrollbar">
+                        {(data?.related || []).map((p) => (
+                            <div key={p.id} className="keen-slider__slide aspect-[4/5] w-full h-full relative group cursor-pointer rounded-2xl overflow-hidden shadow-lg border border-slate-100" style={{ minWidth: '280px', maxWidth: '350px' }}>
+                                <img
+                                    src={p.image}
+                                    alt={p.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-                                    <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full text-[11px] font-bold text-primary shadow-lg flex items-center gap-1.5">
-                                        <Clock className="w-3 h-3" /> {p.duration}
-                                    </div>
-
-                                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white text-center">
-                                        <h3 className="font-marcellus text-2xl mb-2 min-h-[64px] flex items-center justify-center text-white drop-shadow-md">
-                                            {p.title}
-                                        </h3>
-                                        <p className="text-white/80 font-medium mb-4 text-sm tracking-wide">
-                                            Starting Price <span className="text-secondary font-bold">${p.price}</span>
-                                        </p>
-                                        <a
-                                            href={`/packages/${p.id}`}
-                                            className="block w-full bg-secondary/90 hover:bg-secondary text-white py-3 rounded-xl font-bold backdrop-blur-sm transition-all shadow-lg shadow-black/20 hover:-translate-y-1"
-                                        >
-                                            Explore Package
-                                        </a>
-                                    </div>
+                                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full text-[11px] font-bold text-primary shadow-lg flex items-center gap-1.5">
+                                    <Clock className="w-3 h-3" /> {p.duration}
                                 </div>
-                            ))}
-                        </PackageCardStack>
+
+                                <div className="absolute bottom-0 left-0 right-0 p-6 text-white text-center">
+                                    <h3 className="font-marcellus text-2xl mb-2 min-h-[64px] flex items-center justify-center text-white drop-shadow-md">
+                                        {p.title}
+                                    </h3>
+                                    <p className="text-white/80 font-medium mb-4 text-sm tracking-wide">
+                                        Starting Price <span className="text-secondary font-bold">${p.price}</span>
+                                    </p>
+                                    <a
+                                        href={`/packages/${p.id}`}
+                                        className="block w-full bg-secondary/90 hover:bg-secondary text-white py-3 rounded-xl font-bold backdrop-blur-sm transition-all shadow-lg shadow-black/20 hover:-translate-y-1"
+                                    >
+                                        Explore Package
+                                    </a>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
@@ -1045,7 +1018,7 @@ export default function PackageDetail() {
                 </div>
 
                 {/* ---------- RIGHT COLUMN: STICKY FORM ---------- */}
-                <div className="lg:col-span-4 lg:sticky lg:top-[7rem] relative z-30 self-start">
+                <div className="lg:col-span-4 lg:sticky lg:top-32 relative z-30">
                     <SidebarLeadForm data={packageData} />
                 </div>
             </div>

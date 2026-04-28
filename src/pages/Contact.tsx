@@ -94,22 +94,22 @@ export default function Contact() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 mb-2">First Name</label>
-                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="John" />
+                                    <input type="text" className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="John" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 mb-2">Last Name</label>
-                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="Doe" />
+                                    <input type="text" className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="Doe" />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
-                                    <input type="email" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="john@example.com" />
+                                    <input type="email" className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="john@example.com" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 mb-2">Phone Number</label>
-                                    <input type="tel" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="+1 (555) 000-0000" />
+                                    <input type="tel" className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="+1 (555) 000-0000" />
                                 </div>
                             </div>
 
@@ -125,7 +125,7 @@ export default function Contact() {
 
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-2">Message</label>
-                                <textarea rows={4} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-none" placeholder="Tell us about your dream trip..."></textarea>
+                                <textarea rows={4} className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-none" placeholder="Tell us about your dream trip..."></textarea>
                             </div>
 
                             <button type="button" className="btn-primary w-full md:w-auto px-10 py-4 text-lg justify-center gap-2">
@@ -140,7 +140,7 @@ export default function Contact() {
             {/* Google Map - Mumbai */}
             <div className="content-container mt-16 mb-16">
                 <h2 className="text-2xl font-bold text-slate-900 mb-6">Find Us on Map</h2>
-                <div className="aspect-[21/9] rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                <div className="aspect-[21/9] rounded-2xl overflow-hidden border border-slate-700 shadow-sm">
                     <iframe
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.716780654789!2d72.8776559!3d19.076090!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5da8edae78ad58a!2sMumbai%2C%20Maharashtra%2C%20India!5e0!3m2!1sen!2sin!4v1700000000000"
                         width="100%"

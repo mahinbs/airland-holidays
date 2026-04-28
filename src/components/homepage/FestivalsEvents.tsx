@@ -242,7 +242,7 @@ function EventCard({ event }: EventCardProps) {
         >
             <a
                 href={event.ctaHref}
-                className="group relative block h-[380px] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:h-[470px]"
+                className="group relative block h-[380px] overflow-hidden rounded-3xl border border-slate-700 bg-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:h-[470px]"
             >
                 <img
                     src={event.image}
@@ -375,12 +375,12 @@ export default function FestivalsEvents() {
                 </motion.div>
 
                 <div className="mb-8 flex justify-center">
-                    <div className="flex sm:flex-row flex-col w-full max-w-xl gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
+                    <div className="flex sm:flex-row flex-col w-full max-w-xl gap-1 rounded-2xl border border-slate-700 bg-white p-1.5 shadow-sm">
                         <button
                             onClick={() => setActiveTab('international')}
                             className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-300 md:px-6 ${activeTab === 'international'
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                 }`}
                             type="button"
                         >
@@ -389,8 +389,8 @@ export default function FestivalsEvents() {
                         <button
                             onClick={() => setActiveTab('india')}
                             className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-300 md:px-6 ${activeTab === 'india'
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                 }`}
                             type="button"
                         >
@@ -406,8 +406,8 @@ export default function FestivalsEvents() {
                                 key={month.num}
                                 onClick={() => setActiveMonth(month.num)}
                                 className={`relative whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 ${activeMonth === month.num
-                                        ? 'border-primary/40 bg-primary/20 text-primary shadow-sm shadow-primary/20'
-                                        : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                                    ? 'border-primary/40 bg-primary/20 text-primary shadow-sm shadow-primary/20'
+                                    : 'border-slate-700 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-800'
                                     }`}
                                 type="button"
                             >
@@ -445,12 +445,12 @@ export default function FestivalsEvents() {
                 </AnimatePresence>
 
                 <div className="mt-5 hidden items-center justify-between gap-3 md:flex">
-                    <div className="text-xs text-slate-500">Swipe or use arrows to explore</div>
+                    <div className="text-xs text-slate-600">Swipe or use arrows to explore</div>
                     <div className="flex items-center gap-3">
                         <button
                             type="button"
                             onClick={() => instanceRef.current?.prev()}
-                            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-primary hover:text-primary"
+                            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-white text-slate-600 transition hover:border-primary hover:text-primary"
                             aria-label="Previous events"
                         >
                             <ChevronLeft className="h-4 w-4" />
@@ -458,7 +458,7 @@ export default function FestivalsEvents() {
                         <button
                             type="button"
                             onClick={() => instanceRef.current?.next()}
-                            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-primary hover:text-primary"
+                            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-white text-slate-600 transition hover:border-primary hover:text-primary"
                             aria-label="Next events"
                         >
                             <ChevronRight className="h-4 w-4" />
@@ -471,7 +471,7 @@ export default function FestivalsEvents() {
                     whileInView={{ y: 0, opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, ease: 'easeOut' }}
-                    className="mt-14 flex flex-col items-center justify-between gap-6 rounded-3xl border border-slate-200 bg-white px-8 py-7 shadow-sm sm:flex-row"
+                    className="mt-14 flex flex-col items-center justify-between gap-6 rounded-3xl border border-slate-700 bg-white px-8 py-7 shadow-sm sm:flex-row"
                 >
                     <div>
                         <p className="mb-1 font-['Marcellus'] text-xl text-slate-900">Confused about the best time to travel? 🤔</p>

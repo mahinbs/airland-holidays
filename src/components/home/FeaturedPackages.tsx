@@ -69,7 +69,7 @@ export default function FeaturedPackages() {
         >
           <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">Trending Destinations</h2>
 
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-700">
             <button
               onClick={() => setActiveTab('domestic')}
               className={`px-5 py-2 text-sm rounded-lg font-semibold transition-colors ${
@@ -94,7 +94,7 @@ export default function FeaturedPackages() {
             type="button"
             aria-label="Previous destinations"
             onClick={() => swiperInstance?.slidePrev()}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 border border-slate-200 text-primary shadow-md flex items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-opacity"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 border border-slate-700 text-primary shadow-md flex items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-opacity"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
@@ -103,7 +103,7 @@ export default function FeaturedPackages() {
             type="button"
             aria-label="Next destinations"
             onClick={() => swiperInstance?.slideNext()}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 border border-slate-200 text-primary shadow-md flex items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-opacity"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 border border-slate-700 text-primary shadow-md flex items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-opacity"
           >
             <ArrowRight className="w-4 h-4" />
           </button>

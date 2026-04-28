@@ -6,12 +6,12 @@ import { motion } from 'framer-motion';
 import { testimonials } from '../../data/visaData';
 
 export const VisaTestimonials = () => {
-        const [testiLoaded, setTestiLoaded] = useState(false);
+    const [testiLoaded, setTestiLoaded] = useState(false);
     const [testiRef, testiInstanceRef] = useKeenSlider(
         {
             initial: 0,
             loop: true,
-                        created() {
+            created() {
                 setTestiLoaded(true);
             },
             slides: {
@@ -101,7 +101,7 @@ export const VisaTestimonials = () => {
                                         />
                                         <div>
                                             <div className="font-bold text-slate-900">{t.name}</div>
-                                            <div className="text-sm text-slate-500">{t.role}</div>
+                                            <div className="text-sm text-slate-600">{t.role}</div>
                                         </div>
                                     </div>
                                 </motion.div>

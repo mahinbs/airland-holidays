@@ -52,21 +52,21 @@ export default function Dropdown({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl text-left text-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${sizeClasses[size]}`}
+                className={`w-full flex items-center justify-between gap-2 bg-white border border-slate-700 rounded-xl text-left text-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${sizeClasses[size]}`}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
                 aria-labelledby={label ? undefined : undefined}
             >
-                <span className={!selectedOption ? 'text-slate-500' : ''}>{displayLabel}</span>
+                <span className={!selectedOption ? 'text-slate-600' : ''}>{displayLabel}</span>
                 <ChevronDown
-                    className={`w-5 h-5 text-slate-200 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 text-slate-700 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                 />
             </button>
 
             {isOpen && (
                 <ul
                     role="listbox"
-                    className="absolute z-50 mt-1 w-full max-h-60 overflow-auto bg-white border border-slate-200 rounded-xl shadow-lg py-1"
+                    className="absolute z-50 mt-1 w-full max-h-60 overflow-auto bg-white border border-slate-700 rounded-xl shadow-lg py-1"
                 >
                     {options.map((opt) => (
                         <li
@@ -78,8 +78,8 @@ export default function Dropdown({
                                 setIsOpen(false);
                             }}
                             className={`px-4 py-2.5 cursor-pointer transition-colors ${opt.value === value
-                                    ? 'bg-primary/10 text-primary font-medium'
-                                    : 'text-slate-700 hover:bg-slate-50'
+                                ? 'bg-primary/10 text-primary font-medium'
+                                : 'text-slate-700 hover:bg-slate-50'
                                 }`}
                         >
                             {opt.label}

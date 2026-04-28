@@ -271,7 +271,7 @@ export default function Hero() {
                   type="text"
                   aria-label="Search trips"
                   placeholder={`Search "${typedText || " "}"`}
-                  className="w-full bg-transparent px-4 sm:px-5 py-2 sm:py-2 text-slate-700 placeholder:text-slate-500/90 text-base sm:text-lg font-semibold outline-none"
+                  className="w-full bg-transparent px-4 sm:px-5 py-2 sm:py-2 text-slate-700 placeholder:text-slate-600/90 text-base sm:text-lg font-semibold outline-none"
                 />
                 <button
                   type="button"

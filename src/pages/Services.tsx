@@ -515,7 +515,7 @@ export default function Services() {
             </section>
 
             {/* —— Trust strip —— */}
-            <div ref={trustRef} className="border-b border-slate-100 bg-white py-7">
+            <div ref={trustRef} className="border-b border-slate-700 bg-white py-7">
                 <div className="content-container">
                     <motion.div
                         className="grid grid-cols-2 gap-6 md:grid-cols-5 md:gap-4"
@@ -530,7 +530,7 @@ export default function Services() {
                                 <motion.div
                                     key={item.label}
                                     variants={trustChild}
-                                    className={`flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left ${idx !== trustItems.length - 1 ? 'md:border-r md:border-slate-200 md:pr-4' : ''
+                                    className={`flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left ${idx !== trustItems.length - 1 ? 'md:border-r md:border-slate-700 md:pr-4' : ''
                                         }`}
                                 >
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -538,7 +538,7 @@ export default function Services() {
                                     </div>
                                     <div className="min-w-0">
                                         <TrustValue item={item} active={trustInView} />
-                                        <p className="text-xs font-medium leading-tight text-slate-500">
+                                        <p className="text-xs font-medium leading-tight text-slate-600">
                                             {item.label}
                                         </p>
                                     </div>
@@ -565,7 +565,7 @@ export default function Services() {
                         <h2 className="mb-4 mt-3 font-['Marcellus'] text-3xl text-slate-900 md:text-5xl">
                             Our Service Portfolio
                         </h2>
-                        <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-slate-500">
+                        <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-slate-600">
                             Trusted by regular travellers and corporate clients for personalised,
                             end-to-end travel solutions.
                         </p>
@@ -632,7 +632,7 @@ export default function Services() {
                                 <motion.div key={srv.id} variants={secondaryChild}>
                                     <a
                                         href={srv.href}
-                                        className="group flex min-h-[48px] flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:border-primary/25 hover:shadow-xl sm:flex-row sm:items-stretch"
+                                        className="group flex min-h-[48px] flex-col overflow-hidden rounded-2xl border border-slate-700 bg-white transition-all duration-300 hover:border-primary/25 hover:shadow-xl sm:flex-row sm:items-stretch"
                                     >
                                         <div className="relative h-[140px] w-full shrink-0 overflow-hidden sm:h-auto sm:w-[180px] md:w-[220px]">
                                             <img
@@ -656,7 +656,7 @@ export default function Services() {
                                             <p className="mb-2 text-sm font-semibold text-primary">
                                                 {srv.valueStatement}
                                             </p>
-                                            <p className="text-sm leading-relaxed text-slate-500">{srv.desc}</p>
+                                            <p className="text-sm leading-relaxed text-slate-600">{srv.desc}</p>
                                             <div className="mt-auto flex items-center gap-1.5 pt-3 text-sm font-bold text-primary transition-all group-hover:gap-3">
                                                 View service
                                                 <ArrowRight className="h-4 w-4" />
@@ -740,7 +740,7 @@ export default function Services() {
                         <h2 className="mb-3 font-['Marcellus'] text-3xl text-slate-900 md:text-4xl">
                             Curated Premium Travel Experiences
                         </h2>
-                        <p className="font-light text-slate-500">
+                        <p className="font-light text-slate-600">
                             Crafted for those who expect the extraordinary
                         </p>
                     </motion.div>

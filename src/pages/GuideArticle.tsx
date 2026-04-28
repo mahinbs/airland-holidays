@@ -36,7 +36,7 @@ export default function GuideArticle() {
                     <div className="p-8 md:p-12">
                         <span className="text-primary font-bold text-sm uppercase tracking-wider">{article.category}</span>
                         <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mt-2 mb-6">{article.title}</h1>
-                        <div className="flex gap-6 text-slate-500 text-sm mb-8">
+                        <div className="flex gap-6 text-slate-600 text-sm mb-8">
                             <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {article.date}</span>
                             <span className="flex items-center gap-2"><User className="w-4 h-4" /> {article.author}</span>
                         </div>

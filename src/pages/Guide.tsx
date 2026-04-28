@@ -20,7 +20,7 @@ export default function Guide() {
                         Inspiring travel tales, expert tips, visa updates, and ultimate destination guides curated by our advisors.
                     </p>
                     <div className="max-w-xl mx-auto relative flex items-center">
-                        <Search className="absolute left-4 text-slate-200 w-5 h-5" />
+                        <Search className="absolute left-4 text-slate-700 w-5 h-5" />
                         <input type="text" placeholder="Search articles, guides, or destinations..." className="w-full pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-primary shadow-lg" />
                     </div>
                 </div>
@@ -28,9 +28,9 @@ export default function Guide() {
 
             <div className="content-container mt-16">
                 {/* Categories Bar */}
-                <div className="flex flex-wrap gap-4 mb-12 justify-center border-b border-slate-200 pb-8">
+                <div className="flex flex-wrap gap-4 mb-12 justify-center border-b border-slate-700 pb-8">
                     {['All', 'Destination Guides', 'Travel Tips', 'Visa Updates', 'Budget Travel', 'Seasonal Travel'].map(cat => (
-                        <button key={cat} className={`px-6 py-2 rounded-full font-medium transition-colors ${cat === 'All' ? 'bg-primary text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'}`}>
+                        <button key={cat} className={`px-6 py-2 rounded-full font-medium transition-colors ${cat === 'All' ? 'bg-primary text-white' : 'bg-white text-slate-600 border border-slate-700 hover:border-slate-300'}`}>
                             {cat}
                         </button>
                     ))}
@@ -65,7 +65,7 @@ export default function Guide() {
                             <div className="p-6 flex flex-col flex-1">
                                 <h3 className="text-xl font-bold font-sans text-slate-900 mb-4 group-hover:text-primary transition-colors">{article.title}</h3>
 
-                                <div className="mt-auto flex items-center justify-between text-slate-500 text-sm font-medium pt-4 border-t border-slate-100">
+                                <div className="mt-auto flex items-center justify-between text-slate-600 text-sm font-medium pt-4 border-t border-slate-100">
                                     <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {article.date}</span>
                                     <span className="font-bold text-primary group-hover:text-primary-dark transition-colors">Read Article &rarr;</span>
                                 </div>

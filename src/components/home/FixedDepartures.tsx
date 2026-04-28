@@ -135,8 +135,8 @@ const months = [
 const TripCard = ({ trip, index }: { trip: typeof trips[0]; index: number }) => {
   const seatColor =
     trip.seatsLeft <= 4 ? 'text-red-600' :
-    trip.seatsLeft <= 8 ? 'text-orange-500' :
-    'text-slate-400';
+      trip.seatsLeft <= 8 ? 'text-orange-500' :
+        'text-slate-400';
 
   return (
     <motion.div
@@ -163,13 +163,12 @@ const TripCard = ({ trip, index }: { trip: typeof trips[0]; index: number }) => 
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
           {/* Badge — top left */}
-          <span className={`absolute top-3 left-3 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${
-            trip.badgeType === 'limited'
+          <span className={`absolute top-3 left-3 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${trip.badgeType === 'limited'
               ? 'bg-red-50 text-red-700 border-red-200'
               : trip.badgeType === 'trending'
-              ? 'bg-secondary/90 text-slate-900 border-transparent'
-              : 'bg-primary/90 text-white border-transparent'
-          }`}>
+                ? 'bg-secondary/90 text-slate-900 border-transparent'
+                : 'bg-primary/90 text-white border-transparent'
+            }`}>
             {trip.seatsLeft <= 4 && (
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             )}
@@ -263,7 +262,7 @@ export default function FixedDepartures() {
             <h2 className="Marcellus text-3xl md:text-5xl text-slate-900 mt-2 mb-4">
               Upcoming Premium Group Trips
             </h2>
-            <p className="text-slate-500 font-light text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-slate-600 font-light text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Travel with like-minded explorers on fixed dates, curated for unforgettable experiences
             </p>
           </motion.div>
@@ -279,11 +278,10 @@ export default function FixedDepartures() {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id as 'international' | 'india')}
-                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-250 ${
-                  activeTab === tab.id
+                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-250 ${activeTab === tab.id
                     ? 'bg-primary text-white shadow-lg shadow-primary/25'
                     : 'text-slate-600 hover:text-primary hover:bg-white'
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -298,11 +296,10 @@ export default function FixedDepartures() {
               <button
                 key={m.num}
                 onClick={() => setActiveMonth(m.num)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
-                  activeMonth === m.num
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${activeMonth === m.num
                     ? 'bg-primary/15 text-primary border-primary/30'
-                    : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700'
-                }`}
+                    : 'bg-slate-50 border-slate-700 text-slate-600 hover:bg-slate-100 hover:text-slate-700'
+                  }`}
               >
                 {m.label}
               </button>
@@ -323,7 +320,7 @@ export default function FixedDepartures() {
 
         {/* 4. TRIP CARD DESIGN */}
         {filteredTrips.length > 0 && (
-          <motion.div 
+          <motion.div
             key={`${activeTab}-${activeMonth}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

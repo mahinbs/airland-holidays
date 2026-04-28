@@ -1,18 +1,18 @@
 import { motion } from 'framer-motion';
-import { 
-  Building2, 
-  CheckCircle2, 
-  ArrowRight, 
-  MessageCircle, 
-  Sparkles, 
-  Award, 
-  Crown, 
-  Globe, 
-  Newspaper, 
-  Users, 
-  Plane, 
-  Car, 
-  Map 
+import {
+  Building2,
+  CheckCircle2,
+  ArrowRight,
+  MessageCircle,
+  Sparkles,
+  Award,
+  Crown,
+  Globe,
+  Newspaper,
+  Users,
+  Plane,
+  Car,
+  Map
 } from 'lucide-react';
 
 const pageContent = {
@@ -142,16 +142,16 @@ export default function About() {
     <div className="bg-white min-h-screen">
       {/* 1. HERO SECTION */}
       <section className="min-h-[80svh] relative flex items-center justify-center">
-        <img 
-          src={pageContent.hero.image} 
-          alt="Hero" 
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none" 
-          loading="eager" 
+        <img
+          src={pageContent.hero.image}
+          alt="Hero"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a1628]/80 via-[#0a1628]/55 to-[#0a1628]/90" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_rgba(10,22,40,0.6)_100%)] pointer-events-none" />
-        
-        <motion.div 
+
+        <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -163,11 +163,11 @@ export default function About() {
           <motion.div variants={{ hidden: { y: 30, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-xs font-black px-4 py-2 rounded-full inline-flex items-center gap-2 mb-6 uppercase tracking-widest">
             <Building2 className="w-4 h-4" /> About Airland Holidays
           </motion.div>
-          
+
           <motion.h1 variants={{ hidden: { y: 30, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="font-['Marcellus'] text-white text-[clamp(2.2rem,4.5vw,4.5rem)] leading-[1.15] max-w-6xl mx-auto mb-5">
             {pageContent.hero.heading}
           </motion.h1>
-          
+
           <motion.p variants={{ hidden: { y: 30, opacity: 0 }, visible: { y: 0, opacity: 1 } }} className="text-white/70 font-light text-lg md:text-xl max-w-2xl mx-auto">
             {pageContent.hero.subtext}
           </motion.p>
@@ -199,7 +199,7 @@ export default function About() {
           <div className="text-center mb-14">
             <h2 className="text-xs uppercase tracking-widest font-black text-secondary mb-3">{pageContent.story.sectionLabel}</h2>
             <h3 className="font-['Marcellus'] text-3xl md:text-4xl text-slate-900 mb-4">{pageContent.story.title}</h3>
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -211,7 +211,7 @@ export default function About() {
             </motion.div>
           </div>
 
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -219,11 +219,11 @@ export default function About() {
             className="relative mt-14 max-w-3xl mx-auto pl-5 md:pl-0 border-l-2 md:border-l-0 border-primary/20"
           >
             <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-primary/20 -translate-x-1/2" />
-            
+
             {pageContent.story.milestones.map((milestone, i) => {
               const isEven = i % 2 !== 0;
               return (
-                <motion.div 
+                <motion.div
                   key={i}
                   variants={{
                     hidden: { y: 20, opacity: 0, x: isEven ? 20 : -20 },
@@ -232,7 +232,7 @@ export default function About() {
                   className="relative flex items-center md:justify-between mb-8 last:mb-0"
                 >
                   <div className="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full border-4 border-white shadow-md z-10" />
-                  
+
                   <div className="md:hidden absolute -left-[29px] w-4 h-4 bg-primary rounded-full border-4 border-white shadow-md z-10" />
 
                   {isEven ? (
@@ -241,7 +241,7 @@ export default function About() {
                       <div className="bg-white/90 md:backdrop-blur-sm border border-[#ede9e3] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow w-full md:w-5/12 ml-4 md:ml-0 text-left">
                         <div className="font-['Marcellus'] text-primary text-2xl font-bold mb-1 drop-shadow-[0_0_8px_rgba(15,52,96,0.2)]">{milestone.year}</div>
                         <h4 className="font-bold text-slate-900 text-lg mb-2">{milestone.title}</h4>
-                        <p className="text-slate-500 text-sm leading-relaxed">{milestone.desc}</p>
+                        <p className="text-slate-600 text-sm leading-relaxed">{milestone.desc}</p>
                       </div>
                     </>
                   ) : (
@@ -249,7 +249,7 @@ export default function About() {
                       <div className="bg-white/90 md:backdrop-blur-sm border border-[#ede9e3] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow w-full md:w-5/12 ml-4 md:ml-0 md:text-right text-left">
                         <div className="font-['Marcellus'] text-primary text-2xl font-bold mb-1 drop-shadow-[0_0_8px_rgba(15,52,96,0.2)]">{milestone.year}</div>
                         <h4 className="font-bold text-slate-900 text-lg mb-2">{milestone.title}</h4>
-                        <p className="text-slate-500 text-sm leading-relaxed">{milestone.desc}</p>
+                        <p className="text-slate-600 text-sm leading-relaxed">{milestone.desc}</p>
                       </div>
                       <div className="hidden md:block md:w-5/12" />
                     </>
@@ -275,7 +275,7 @@ export default function About() {
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/80" />
         </div>
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-        
+
         <div className="content-container relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-xs uppercase tracking-widest font-black text-secondary mb-3">{pageContent.founder.sectionLabel}</h2>
@@ -283,7 +283,7 @@ export default function About() {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-12 items-start">
-            <motion.div 
+            <motion.div
               initial={{ x: -30, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -299,7 +299,7 @@ export default function About() {
               </div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ x: 30, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -307,7 +307,7 @@ export default function About() {
               className="flex-1 space-y-8"
             >
               <p className="text-slate-600 font-light text-lg leading-[1.9]">{pageContent.founder.about}</p>
-              
+
               <div>
                 <h4 className="font-['Marcellus'] text-xl text-slate-900 mb-4 flex items-center gap-3">
                   <Crown className="w-5 h-5 text-secondary" /> {pageContent.founder.leadershipTitle}
@@ -334,7 +334,7 @@ export default function About() {
             </motion.div>
           </div>
 
-          <motion.div 
+          <motion.div
             initial={{ x: 30, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             viewport={{ once: true }}
@@ -343,8 +343,8 @@ export default function About() {
             <h5 className="text-slate-400 text-xs uppercase tracking-widest font-bold mb-5">Recognition & Industry Presence</h5>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {pageContent.founder.supportingImages.map((img, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="rounded-2xl overflow-hidden border border-[#ede9e3] hover:border-primary/40 transition-colors group aspect-[1.4/1]"
                 >
                   <img src={img.src} alt={img.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
@@ -373,7 +373,7 @@ export default function About() {
             <div className="w-16 h-[3px] bg-gradient-to-r from-primary to-primary/30 rounded-full mx-auto mt-3 mb-10" />
           </div>
 
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -383,7 +383,7 @@ export default function About() {
             {pageContent.credentials.items.map((item, i) => {
               const isFifth = i === 4;
               return (
-                <motion.div 
+                <motion.div
                   key={i}
                   variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
                   className={`flex items-start gap-5 bg-white/80 md:backdrop-blur-sm border border-[#e8e4dc] rounded-2xl p-6 hover:border-primary/30 hover:shadow-md transition-all duration-300 group ${isFifth ? 'sm:col-span-2 lg:col-span-1 lg:col-start-2' : ''}`}
@@ -425,7 +425,7 @@ export default function About() {
             <p className="text-white/60 font-light text-lg max-w-2xl mx-auto">{pageContent.globalNetwork.intro}</p>
           </div>
 
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -433,7 +433,7 @@ export default function About() {
             className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-12"
           >
             {pageContent.globalNetwork.partners.map((partner, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 variants={{ hidden: { scale: 0.9, opacity: 0 }, visible: { scale: 1, opacity: 1 } }}
                 className="flex flex-col items-center gap-3 bg-white/[0.07] md:backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
@@ -467,7 +467,7 @@ export default function About() {
 
         <div className="content-container relative z-10">
           <div className="flex flex-col md:flex-row gap-12 items-center">
-            <motion.div 
+            <motion.div
               initial={{ x: -30, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -485,14 +485,14 @@ export default function About() {
                 ))}
               </div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ x: 30, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true }}
               className="flex-1 w-full"
             >
-              <div 
+              <div
                 className="relative rounded-3xl p-10 text-white overflow-hidden shadow-2xl"
                 style={{ background: 'linear-gradient(135deg, var(--color-primary, #0f3460) 0%, #0a1628 100%)' }}
               >
@@ -534,7 +534,7 @@ export default function About() {
             <p className="text-slate-600 font-light text-lg max-w-2xl mx-auto">{pageContent.team.desc}</p>
           </div>
 
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -542,7 +542,7 @@ export default function About() {
             className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10"
           >
             {pageContent.team.members.map((member, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
                 className="bg-white border border-[#ede9e3] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group rounded-3xl overflow-hidden relative z-10"
@@ -552,7 +552,7 @@ export default function About() {
                 </div>
                 <div className="p-6">
                   <h4 className="font-['Marcellus'] text-xl text-slate-900 group-hover:text-primary transition-colors mb-2">{member.role}</h4>
-                  <p className="text-slate-500 text-sm leading-relaxed">{member.desc}</p>
+                  <p className="text-slate-600 text-sm leading-relaxed">{member.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -576,7 +576,7 @@ export default function About() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,_rgba(15,52,96,0.5),_transparent)] pointer-events-none -z-0" />
 
         <div className="content-container relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ y: 30, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             viewport={{ once: true }}
@@ -589,7 +589,7 @@ export default function About() {
             <div className="h-px bg-gradient-to-r from-transparent via-secondary/60 to-transparent w-48 mx-auto mt-8" />
           </motion.div>
         </div>
-        
+
         <div className="content-container mt-7 relative z-10">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a href={pageContent.cta.primary.href} className="btn-primary flex items-center justify-center gap-2 text-lg w-full sm:w-auto">

@@ -111,7 +111,7 @@ export default function VisaHighlight() {
                                 return (
                                     <div
                                         key={idx}
-                                        className={`flex flex-col gap-2 p-4 rounded-xl border ${point.special ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}
+                                        className={`flex flex-col gap-2 p-4 rounded-xl border ${point.special ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-700'}`}
                                     >
                                         <div className={`p-2 rounded-lg w-fit ${point.special ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
                                             <Icon className="w-6 h-6" />
@@ -159,7 +159,7 @@ export default function VisaHighlight() {
                             {/* Flag pills row */}
                             <div className="flex flex-wrap gap-2">
                                 {sectionCopy.specialistSub.split('•').map((pill, idx) => (
-                                    <span key={idx} className="bg-white border border-slate-200 text-slate-700 px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium shadow-sm">
+                                    <span key={idx} className="bg-white border border-slate-700 text-slate-700 px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium shadow-sm">
                                         {pill.trim()}
                                     </span>
                                 ))}

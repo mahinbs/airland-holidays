@@ -23,7 +23,8 @@ import {
     Lock,
     ChevronLeft,
     ChevronRight,
-    CheckCircle2
+    CheckCircle2,
+    Share2
 } from 'lucide-react';
 
 interface VisaType {
@@ -78,6 +79,8 @@ interface VisaData {
     whyChooseUs: WhyChooseUs[];
     process: ProcessStep[];
     documents: string[];
+    mandatoryDocuments?: { label: string; desc: string }[];
+    supportiveDocumentsList?: { label: string; desc: string }[];
     supportingDocuments?: string[];
     photoSpecifications?: string[];
     eligibilityNotes?: string[];
@@ -87,7 +90,8 @@ interface VisaData {
     attractions: Attraction[];
     reviews?: ReviewItem[];
     visitUs?: { heading: string; lines: string[] };
-    embassy?: { heading: string; lines: string[]; linkLabel?: string; linkHref?: string };
+    embassy?: { heading: string; address?: string; contact?: string; lines: string[]; linkLabel?: string; linkHref?: string };
+    terms?: { q: string; a: string }[];
 }
 
 const visaData: Record<string, VisaData> = {
@@ -122,7 +126,7 @@ const visaData: Record<string, VisaData> = {
             }
         ],
         whyChooseUs: [
-            { icon: Globe, title: 'Visa Services for 180 Countries', desc: 'A legacy of delivering fast, reliable visa services with deep knowledge of global requirements and procedures.' },
+            { icon: Globe, title: 'Visa Services for 50+ Countries', desc: 'A legacy of delivering fast, reliable visa services with deep knowledge of global requirements and procedures.' },
             { icon: Calendar, title: '45 years of Seamless Visa Solutions', desc: 'A legacy of delivering fast, reliable visa services with deep knowledge of global requirements and procedures.' },
             { icon: MapPin, title: '150+ Branches Worldwide', desc: "If you wish to come down to our branch to apply for your Singapore visa, you can do so at any one of our 150+ branches! We'd love to meet you and help you out!" },
             { icon: ShieldCheck, title: 'End-to-End Visa Assistance', desc: 'You do not have to worry about anything - we will handle all your Singapore visa requirements! Just apply, sit back and relax!' },
@@ -310,6 +314,88 @@ const visaData: Record<string, VisaData> = {
             linkLabel: 'ICA — Visit pass information',
             linkHref: 'https://www.ica.gov.sg/',
         },
+        terms: [
+            { q: 'Approval Policy', a: 'Visa approval is at the sole discretion of the Singapore Immigration & Checkpoints Authority (ICA).' },
+            { q: 'Service Scope', a: 'Our services include document review, application filing, and status tracking.' },
+            { q: 'Document Accuracy', a: 'Applicants are responsible for the accuracy and authenticity of all submitted documents.' },
+            { q: 'Refund Policy', a: 'Embassy fees and service charges are non-refundable once the application is processed.' },
+            { q: 'Travel Bookings', a: 'We recommend not making non-refundable travel bookings until the visa is approved.' }
+        ]
+    },
+    usa: {
+        name: 'USA',
+        title: 'USA Visa',
+        bgImage: 'https://images.unsplash.com/photo-1508433957232-3107f5ed2035?auto=format&fit=crop&q=80&w=2000',
+        processingTime: 'Varies by Embassy',
+        fees: 'Varies',
+        intro: "Applying for a USA visa can be a complex journey, but it doesn't have to be. We provide end-to-end guidance to ensure your documentation is perfect and your interview preparation is thorough.",
+        visaTypes: [
+            {
+                name: 'B1/B2 Tourist & Business Visa',
+                processingTime: 'Embassy Dependent',
+                stayPeriod: 'Up to 6 Months',
+                validity: 'Up to 10 Years',
+                visaFee: 'USD 185',
+                serviceCharge: 'Contact Us'
+            },
+            {
+                name: 'F1 Student Visa',
+                processingTime: 'Embassy Dependent',
+                stayPeriod: 'Course Duration',
+                validity: 'Course Duration',
+                visaFee: 'USD 185',
+                serviceCharge: 'Contact Us'
+            }
+        ],
+        whyChooseUs: [
+            { icon: Globe, title: 'Visa Services for 50+ Countries', desc: 'Expert guidance for global travel needs.' },
+            { icon: ShieldCheck, title: '99% Success Rate', desc: 'High approval rates through meticulous documentation.' },
+            { icon: Users, title: 'Expert Consultants', desc: 'Personalized assistance for every applicant.' }
+        ],
+        process: [
+            { step: 1, title: 'Secure Your Service', desc: 'Confirm your visa assistance with our expert team' },
+            { step: 2, title: 'Submit Your Documents', desc: 'Share your required documents securely for verification' },
+            { step: 3, title: 'Expert Review & Processing', desc: 'Our specialists review and process your application as per embassy guidelines' },
+            { step: 4, title: 'Receive Your Visa', desc: 'Get your visa with complete support and guidance' }
+        ],
+        mandatoryDocuments: [
+            { label: 'Original Passport', desc: 'Valid for at least 6 months beyond intended stay' },
+            { label: 'DS-160 Confirmation', desc: 'Confirmation page of the online non-immigrant visa application' },
+            { label: 'Appointment Confirmation', desc: 'Proof of scheduled visa interview' },
+            { label: 'Payment Receipt', desc: 'Visa fee payment confirmation' }
+        ],
+        supportiveDocumentsList: [
+            { label: 'Financial Proofs', desc: 'Bank statements, tax returns, and property documents' },
+            { label: 'Employment Proofs', desc: 'Salary slips, NOC from employer, or business registration' },
+            { label: 'Travel Itinerary', desc: 'Day-to-day plan and hotel bookings' }
+        ],
+        documents: [],
+        faqs: [
+            { q: 'How long does USA visa processing take?', a: 'Processing times vary significantly based on the embassy and visa type. It can range from a few weeks to several months.' },
+            { q: 'What are the chances of approval?', a: 'Approval depends entirely on your profile and document accuracy. We maximize your chances through expert review.' },
+            { q: 'Can I reapply after rejection?', a: 'Yes, you can reapply, but it is important to address the reasons for the previous rejection.' },
+            { q: 'Do you provide interview support?', a: 'Yes, we provide comprehensive interview preparation and mock sessions.' },
+            { q: 'Is document verification included?', a: 'Absolutely, we meticulously verify every document against embassy standards.' }
+        ],
+        attractions: [],
+        embassy: {
+            heading: 'USA Embassy & Consulate Information',
+            address: 'Shantipath, Chanakyapuri, New Delhi, Delhi 110021',
+            contact: '011 2419 8000',
+            lines: ['Visit the official US Embassy website for latest alerts and appointment availability.']
+        },
+        terms: [
+            { q: 'Approval Policy', a: 'Visa approval depends on embassy decision' },
+            { q: 'Service Scope', a: 'Service includes guidance and processing support' },
+            { q: 'Applicant Responsibility', a: 'Applicant responsible for correct documents' },
+            { q: 'Timelines', a: 'Processing timelines are indicative' },
+            { q: 'Refund Policy', a: 'Service fees are non-refundable' },
+            { q: 'Embassy Fees', a: 'Embassy fees are separate' },
+            { q: 'Reapplication', a: 'Reapplication treated as new process' },
+            { q: 'Travel Advice', a: 'Avoid non-refundable bookings before approval' },
+            { q: 'Data Privacy', a: 'Data handled securely' },
+            { q: 'Policy Updates', a: 'Policies may change without notice' }
+        ]
     },
 };
 
@@ -349,6 +435,11 @@ const fallbackData: VisaData = {
     photoSpecifications: [],
     eligibilityNotes: [],
     reviews: [],
+    terms: [
+        { q: 'Approval Policy', a: 'Visa approval is at the sole discretion of the respective embassy/consulate.' },
+        { q: 'Service Scope', a: 'Our services include professional guidance and application processing support.' },
+        { q: 'Refund Policy', a: 'Service and embassy fees are generally non-refundable.' }
+    ]
 };
 
 const navLinks = [
@@ -358,9 +449,8 @@ const navLinks = [
     { id: 'why-us', label: 'Why Us' },
     { id: 'process', label: 'Process' },
     { id: 'faqs', label: 'FAQs' },
-    { id: 'attractions', label: 'Attractions' },
-    { id: 'reviews', label: 'Reviews' },
     { id: 'embassy', label: 'Embassy' },
+    { id: 'terms', label: 'Terms' },
 ];
 
 export default function VisaDetail() {
@@ -418,71 +508,93 @@ export default function VisaDetail() {
     };
 
     return (
-        <div className="bg-[#F8F9FA] min-h-screen pb-24 font-sans selection:bg-primary/20 selection:text-primary">
+        <div className="bg-white min-h-screen pb-24 font-sans selection:bg-primary/20 selection:text-primary">
             {/* Hero Section */}
-            <div className="relative min-h-[100svh] flex items-end pb-24 px-4 overflow-hidden bg-slate-900">
-                <div className="absolute inset-0 bg-cover bg-center bg-no-repeat brightness-50" style={{ backgroundImage: `url('${data.bgImage}')` }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/30 to-transparent mix-blend-overlay" />
+            <div className="relative min-h-[90svh] flex items-center pt-24 pb-12 px-4 overflow-hidden bg-primary-dark">
+                <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105" style={{ backgroundImage: `url('${data.bgImage}')` }} />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary-dark/80 to-transparent" />
 
                 <div className="content-container relative z-10 w-full">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                         className="max-w-4xl"
                     >
-                        <Link to="/visa" className="inline-flex items-center gap-2 text-white/70 hover:text-white font-medium text-sm mb-8 transition-colors group tracking-widest uppercase">
+                        <Link to="/visa" className="inline-flex items-center gap-2 text-secondary-light hover:text-secondary font-bold text-sm mb-6 transition-colors group tracking-[0.2em] uppercase">
                             <motion.div
                                 animate={{ x: [0, -5, 0] }}
                                 transition={{ repeat: Infinity, duration: 1.5 }}
                             >
                                 <ArrowRight className="w-4 h-4 rotate-180" />
                             </motion.div>
-                            Back to Visas
+                            Explore All Visas
                         </Link>
 
-                        <h1 className="text-6xl md:text-7xl lg:text-8xl text-white mb-8 tracking-tight capitalize leading-[1.1] font-medium" >
-                            {data.title}
+                        <h1 className="text-5xl md:text-7xl lg:text-8xl text-white mb-6 tracking-tight capitalize leading-[1.05] font-medium" >
+                            {data.name} Visa Assistance <br className="hidden md:block" />
+                            <span className="text-secondary">Made Simple & Reliable</span>
                         </h1>
 
-                        <div className="flex flex-wrap items-center gap-4 mb-10">
-                            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 flex items-center gap-3">
-                                <Clock className="w-5 h-5 text-amber-400" />
-                                <span className="text-white font-medium tracking-wide">{data.processingTime}</span>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 flex items-center gap-3">
-                                <CreditCard className="w-5 h-5 text-amber-400" />
-                                <span className="text-white font-medium tracking-wide">{data.fees}</span>
+                        <p className="text-xl md:text-2xl text-white/80 mb-10 max-w-2xl leading-relaxed">
+                            Expert guidance, accurate documentation, and faster processing support for your {data.name} journey.
+                        </p>
+
+                        <div className="flex flex-wrap items-center gap-6 mb-12">
+                            <button onClick={() => scrollToSection('enquiry')} className="bg-secondary hover:bg-secondary-dark text-white font-bold px-10 py-5 rounded-full transition-all duration-300 shadow-2xl shadow-secondary/20 flex items-center gap-3 text-lg group">
+                                Start Your Visa Process <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </button>
+                            <div className="flex flex-col">
+                                <span className="text-white font-bold text-lg">Trusted by travellers</span>
+                                <span className="text-secondary-light/80 text-sm tracking-widest uppercase font-medium">Across 50+ Countries</span>
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-4">
-                            <button onClick={() => scrollToSection('types')} className="bg-white text-slate-900 hover:bg-slate-100 font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-xl shadow-white/10 flex items-center gap-2">
-                                View Visa Types <ChevronDown className="w-5 h-5" />
-                            </button>
-                            <button onClick={() => scrollToSection('process')} className="bg-transparent border border-white text-white hover:bg-white/10 font-bold px-8 py-4 rounded-full transition-all duration-300 flex items-center gap-2">
-                                How it Works
-                            </button>
+                        <div className="flex flex-wrap items-center gap-8 py-8 border-t border-white/10">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center">
+                                    <Clock className="w-5 h-5 text-secondary" />
+                                </div>
+                                <div>
+                                    <p className="text-white/50 text-xs uppercase tracking-widest">Processing</p>
+                                    <p className="text-white font-bold">{data.processingTime}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center">
+                                    <CreditCard className="w-5 h-5 text-secondary" />
+                                </div>
+                                <div>
+                                    <p className="text-white/50 text-xs uppercase tracking-widest">Embassy Fees</p>
+                                    <p className="text-white font-bold">{data.fees}</p>
+                                </div>
+                            </div>
                         </div>
                     </motion.div>
                 </div>
             </div>
 
             {/* Sticky Navigation */}
-            <div className="bg-white/95 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50 shadow-sm transition-all">
+            <div className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
                 <div className="content-container">
-                    <ul className="flex items-center gap-8 overflow-x-auto py-4 scrollbar-hide">
+                    <ul className="flex items-center gap-2 md:gap-8 overflow-x-auto py-0 scrollbar-hide">
                         {navLinks.map((link) => (
                             <li key={link.id} className="shrink-0">
                                 <button
                                     type="button"
                                     onClick={() => scrollToSection(link.id)}
-                                    className={`font-semibold whitespace-nowrap transition-colors tracking-wide text-sm uppercase py-2 border-b-2 ${activeTab === link.id
-                                            ? 'text-primary border-primary'
-                                            : 'text-slate-200 hover:text-slate-800 border-transparent'
+                                    className={`font-bold whitespace-nowrap transition-all tracking-wider text-[11px] md:text-xs uppercase py-5 px-1 border-b-2 relative ${activeTab === link.id
+                                        ? 'text-primary border-primary'
+                                        : 'text-slate-500 hover:text-primary border-transparent'
                                         }`}
                                 >
                                     {link.label}
+                                    {activeTab === link.id && (
+                                        <motion.div
+                                            layoutId="activeTab"
+                                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                                        />
+                                    )}
                                 </button>
                             </li>
                         ))}
@@ -533,48 +645,41 @@ export default function VisaDetail() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <h2 className="text-4xl text-slate-900 mb-10 tracking-tight" >Visa Categories</h2>
+                            <h2 className="text-4xl text-slate-900 mb-4 tracking-tight font-medium" >Visa Categories</h2>
+                            <p className="text-slate-600 mb-10 text-lg">Choose the right visa type for your travel needs. Our experts ensure accurate filing for each category.</p>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {data.visaTypes.map((visa: VisaType, idx: number) => (
                                     <motion.div
                                         key={idx}
-                                        whileHover={{ y: -5 }}
-                                        className="bg-white/60 backdrop-blur-xl border border-slate-200/60 rounded-[2rem] p-8 shadow-sm hover:shadow-xl transition-all"
+                                        whileHover={{ y: -8 }}
+                                        className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 md:p-10 shadow-sm hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col group"
                                     >
-                                        <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-6 border-b border-slate-100">{visa.name}</h3>
-                                        <div className="space-y-4">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-slate-500 flex items-center gap-2"><Clock className="w-4 h-4" /> Processing</span>
-                                                <span className="font-bold text-slate-900">{visa.processingTime}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-slate-500 flex items-center gap-2"><Calendar className="w-4 h-4" /> Stay Period</span>
-                                                <span className="font-bold text-slate-900 text-right max-w-[50%]">{visa.stayPeriod}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-slate-500 flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Validity</span>
-                                                <span className="font-bold text-slate-900">{visa.validity}</span>
-                                            </div>
-                                            <div className="pt-4 mt-4 border-t border-slate-100">
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <span className="text-slate-500">Visa Fee</span>
-                                                    <span className="font-bold text-slate-900">{visa.visaFee}</span>
+                                        <div className="flex-1">
+                                            <h3 className="text-2xl font-bold text-primary mb-2 group-hover:text-secondary transition-colors">{visa.name}</h3>
+                                            <p className="text-slate-500 mb-8 font-medium">Ideal for {visa.name.includes('Tourist') ? 'tourism and leisure travel' : 'business meetings and conferences'}.</p>
+
+                                            <div className="space-y-5">
+                                                <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100">
+                                                    <span className="text-slate-500 flex items-center gap-2 font-medium uppercase tracking-widest text-[10px]"><Clock className="w-4 h-4 text-secondary" /> Processing</span>
+                                                    <span className="font-bold text-primary">{visa.processingTime}</span>
                                                 </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-slate-500">Service Charge</span>
-                                                    <span className="font-bold text-slate-900">{visa.serviceCharge}</span>
+                                                <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100">
+                                                    <span className="text-slate-500 flex items-center gap-2 font-medium uppercase tracking-widest text-[10px]"><Calendar className="w-4 h-4 text-secondary" /> Stay / Validity</span>
+                                                    <span className="font-bold text-primary">{visa.stayPeriod} / {visa.validity}</span>
+                                                </div>
+                                                <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100">
+                                                    <span className="text-slate-500 flex items-center gap-2 font-medium uppercase tracking-widest text-[10px]"><CreditCard className="w-4 h-4 text-secondary" /> Fees</span>
+                                                    <span className="font-bold text-primary">{visa.visaFee}</span>
                                                 </div>
                                             </div>
                                         </div>
+                                        <button onClick={() => scrollToSection('enquiry')} className="mt-8 w-full bg-white border-2 border-primary text-primary font-bold py-4 rounded-full group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                            Check Requirements
+                                        </button>
                                     </motion.div>
                                 ))}
                             </div>
-                            {data.additionalChargesNote && (
-                                <div className="mt-8 bg-amber-50 border border-amber-200/60 rounded-2xl p-6 flex gap-4 items-start">
-                                    <Info className="w-6 h-6 text-amber-600 shrink-0" />
-                                    <p className="text-amber-900/80 text-sm leading-relaxed">{data.additionalChargesNote}</p>
-                                </div>
-                            )}
                         </motion.section>
 
                         {/* Sample Visa */}
@@ -613,54 +718,66 @@ export default function VisaDetail() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <h2 className="text-4xl text-slate-900 mb-10 tracking-tight" >Required Documents</h2>
+                            <h2 className="text-4xl text-slate-900 mb-4 tracking-tight font-medium" >Documentation Guide</h2>
+                            <p className="text-slate-600 mb-10 text-lg">Proper documentation is the key to a successful visa application. We provide a tailored checklist for your profile.</p>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                {data.documents.map((doc: string, idx: number) => (
-                                    <div key={idx} className="relative bg-white border border-slate-200 p-6 rounded-2xl flex items-start gap-4 overflow-hidden group hover:border-primary/50 transition-colors">
-                                        <div className="absolute -right-4 -top-8 text-9xl font-black text-slate-50 opacity-50 select-none group-hover:text-primary/5 transition-colors">
-                                            {idx + 1}
-                                        </div>
-                                        <div className="relative z-10 bg-primary/10 p-2 rounded-full shrink-0 mt-1">
-                                            <CheckCircle2 className="w-6 h-6 text-primary" />
-                                        </div>
-                                        <p className="relative z-10 text-slate-700 text-lg leading-relaxed">{doc}</p>
+                            <div className="space-y-12">
+                                {/* Mandatory */}
+                                <div>
+                                    <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs">01</div>
+                                        Mandatory Documents
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {(data.mandatoryDocuments || data.documents.map(d => ({ label: d, desc: 'Required as per standard embassy guidelines.' }))).map((doc, idx) => (
+                                            <div key={idx} className="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex items-center justify-between gap-6 hover:bg-white hover:border-secondary/30 transition-all group">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm group-hover:bg-secondary group-hover:text-white transition-colors">
+                                                        <FileText className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-slate-900">{typeof doc === 'string' ? doc : doc.label}</p>
+                                                        <p className="text-slate-500 text-sm">{typeof doc === 'string' ? 'Original document required.' : doc.desc}</p>
+                                                    </div>
+                                                </div>
+                                                <CheckCircle2 className="w-6 h-6 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                </div>
+
+                                {/* Supportive */}
+                                <div>
+                                    <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs">02</div>
+                                        Supportive Documents
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {(data.supportiveDocumentsList || data.supportingDocuments?.map(d => ({ label: d, desc: 'Optional but recommended for a stronger application.' })) || []).map((doc, idx) => (
+                                            <div key={idx} className="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex items-center justify-between gap-6 hover:bg-white hover:border-secondary/30 transition-all group">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm group-hover:bg-secondary group-hover:text-white transition-colors">
+                                                        <ShieldCheck className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-slate-900">{typeof doc === 'string' ? doc : doc.label}</p>
+                                                        <p className="text-slate-500 text-sm">{typeof doc === 'string' ? 'Recommended based on your profile.' : doc.desc}</p>
+                                                    </div>
+                                                </div>
+                                                <CheckCircle2 className="w-6 h-6 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
 
-                            {data.supportingDocuments && data.supportingDocuments.length > 0 && (
-                                <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
-                                    <button
-                                        onClick={() => setShowSupportingDocs(!showSupportingDocs)}
-                                        className="w-full px-8 py-6 flex items-center justify-between bg-slate-50/50 hover:bg-slate-50 transition-colors"
-                                    >
-                                        <span className="font-bold text-lg text-slate-900">Supporting Documents (Profile Based)</span>
-                                        {showSupportingDocs ? <ChevronUp className="w-6 h-6 text-slate-500" /> : <ChevronDown className="w-6 h-6 text-slate-500" />}
-                                    </button>
-                                    <AnimatePresence>
-                                        {showSupportingDocs && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <div className="p-8 border-t border-slate-200">
-                                                    <ul className="space-y-4">
-                                                        {data.supportingDocuments.map((doc, idx) => (
-                                                            <li key={idx} className="flex items-start gap-3 text-slate-600">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-slate-200 shrink-0 mt-2.5" />
-                                                                <span>{doc}</span>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                            <div className="mt-12 bg-primary-dark text-white p-8 rounded-3xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/20 rounded-full blur-3xl" />
+                                <div className="relative z-10 flex items-start gap-4">
+                                    <Info className="w-6 h-6 text-secondary shrink-0 mt-1" />
+                                    <p className="text-white/80 font-medium">Important Note: Requirements may vary based on applicant profile, travel history, and current embassy rules. Our experts will provide a customized checklist upon review.</p>
                                 </div>
-                            )}
+                            </div>
                         </motion.section>
 
                         {/* Why Choose Us */}
@@ -671,19 +788,22 @@ export default function VisaDetail() {
                             viewport={{ once: true }}
                         >
                             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-                                <h2 className="text-4xl text-slate-900 tracking-tight" >Why Choose Us</h2>
+                                <div>
+                                    <h2 className="text-4xl text-slate-900 tracking-tight font-medium mb-4" >The Airland Advantage</h2>
+                                    <p className="text-slate-600 text-lg max-w-xl">We combine decades of experience with a modern, digital-first approach to visa processing.</p>
+                                </div>
                                 <div className="flex gap-8">
-                                    <div>
-                                        <p className="text-3xl font-bold text-primary mb-1">20+</p>
-                                        <p className="text-sm text-slate-500 uppercase tracking-wider font-medium">Years Exp</p>
+                                    <div className="text-center">
+                                        <p className="text-4xl font-bold text-primary mb-1">20+</p>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">Years Exp</p>
                                     </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-primary mb-1">10k+</p>
-                                        <p className="text-sm text-slate-500 uppercase tracking-wider font-medium">Visas Done</p>
+                                    <div className="text-center">
+                                        <p className="text-4xl font-bold text-primary mb-1">50+</p>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">Countries</p>
                                     </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-primary mb-1">99%</p>
-                                        <p className="text-sm text-slate-500 uppercase tracking-wider font-medium">Success</p>
+                                    <div className="text-center">
+                                        <p className="text-4xl font-bold text-primary mb-1">99%</p>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">Success</p>
                                     </div>
                                 </div>
                             </div>
@@ -694,14 +814,14 @@ export default function VisaDetail() {
                                     return (
                                         <motion.div
                                             key={idx}
-                                            whileHover={{ y: -5 }}
-                                            className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm"
+                                            whileHover={{ y: -8 }}
+                                            className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500 group"
                                         >
-                                            <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-6">
-                                                <Icon className="w-6 h-6 text-slate-900" />
+                                            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-secondary transition-colors duration-500">
+                                                <Icon className="w-7 h-7 text-primary group-hover:text-white transition-colors duration-500" />
                                             </div>
-                                            <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-                                            <p className="text-slate-500 leading-relaxed text-sm">{item.desc}</p>
+                                            <h3 className="text-xl font-bold text-slate-900 mb-4">{item.title}</h3>
+                                            <p className="text-slate-500 leading-relaxed text-sm font-medium">{item.desc}</p>
                                         </motion.div>
                                     );
                                 })}
@@ -715,24 +835,57 @@ export default function VisaDetail() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <h2 className="text-4xl text-slate-900 mb-12 tracking-tight text-center" >The Concierge Process</h2>
+                            <div className="text-center mb-16">
+                                <p className="text-secondary font-bold tracking-[0.3em] uppercase text-xs mb-4">Simple, Guided & Expert-Handled Process</p>
+                                <h2 className="text-4xl md:text-5xl text-slate-900 tracking-tight font-medium" >4 Simple Steps to Get Your Visa</h2>
+                            </div>
 
-                            <div className="relative">
-                                {/* Mobile Vertical Line */}
-                                <div className="md:hidden absolute left-6 top-0 w-0.5 h-full bg-slate-200" />
+                            <div className="max-w-3xl mx-auto relative">
+                                {/* Vertical Connector Line */}
+                                <div className="absolute left-[31px] md:left-1/2 top-0 bottom-0 w-0.5 bg-slate-200 -translate-x-1/2 hidden md:block" />
+                                <div className="absolute left-[31px] top-0 bottom-0 w-0.5 bg-slate-200 md:hidden" />
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 relative z-10">
+                                <div className="space-y-12">
                                     {data.process.map((step, idx) => (
-                                        <div key={idx} className="relative flex md:flex-col items-start md:items-center gap-6 md:gap-8 group">
-                                            <div className="w-12 h-12 rounded-full bg-white border-4 flex items-center justify-center font-bold shrink-0 border-primary text-primary transition-colors z-10">
-                                                {step.step}
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+                                            whileInView={{ opacity: 1, x: 0 }}
+                                            viewport={{ once: true }}
+                                            className={`relative flex items-center gap-8 ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                                        >
+                                            {/* Content Card */}
+                                            <div className={`flex-1 bg-slate-50 border border-slate-200 p-8 rounded-[2.5rem] hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group ${idx % 2 === 0 ? 'md:text-right' : 'md:text-left'} ml-16 md:ml-0`}>
+
+                                                {/* Number Bubble */}
+                                                {/* <div className={`mb-3 w-12 h-12 rounded-full bg-white border-4 border-slate-100 flex items-center justify-center font-bold text-primary shadow-xl z-10 group-hover:border-secondary transition-colors duration-500  ${idx % 2 === 0 ? 'md:ml-auto' : 'md:mr-auto'}`}>
+                                                    0{step.step}
+                                                </div> */}
+                                                <div className={`w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-6 shadow-sm group-hover:bg-secondary group-hover:text-white transition-colors duration-500 ${idx % 2 === 0 ? 'md:ml-auto' : 'md:mr-auto'}`}>
+                                                    {idx === 0 && <CreditCard className="w-6 h-6" />}
+                                                    {idx === 1 && <FileText className="w-6 h-6" />}
+                                                    {idx === 2 && <ShieldCheck className="w-6 h-6" />}
+                                                    {idx === 3 && <Globe className="w-6 h-6" />}
+                                                </div>
+                                                <h3 className="text-xl font-bold text-slate-900 mb-3">{step.title}</h3>
+                                                <p className="text-slate-500 leading-relaxed text-sm font-medium">{step.desc}</p>
                                             </div>
-                                            <div className="md:text-center pt-2 md:pt-0">
-                                                <h3 className="font-bold text-slate-900 mb-2">{step.title}</h3>
-                                                <p className="text-slate-500 text-sm leading-relaxed">{step.desc}</p>
-                                            </div>
-                                        </div>
+
+                                            <div className="flex-1 hidden md:block" />
+                                        </motion.div>
                                     ))}
+                                </div>
+                            </div>
+
+                            <div className="mt-20 text-center space-y-8">
+                                <p className="text-slate-500 font-medium italic">“Handled by visa experts as per latest embassy requirements”</p>
+                                <div className="flex flex-wrap justify-center gap-4">
+                                    <button onClick={() => scrollToSection('enquiry')} className="bg-primary hover:bg-primary-dark text-white font-bold px-10 py-5 rounded-full transition-all duration-300 shadow-xl shadow-primary/20">
+                                        Start Your Visa Process
+                                    </button>
+                                    <button onClick={() => window.open('https://wa.me/918879008992')} className="bg-white border-2 border-slate-200 hover:border-primary text-slate-900 font-bold px-10 py-5 rounded-full transition-all duration-300">
+                                        Talk to an Expert
+                                    </button>
                                 </div>
                             </div>
                         </motion.section>
@@ -744,17 +897,17 @@ export default function VisaDetail() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <h2 className="text-4xl text-slate-900 mb-10 tracking-tight" >Frequently Asked Questions</h2>
+                            <h2 className="text-4xl text-slate-900 mb-10 tracking-tight font-medium" >Frequently Asked Questions</h2>
                             <div className="space-y-4">
                                 {data.faqs.map((faq, idx) => (
-                                    <div key={idx} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                                    <div key={idx} className="bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden hover:bg-white hover:shadow-xl transition-all duration-300">
                                         <button
-                                            className="w-full px-8 py-6 text-left flex justify-between items-center focus:outline-none"
+                                            className="w-full px-8 py-6 text-left flex justify-between items-center focus:outline-none group"
                                             onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
                                         >
-                                            <span className="font-bold text-slate-900 pr-6">{faq.q}</span>
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${activeFaq === idx ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>
-                                                {activeFaq === idx ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                                            <span className="font-bold text-slate-900 pr-6 text-lg group-hover:text-primary transition-colors">{faq.q}</span>
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${activeFaq === idx ? 'bg-primary text-white rotate-180' : 'bg-white text-slate-400 shadow-sm'}`}>
+                                                <ChevronDown className="w-5 h-5" />
                                             </div>
                                         </button>
                                         <AnimatePresence>
@@ -765,7 +918,7 @@ export default function VisaDetail() {
                                                     exit={{ height: 0, opacity: 0 }}
                                                     className="overflow-hidden"
                                                 >
-                                                    <div className="px-8 pb-6 text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
+                                                    <div className="px-8 pb-8 text-slate-500 leading-relaxed border-t border-slate-100 pt-6 text-lg font-medium">
                                                         {faq.a}
                                                     </div>
                                                 </motion.div>
@@ -785,7 +938,7 @@ export default function VisaDetail() {
                                 viewport={{ once: true }}
                             >
                                 <h2 className="text-4xl text-slate-900 mb-4 tracking-tight" >Curated Experiences</h2>
-                                <p className="text-slate-500 text-lg mb-10">Enhance your trip with our handpicked selection of premium attractions.</p>
+                                <p className="text-slate-600 text-lg mb-10">Enhance your trip with our handpicked selection of premium attractions.</p>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {data.attractions.map((attr, idx) => (
@@ -850,38 +1003,42 @@ export default function VisaDetail() {
                             </motion.section>
                         )}
 
-                        {/* Embassy */}
+                        {/* Embassy Section (Handled Above) */}
+
+                        {/* Terms & Conditions */}
                         <motion.section
-                            id="embassy"
+                            id="terms"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="rounded-3xl bg-gradient-to-br from-slate-100 to-white border border-slate-200 p-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                                <div className="flex items-start gap-6 max-w-2xl">
-                                    <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0">
-                                        <Globe className="w-8 h-8 text-slate-900" />
+                            <h2 className="text-4xl text-slate-900 mb-10 tracking-tight font-medium" >Terms & Policies</h2>
+                            <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] divide-y divide-slate-200 overflow-hidden">
+                                {data.terms?.map((term, idx) => (
+                                    <div key={idx} className="hover:bg-white transition-colors group">
+                                        <button
+                                            className="w-full px-8 py-5 text-left flex items-center justify-between"
+                                            onClick={() => setActiveFaq(activeFaq === idx + 100 ? null : idx + 100)}
+                                        >
+                                            <span className="font-bold text-slate-700">{term.q}</span>
+                                            <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${activeFaq === idx + 100 ? 'rotate-180' : ''}`} />
+                                        </button>
+                                        <AnimatePresence>
+                                            {activeFaq === idx + 100 && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="px-8 pb-5 text-slate-500 text-sm font-medium">
+                                                        {term.a}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-slate-900 mb-3">{data.embassy?.heading ?? 'Official References'}</h2>
-                                        <div className="space-y-2 text-slate-600">
-                                            {(data.embassy?.lines ?? ['Verify latest guidance on the official immigration website.']).map((line, i) => (
-                                                <p key={i}>{line}</p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                                {data.embassy?.linkHref && (
-                                    <a
-                                        href={data.embassy.linkHref}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="shrink-0 inline-flex items-center gap-2 font-bold text-slate-900 bg-white border border-slate-200 hover:border-slate-300 px-6 py-3 rounded-full shadow-sm transition-all"
-                                    >
-                                        {data.embassy.linkLabel ?? 'Official Website'}
-                                        <ExternalLink className="w-4 h-4" />
-                                    </a>
-                                )}
+                                ))}
                             </div>
                         </motion.section>
 
@@ -890,30 +1047,35 @@ export default function VisaDetail() {
                     {/* Sticky Sidebar */}
                     <aside className="lg:w-1/3">
                         <div className="sticky top-32 space-y-8">
-                            {/* Enquiry Form */}
-                            <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50">
-                                <h3 className="text-3xl text-slate-900 mb-2" >Request Concierge</h3>
-                                <p className="text-slate-500 mb-8">Our visa experts will contact you shortly.</p>
+                            <div id="enquiry" className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-2xl">
+                                <h3 className="text-3xl font-medium text-slate-900 mb-2" >Get Expert Assistance</h3>
+                                <p className="text-slate-500 mb-8 font-medium">Guided & Accurate Processing for your {data.name} Visa.</p>
 
                                 <form className="space-y-4">
-                                    <div>
-                                        <input type="text" placeholder="Full Name" className="w-full px-5 py-4 bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition-all" />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <input type="text" placeholder="Full Name" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
+                                        <input type="email" placeholder="Email Address" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <input type="tel" placeholder="Mobile Number" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
+                                        <input type="text" defaultValue={data.name} readOnly disabled className="w-full px-5 py-4 bg-slate-100 rounded-2xl border border-slate-100 text-slate-500 font-bold text-sm cursor-not-allowed focus:ring-0 focus:border-0 outline-none capitalize" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <select className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm appearance-none">
+                                            <option value="">Select Visa Type</option>
+                                            {data.visaTypes.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
+                                        </select>
+                                        <input type="text" placeholder="Travel Dates" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
                                     </div>
                                     <div>
-                                        <input type="email" placeholder="Email Address" className="w-full px-5 py-4 bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition-all" />
+                                        <textarea rows={3} placeholder="Additional Request / Notes" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none font-medium text-sm" />
                                     </div>
-                                    <div>
-                                        <input type="tel" placeholder="Phone Number" className="w-full px-5 py-4 bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition-all" />
-                                    </div>
-                                    <div>
-                                        <textarea rows={3} placeholder="Travel dates or specific requirements" className="w-full px-5 py-4 bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition-all resize-none" />
-                                    </div>
-                                    <button type="button" className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300">
-                                        Submit Request <ArrowRight className="w-5 h-5" />
+                                    <button type="button" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-xl shadow-primary/20 text-lg group">
+                                        Get Expert Assistance <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>
                                 </form>
 
-                                <div className="mt-6 flex items-center justify-center gap-2 text-slate-500 text-sm">
+                                <div className="mt-6 flex items-center justify-center gap-2 text-slate-600 text-sm">
                                     <Lock className="w-4 h-4" />
                                     <span>Your data is 100% secure</span>
                                 </div>
@@ -923,7 +1085,7 @@ export default function VisaDetail() {
                             <div className="bg-slate-900 text-white p-8 rounded-[2rem] shadow-xl relative overflow-hidden">
                                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
 
-                                <h4 className="text-2xl mb-6 relative z-10" >Direct Support</h4>
+                                <h4 className="text-2xl mb-6 relative z-10 text-white" >Direct Support</h4>
                                 <div className="space-y-4 relative z-10">
                                     <a href="tel:02240666444" className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-all">
                                         <div className="bg-white/10 p-3 rounded-lg">
@@ -948,6 +1110,18 @@ export default function VisaDetail() {
                         </div>
                     </aside>
                 </div>
+            </div>
+            {/* Mobile Sticky CTA */}
+            <div className="lg:hidden fixed bottom-6 left-6 right-6 z-[60] flex gap-3">
+                <button onClick={() => scrollToSection('enquiry')} className="flex-1 bg-primary text-white font-bold py-4 rounded-2xl shadow-2xl flex items-center justify-center gap-2">
+                    Start Process
+                </button>
+                <button onClick={() => window.open('https://wa.me/918879008992')} className="w-14 h-14 bg-emerald-500 text-white rounded-2xl shadow-2xl flex items-center justify-center">
+                    <MessageCircle className="w-6 h-6" />
+                </button>
+                <button onClick={() => navigator.share({ title: data.title, url: window.location.href })} className="w-14 h-14 bg-white border border-slate-200 text-slate-900 rounded-2xl shadow-2xl flex items-center justify-center">
+                    <Share2 className="w-6 h-6" />
+                </button>
             </div>
         </div>
     );

@@ -101,7 +101,7 @@ export const FeaturedVisas = ({ countries }: FeaturedVisasProps) => {
                                 e.stopPropagation();
                                 instanceRef.current?.prev();
                             }}
-                            className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-800 border border-slate-200 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
+                            className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-800 border border-slate-700 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
                         >
                             <ChevronRight className="w-6 h-6 rotate-180" />
                         </button>
@@ -110,7 +110,7 @@ export const FeaturedVisas = ({ countries }: FeaturedVisasProps) => {
                                 e.stopPropagation();
                                 instanceRef.current?.next();
                             }}
-                            className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-800 border border-slate-200 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
+                            className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-slate-800 border border-slate-700 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm"
                         >
                             <ChevronRight className="w-6 h-6" />
                         </button>

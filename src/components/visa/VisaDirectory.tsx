@@ -29,19 +29,19 @@ export const VisaDirectory = ({ countries }: VisaDirectoryProps) => {
                 {/* Filter Bar */}
                 <div className="bg-white rounded-3xl p-4 md:p-6 shadow-lg shadow-slate-200/50 flex flex-col md:flex-row gap-4 mb-12">
                     <div className="flex-1 relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-200 w-5 h-5 pointer-events-none" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-700 w-5 h-5 pointer-events-none" />
                         <input
                             type="text"
                             placeholder="Search by destination..."
-                            className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                            className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-700 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <div className="flex items-center gap-3">
-                        <Filter className="w-5 h-5 text-slate-200 hidden sm:block" />
+                        <Filter className="w-5 h-5 text-slate-700 hidden sm:block" />
                         <select
-                            className="py-3.5 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none min-w-[200px]"
+                            className="py-3.5 px-4 rounded-xl border border-slate-700 bg-slate-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none min-w-[200px]"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
                         >
@@ -64,7 +64,7 @@ export const VisaDirectory = ({ countries }: VisaDirectoryProps) => {
 
                 {filtered.length === 0 && (
                     <div className="text-center py-20">
-                        <p className="text-slate-500 text-lg">No countries match your search filters.</p>
+                        <p className="text-slate-600 text-lg">No countries match your search filters.</p>
                         <button
                             onClick={() => {
                                 setSearchTerm('');
