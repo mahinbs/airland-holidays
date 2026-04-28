@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CalendarDays, Calendar, Clock, ArrowRight } from 'lucide-react';
 
 const trips = [

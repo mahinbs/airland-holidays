@@ -772,17 +772,6 @@ const PartnerTrust = () => {
 
 // 11. RELATED PACKAGES
 const RelatedPackages = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
-    const [sliderRef] = useKeenSlider<HTMLDivElement>({
-        slides: { perView: "auto", spacing: 20 },
-        drag: true,
-        breakpoints: {
-            "(min-width: 1024px)": {
-                slides: { perView: 3, spacing: 30 },
-                drag: false
-            },
-        },
-    });
-
     return (
         <section className="py-24 bg-white overflow-hidden relative border-t border-slate-200">
             <div className="absolute top-1/4 left-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -translate-x-1/2" />

@@ -11,14 +11,12 @@ import {
     Truck,
     Users,
     ChevronDown,
-    ChevronUp,
     Phone,
     MessageCircle,
     Info,
     ArrowRight,
     FileText,
     Star,
-    ExternalLink,
     Quote,
     Lock,
     ChevronLeft,
@@ -457,7 +455,6 @@ export default function VisaDetail() {
     const { country } = useParams();
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<string>('overview');
-    const [showSupportingDocs, setShowSupportingDocs] = useState(false);
     const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
 
     const countryKey = country?.toLowerCase() || '';
