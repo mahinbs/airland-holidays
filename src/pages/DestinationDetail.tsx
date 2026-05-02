@@ -6,8 +6,10 @@ import { motion } from 'framer-motion';
 import {
     MapPin, Sun, Info, Clock, Wallet, FileCheck, Plane, Star,
     Heart, Users, User, Briefcase, Utensils, ShoppingBag,
-    AlertTriangle, CheckCircle2, XCircle, ArrowRight, Instagram, ArrowLeft
+    AlertTriangle, CheckCircle2, XCircle, ArrowRight, Instagram, ArrowLeft,
+    ChevronLeft, ChevronRight, Phone, MessageCircle
 } from 'lucide-react';
+import VisualExperience from '../components/common/VisualExperience';
 
 const mockCountryData = {
     name: 'Indonesia',
@@ -72,22 +74,6 @@ const mockCountryData = {
         { name: 'Borobudur Temple', category: 'Cultural', image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=600&q=80' },
     ],
 
-    cultural: {
-        food: ['Nasi Goreng', 'Satay', 'Rendang', 'Gado-Gado', 'Babi Guling (Bali)'],
-        shopping: ['Batik Fabric', 'Silver Jewelry (Ubud)', 'Wooden Carvings', 'Kopi Luwak Coffee'],
-        etiquette: [
-            'Remove shoes before entering temples and homes',
-            'Dress modestly at religious sites — sarongs provided',
-            'Use right hand for giving and receiving',
-            'Avoid pointing feet at people or sacred objects',
-        ],
-        dosDonts: [
-            'Do: Greet with "Selamat" and a slight bow',
-            'Don\'t: Touch anyone\'s head — considered sacred',
-            'Do: Bargain respectfully at local markets',
-            'Don\'t: Raise your voice — locals prefer calm interaction',
-        ],
-    },
 
     instagramSpots: [
         { name: 'Bali Swing, Ubud', image: 'https://images.unsplash.com/photo-1573790387438-4da905039392?w=400&q=80' },
@@ -139,6 +125,36 @@ const mockCountryData = {
             filterCategory: 'Solo',
         },
     ],
+    visualExperiences: [
+        { id: 1, type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-tropical-island-aerial-view-40018-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80', title: 'Bali Bliss', packageId: '1', packageName: 'Bali Bliss & Temples' },
+        { id: 2, type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-top-view-of-a-resort-in-the-maldives-40018-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1573790387438-4da905039392?w=600&q=80', title: 'Ubud Dreams', packageId: '4', packageName: 'Romantic Bali Escape' },
+        { id: 3, type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-glacier-river-in-iceland-from-the-top-43405-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80', title: 'Icy Currents', packageId: '5', packageName: 'Volcanic Island Tour' },
+        { id: 4, type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-waves-coming-to-the-shore-4113-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=600&q=80', title: 'Ocean Whispers', packageId: '2', packageName: 'Beach Paradise' },
+    ],
+    airports: [
+        { name: 'Soekarno–Hatta (CGK)', city: 'Jakarta', connectivity: 'Primary hub with direct flights from Delhi and Mumbai via Indigo and Air India.' },
+        { name: 'Ngurah Rai (DPS)', city: 'Bali', connectivity: 'Highly connected with direct seasonal flights from Mumbai and Delhi. Excellent regional connectivity.' },
+    ],
+    cultural: {
+        food: [
+            { name: 'Nasi Goreng', desc: 'Indonesian fried rice with a unique sweet-savory flavor from kecap manis, topped with a fried egg.', images: ['https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=600&q=80', 'https://images.unsplash.com/photo-1512058560366-cd2427bb085f?w=600&q=80'] },
+            { name: 'Satay', desc: 'Skewered grilled meat served with a rich peanut sauce. A beloved street food across the archipelago.', images: ['https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=600&q=80'] },
+            { name: 'Rendang', desc: 'Slow-cooked beef in coconut milk and spices until tender and caramelized. Voted one of the best foods in the world.', images: ['https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=600&q=80'] },
+        ],
+        shopping: ['Batik Fabric', 'Silver Jewelry (Ubud)', 'Wooden Carvings', 'Kopi Luwak Coffee'],
+        etiquette: [
+            'Remove shoes before entering temples and homes',
+            'Dress modestly at religious sites — sarongs provided',
+            'Use right hand for giving and receiving',
+            'Avoid pointing feet at people or sacred objects',
+        ],
+        dosDonts: [
+            'Do: Greet with "Selamat" and a slight bow',
+            'Don\'t: Touch anyone\'s head — considered sacred',
+            'Do: Bargain respectfully at local markets',
+            'Don\'t: Raise your voice — locals prefer calm interaction',
+        ],
+    },
 };
 
 export default function DestinationDetail() {
@@ -150,16 +166,27 @@ export default function DestinationDetail() {
 
     const [activeAttractionCat, setActiveAttractionCat] = useState('All');
     const [activePackageCat, setActivePackageCat] = useState('All');
+    const [packageSort, setPackageSort] = useState('Popular');
 
     const filteredAttractions = activeAttractionCat === 'All'
         ? data.attractions
         : data.attractions.filter(a => a.category === activeAttractionCat);
 
-    const filteredPackages = activePackageCat === 'All'
+    const filteredPackages = (activePackageCat === 'All'
         ? data.packages
-        : data.packages.filter(p => p.category === activePackageCat);
+        : data.packages.filter(p => p.category === activePackageCat))
+        .sort((a, b) => {
+            if (packageSort === 'Price: Low to High') return a.price - b.price;
+            if (packageSort === 'Price: High to Low') return b.price - a.price;
+            if (packageSort === 'Duration') {
+                const getDays = (d: string) => parseInt(d.split(' ')[0]) || 0;
+                return getDays(a.duration) - getDays(b.duration);
+            }
+            return 0; // Default: Popular/Original
+        });
 
     const [sliderRef] = useKeenSlider(
+        // ... (existing slider config)
         {
             loop: true,
             renderMode: "performance",
@@ -206,6 +233,27 @@ export default function DestinationDetail() {
                     nextTimeout();
                 });
                 slider.on("dragStarted", clearNextTimeout);
+                slider.on("animationEnded", nextTimeout);
+                slider.on("updated", nextTimeout);
+            },
+        ]
+    );
+
+    const [sidebarSliderRef, sidebarInstanceRef] = useKeenSlider(
+        {
+            loop: true,
+            slides: { perView: 1, spacing: 10 },
+        },
+        [
+            (slider) => {
+                let timeout: ReturnType<typeof setTimeout>;
+                function nextTimeout() {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        slider.next();
+                    }, 4000);
+                }
+                slider.on("created", nextTimeout);
                 slider.on("animationEnded", nextTimeout);
                 slider.on("updated", nextTimeout);
             },
@@ -329,9 +377,9 @@ export default function DestinationDetail() {
                 <main className="xl:w-2/3">
 
                     {/* 3. TRAVEL INSIGHTS & VISITOR STATISTICS */}
-                    <section className="bg-slate-50 rounded-3xl p-5 md:p-6 mb-8 border border-slate-100 overflow-hidden">
-                        <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-1">Who Travels to {data.name}?</h2>
-                        <p className="text-slate-600 font-light text-sm mb-6">Real visitor data to help you plan with confidence</p>
+                    <section className="bg-white rounded-[32px] p-6 md:p-10 mb-10 border border-slate-100 shadow-sm overflow-hidden">
+                        <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-2">Who Travels to {data.name}?</h2>
+                        <p className="text-slate-500 font-light text-sm mb-8">Real visitor data and trends for Indian travelers</p>
 
                         <motion.div
                             initial="hidden"
@@ -410,7 +458,7 @@ export default function DestinationDetail() {
                     </section>
 
                     {/* 5. WHY INDIANS PREFER THIS DESTINATION */}
-                    <section className="mb-10 bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-100">
+                    <section className="mb-10 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm">
                         <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 text-center mb-6">Why Indians Love {data.name}</h2>
                         <motion.div
                             initial="hidden"
@@ -433,45 +481,44 @@ export default function DestinationDetail() {
                         </motion.div>
                     </section>
 
-                    {/* 6. BEST TIME TO VISIT */}
-                    <section className="mb-10">
-                        <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-1">Best Time to Visit {data.name}</h2>
-                        <p className="text-slate-600 font-light text-sm mb-6">Plan your trip around the best weather and seasonal experiences.</p>
-
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.04 } } }}
-                            className="grid grid-cols-6 md:grid-cols-12 gap-2 md:gap-3 overflow-x-auto pb-4 md:pb-0 snap-x"
-                        >
-                            {data.bestTime.map((item, i) => (
-                                <div key={i} className="flex flex-col items-center gap-2 min-w-[50px] snap-center">
-                                    <div className="w-full h-[80px] bg-slate-100 rounded-lg relative overflow-hidden">
-                                        <motion.div
-                                            variants={{ hidden: { height: "0%" }, visible: { height: `${item.score * 20}%` } }}
-                                            className={`absolute bottom-0 left-0 right-0 rounded-lg transition-all duration-1000 ${item.score === 5 ? 'bg-green-400' :
-                                                item.score === 4 ? 'bg-primary/70' :
-                                                    item.score === 3 ? 'bg-amber-300' : 'bg-slate-300'
-                                                }`}
-                                        />
-                                    </div>
-                                    <span className="text-[11px] font-bold text-slate-600 uppercase">{item.month}</span>
-                                    <span className="text-[9px] text-slate-700 text-center uppercase tracking-tighter hidden md:block">{item.weather}</span>
+                    {/* 6. AIRPORT & CONNECTIVITY INFORMATION */}
+                    <section className="mb-10 bg-slate-900 rounded-[32px] p-8 md:p-12 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full -mr-32 -mt-32" />
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
+                                    <Plane className="w-7 h-7 text-secondary" />
                                 </div>
-                            ))}
-                        </motion.div>
+                                <div>
+                                    <h2 className="text-3xl font-marcellus font-bold text-white">Airport & Connectivity</h2>
+                                    <p className="text-white/60 text-sm">Best routes and connectivity from India</p>
+                                </div>
+                            </div>
 
-                        <div className="flex gap-4 justify-center mt-6 md:mt-8 flex-wrap">
-                            <span className="flex items-center gap-1.5 text-xs text-slate-600 font-bold"><span className="w-3 h-3 rounded-full bg-green-400 block" /> Best</span>
-                            <span className="flex items-center gap-1.5 text-xs text-slate-600 font-bold"><span className="w-3 h-3 rounded-full bg-primary/70 block" /> Good</span>
-                            <span className="flex items-center gap-1.5 text-xs text-slate-600 font-bold"><span className="w-3 h-3 rounded-full bg-amber-300 block" /> Transition</span>
-                            <span className="flex items-center gap-1.5 text-xs text-slate-600 font-bold"><span className="w-3 h-3 rounded-full bg-slate-300 block" /> Rainy</span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {data.airports.map((airport, i) => (
+                                    <div key={i} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all group">
+                                        <h4 className="text-lg font-bold text-secondary mb-1 group-hover:translate-x-1 transition-transform">{airport.name}</h4>
+                                        <p className="text-white/80 font-bold text-xs mb-3">{airport.city}</p>
+                                        <div className="flex items-start gap-3 bg-black/20 rounded-xl p-4">
+                                            <ArrowRight className="w-4 h-4 text-primary-light shrink-0 mt-0.5" />
+                                            <p className="text-white/70 text-xs leading-relaxed">{airport.connectivity}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-8 p-6 bg-primary/10 border border-primary/20 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+                                <p className="text-base font-medium text-center md:text-left">Planning your flight to {data.name}? Our experts can help with the best fares.</p>
+                                <Link to="/contact" className="bg-white text-slate-900 px-6 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-secondary transition-all whitespace-nowrap text-sm">
+                                    Enquire Fares
+                                </Link>
+                            </div>
                         </div>
                     </section>
 
                     {/* 7. ATTRACTIONS & EXPERIENCES */}
-                    <section className="mb-14 bg-slate-50 p-6 md:p-10 rounded-3xl border border-slate-100">
+                    <section className="mb-14 bg-white p-6 md:p-12 rounded-[32px] border border-slate-100 shadow-sm">
                         <h2 className="font-marcellus text-3xl md:text-4xl text-slate-900 mb-8">Top Attractions</h2>
 
                         <div className="flex gap-2 flex-wrap mb-8">
@@ -508,74 +555,104 @@ export default function DestinationDetail() {
                         </motion.div>
                     </section>
 
-                    {/* 8. CULTURAL & PRACTICAL INSIGHTS */}
+                    {/* 8. CULTURAL & TRAVEL INSIGHTS */}
                     <section className="mb-14">
                         <h2 className="font-marcellus text-3xl md:text-4xl text-slate-900 text-center mb-10">Cultural & Travel Insights</h2>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 shadow-sm flex flex-col">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <Utensils className="w-5 h-5 text-orange-500" />
-                                    <h3 className="font-marcellus text-lg text-slate-900">Food to Try</h3>
-                                </div>
-                                <div className="flex flex-wrap gap-1.5 mt-auto">
+                        <div className="space-y-12">
+                            {/* Food Section - Larger Cards with Image Carousel */}
+                            <div>
+                                <h3 className="font-marcellus text-2xl text-slate-800 mb-6 flex items-center gap-3">
+                                    <Utensils className="w-6 h-6 text-orange-500" /> Must-Try Cuisines
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {data.cultural.food.map((item, i) => (
-                                        <span key={i} className="bg-white border border-orange-200 text-orange-700 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">{item}</span>
+                                        <div key={i} className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
+                                            <div className="aspect-video relative overflow-hidden">
+                                                <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                {item.images.length > 1 && (
+                                                    <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-white text-[10px] font-bold">
+                                                        +{item.images.length - 1} More
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="p-6">
+                                                <h4 className="font-marcellus text-xl text-slate-900 mb-2">{item.name}</h4>
+                                                <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-5 shadow-sm flex flex-col">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <ShoppingBag className="w-5 h-5 text-purple-500" />
-                                    <h3 className="font-marcellus text-lg text-slate-900">Shopping</h3>
+                            {/* Shopping & Activities - Visual Cards with Gradients */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                                        <ShoppingBag className="w-32 h-32" />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <h3 className="font-marcellus text-2xl mb-6">Shopping Treasures</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {data.cultural.shopping.map((item, i) => (
+                                                <span key={i} className="bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-xl text-sm font-bold">
+                                                    {item}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex flex-wrap gap-1.5 mt-auto">
-                                    {data.cultural.shopping.map((item, i) => (
-                                        <span key={i} className="bg-white border border-purple-200 text-purple-700 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">{item}</span>
-                                    ))}
+
+                                <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                                        <Info className="w-32 h-32" />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <h3 className="font-marcellus text-2xl mb-6">Cultural Etiquette</h3>
+                                        <ul className="space-y-3">
+                                            {data.cultural.etiquette.map((item, i) => (
+                                                <li key={i} className="flex items-start gap-3 text-sm font-medium">
+                                                    <CheckCircle2 className="w-5 h-5 text-white/80 shrink-0" />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 shadow-sm">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <Info className="w-5 h-5 text-blue-500" />
-                                    <h3 className="font-marcellus text-lg text-slate-900">Etiquette</h3>
+                            {/* Do's & Don'ts */}
+                            <div className="bg-slate-900 rounded-3xl p-10 text-white shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full" />
+                                <h3 className="font-marcellus text-2xl text-white mb-8 text-center">Do's & Don'ts</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div className="space-y-4">
+                                        <p className="text-green-400 font-bold uppercase tracking-widest text-xs mb-4">Recommended</p>
+                                        {data.cultural.dosDonts.filter(d => d.startsWith('Do:')).map((item, i) => (
+                                            <div key={i} className="flex items-start gap-4 bg-white/5 border border-white/10 p-4 rounded-2xl">
+                                                <CheckCircle2 className="w-6 h-6 text-green-400 shrink-0" />
+                                                <span className="text-sm text-white/80 leading-relaxed">{item.replace('Do:', '').trim()}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="space-y-4">
+                                        <p className="text-red-400 font-bold uppercase tracking-widest text-xs mb-4">Avoid</p>
+                                        {data.cultural.dosDonts.filter(d => d.startsWith('Don\'t:')).map((item, i) => (
+                                            <div key={i} className="flex items-start gap-4 bg-white/5 border border-white/10 p-4 rounded-2xl">
+                                                <XCircle className="w-6 h-6 text-red-400 shrink-0" />
+                                                <span className="text-sm text-white/80 leading-relaxed">{item.replace('Don\'t:', '').trim()}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <ul className="space-y-2">
-                                    {data.cultural.etiquette.map((item, i) => (
-                                        <li key={i} className="flex items-start gap-2 text-xs text-slate-700 leading-tight">
-                                            <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
-                                            <span>{item}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <div className="bg-slate-900 rounded-2xl p-5 shadow-lg">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <AlertTriangle className="w-5 h-5 text-amber-400" />
-                                    <h3 className="font-marcellus text-lg text-white">Do's & Don'ts</h3>
-                                </div>
-                                <ul className="space-y-2">
-                                    {data.cultural.dosDonts.map((item, i) => {
-                                        const isDo = item.startsWith('Do:');
-                                        return (
-                                            <li key={i} className="flex items-start gap-2 text-xs leading-tight">
-                                                {isDo ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0 mt-0.5" /> : <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />}
-                                                <span className="text-white/80">{item.replace(/^(Do:|Don't:)\s*/, '')}</span>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
                             </div>
                         </div>
                     </section>
 
                     {/* 9. INSTAGRAM SPOTS */}
-                    <section className="mb-10 overflow-hidden bg-slate-50 p-5 md:p-8 rounded-3xl border border-slate-100">
+                    <section className="mb-10 overflow-hidden bg-white p-5 md:p-8 rounded-[32px] border border-slate-100 shadow-sm">
                         <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-1">Instagram Spots</h2>
-                        <p className="text-slate-600 font-light text-sm mb-6">Trending locations for your travel gallery</p>
+                        <p className="text-slate-500 font-light text-sm mb-6">Trending locations for your travel gallery</p>
 
                         <div ref={sliderRef} className="keen-slider py-4">
                             {data.instagramSpots.map((spot, i) => (
@@ -595,6 +672,13 @@ export default function DestinationDetail() {
                         </div>
                     </section>
 
+                    {/* NEW: VISUAL EXPERIENCE */}
+                    <VisualExperience 
+                        items={data.visualExperiences} 
+                        title={`Experience ${data.name} in Motion`}
+                        subtitle="Get a real feel of the destination through these trending visual stories."
+                    />
+
                     {/* 10. PACKAGE LISTING */}
                     <section id="packages" className="mb-10 pt-4">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
@@ -603,7 +687,11 @@ export default function DestinationDetail() {
                                 <p className="text-slate-600 font-light text-sm">Curated itineraries crafted by destination experts.</p>
                             </div>
                             <div className="flex justify-between items-center bg-white border border-slate-700 shadow-sm rounded-lg px-3 py-2 shrink-0">
-                                <select className="bg-transparent text-xs font-bold text-slate-700 outline-none w-full cursor-pointer">
+                                <select 
+                                    className="bg-transparent text-xs font-bold text-slate-900 outline-none w-full cursor-pointer"
+                                    value={packageSort}
+                                    onChange={(e) => setPackageSort(e.target.value)}
+                                >
                                     <option>Popular</option>
                                     <option>Price: Low to High</option>
                                     <option>Price: High to Low</option>
@@ -614,7 +702,7 @@ export default function DestinationDetail() {
 
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex gap-1.5 flex-wrap">
-                                {['All', 'Honeymoon', 'Family', 'Solo', 'Adventure', 'Culture'].map(cat => (
+                                {['All', 'Honeymoon', 'Family', 'Solo', 'Adventure', 'Luxury', 'Culture'].map(cat => (
                                     <button
                                         key={cat}
                                         onClick={() => setActivePackageCat(cat)}
@@ -662,7 +750,7 @@ export default function DestinationDetail() {
                                             <div className="flex items-center gap-1 mb-4 text-xs">
                                                 <Star className="w-3 h-3 fill-secondary text-secondary" />
                                                 <span className="font-bold text-slate-700">{pkg.rating}</span>
-                                                <span className="text-slate-200">({pkg.reviews})</span>
+                                                <span className="text-slate-600">({pkg.reviews})</span>
                                             </div>
                                             <div className="mt-auto flex items-center justify-between pt-3 border-t border-slate-100">
                                                 <div className="flex flex-col">
@@ -737,45 +825,62 @@ export default function DestinationDetail() {
                 <aside className="xl:w-1/3 mt-8 xl:mt-0 pb-10">
                     <div className="sticky top-28 space-y-5">
 
-                        {/* Sidebar Package Minis */}
-                        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-lg">
-                            <h3 className="font-marcellus text-xl text-slate-900 mb-3 pb-3 border-b border-slate-100">
-                                Packages for {data.name}
-                            </h3>
-
-                            <div className="space-y-2">
-                                {data.packages.slice(0, 4).map(pkg => (
-                                    <Link key={pkg.id} to={`/packages/${pkg.id}`} className="group flex gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100 hover:border-primary/20 hover:shadow-sm transition-all">
-                                        <div className="w-[60px] h-[60px] shrink-0 rounded-lg overflow-hidden shadow-sm">
-                                            <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                        </div>
-                                        <div className="flex flex-col justify-center py-0.5">
-                                            <h4 className="font-marcellus font-bold text-slate-900 text-xs mb-1 group-hover:text-primary transition-colors line-clamp-2 leading-tight">{pkg.title}</h4>
-                                            <div className="flex items-center justify-between mt-auto">
-                                                <span className="text-slate-600 text-[10px] font-bold uppercase tracking-wider">{pkg.duration}</span>
-                                                <span className="text-primary font-bold text-xs">${pkg.price}</span>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
+                        {/* Sidebar Package Carousel */}
+                        <div className="bg-white rounded-[32px] p-6 border border-slate-200 shadow-xl overflow-hidden">
+                            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                                <h3 className="font-marcellus text-xl text-slate-900">
+                                    Featured Packages
+                                </h3>
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => sidebarInstanceRef.current?.prev()}
+                                        className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white hover:border-primary transition-all"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <button 
+                                        onClick={() => sidebarInstanceRef.current?.next()}
+                                        className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white hover:border-primary transition-all"
+                                    >
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
 
-                            <Link to={`/packages?destination=${data.slug}`} className="btn-outline w-full mt-4 py-2 text-xs flex justify-center shadow-sm">
-                                View All
-                            </Link>
+                            <div ref={sidebarSliderRef} className="keen-slider">
+                                {data.packages.map(pkg => (
+                                    <div key={pkg.id} className="keen-slider__slide">
+                                        <Link to={`/packages/${pkg.id}`} className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 hover:border-primary/20 hover:shadow-2xl transition-all duration-500">
+                                            <div className="aspect-[4/5] relative overflow-hidden">
+                                                <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-primary shadow-sm">
+                                                    ${pkg.price}
+                                                </div>
+                                                <div className="absolute bottom-6 left-6 right-6">
+                                                    <p className="text-secondary font-bold text-[10px] uppercase tracking-[0.2em] mb-2">{pkg.duration}</p>
+                                                    <h4 className="font-marcellus text-white text-xl group-hover:text-secondary transition-colors leading-tight">
+                                                        {pkg.title}
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Direct Enquiry Card */}
-                        <div className="bg-primary rounded-3xl p-7 mt-5 shadow-xl relative overflow-hidden">
-                            <h3 className="font-marcellus text-2xl text-white mb-2 relative z-10">Ready to Visit {data.name}?</h3>
-                            <p className="text-white/70 text-sm mb-5 relative z-10">
-                                Let our experts craft your perfect itinerary.
+                        <div className="bg-primary rounded-[32px] p-8 mt-6 shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
+                            <h3 className="font-marcellus text-2xl text-white mb-4 relative z-10 leading-tight">Ready to Visit {data.name}?</h3>
+                            <p className="text-white/70 text-sm mb-8 relative z-10 leading-relaxed">
+                                Let our experts craft your perfect itinerary with exclusive perks.
                             </p>
-                            <Link to="/contact" className="bg-white text-primary font-bold px-6 py-3.5 rounded-xl hover:bg-slate-50 w-full flex items-center justify-center gap-2 transition-all relative z-10">
-                                Enquire Now
+                            <Link to="/contact" className="bg-white text-primary font-bold px-8 py-4 rounded-2xl hover:bg-slate-50 w-full flex items-center justify-center gap-2 transition-all relative z-10 shadow-lg group/btn">
+                                Plan My Trip <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                             </Link>
                         </div>
-
                     </div>
                 </aside>
             </div>

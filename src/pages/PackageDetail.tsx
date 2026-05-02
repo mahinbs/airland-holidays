@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useKeenSlider } from 'keen-slider/react';
 import PackageCardStack from '../components/common/PackageCardStack';
+import VisualExperience from '../components/common/VisualExperience';
 
 const packageData = {
     title: 'Bali 5 Nights / 6 Days – Premium Island Escape',
@@ -1027,8 +1028,20 @@ export default function PackageDetail() {
                         <FAQSection data={packageData} />
                     </section>
 
-                    <section id="experiences" className="scroll-mt-32">
-                        <JourneyInFrames data={packageData} onGalleryTrigger={handleGalleryTrigger} />
+                    <section id="experiences" className="scroll-mt-32 -mx-4 md:-mx-8">
+                        <VisualExperience 
+                            items={packageData.socialGallery.map((item: any, i: number) => ({
+                                id: i,
+                                type: item.type,
+                                url: item.src,
+                                thumbnail: item.src,
+                                title: `Guest Experience ${i+1}`,
+                                packageId: '1',
+                                packageName: packageData.title
+                            }))}
+                            title="Journey in Frames"
+                            subtitle="Real guest experiences and stories captured from this tour."
+                        />
                     </section>
 
                 </div>
