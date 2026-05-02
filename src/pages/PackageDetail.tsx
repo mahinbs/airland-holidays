@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Clock, Map, Calendar, Users, Maximize, Share2, Volume2, VolumeX, ShieldCheck, Download,
     Coffee, Moon, ShoppingBag, Info, Plane, Hotel, MessageCircle, CheckCircle2, XCircle, ChevronDown,
-    Send, ArrowRight, Phone, Camera, PlayCircle, Briefcase, ChevronLeft, ChevronRight, FileText
+    Send, ArrowRight, Phone, Camera, Briefcase, ChevronLeft, ChevronRight, FileText
 } from 'lucide-react';
 import { useKeenSlider } from 'keen-slider/react';
 import PackageCardStack from '../components/common/PackageCardStack';
@@ -566,53 +566,7 @@ const FAQSection = ({ data }: { data?: typeof packageData, [key: string]: unknow
     );
 };
 
-// 8. JOURNEY IN FRAMES (Visual Gallery)
-const JourneyInFrames = ({ data, onGalleryTrigger }: { data?: typeof packageData, onGalleryTrigger: (index: number) => void, [key: string]: unknown }) => {
-    const [sliderRef] = useKeenSlider<HTMLDivElement>({
-        slides: { perView: "auto", spacing: 20 },
-        drag: true,
-    });
-
-    return (
-        <div>
-            <div className="text-center mb-10">
-                <h2 className="text-3xl font-marcellus text-primary uppercase tracking-widest mb-2">Journey in Frames</h2>
-                <p className="text-slate-600">Pictures Perfect Moments</p>
-            </div>
-
-            <div ref={sliderRef} className="keen-slider py-4 cursor-grab active:cursor-grabbing hide-scrollbar">
-                {data?.socialGallery.map((item, i) => (
-                    <div
-                        key={i}
-                        onClick={() => onGalleryTrigger(i)}
-                        className={`keen-slider__slide w-[280px] md:w-[320px] aspect-[4/5] rounded-2xl overflow-hidden relative group cursor-pointer shrink-0`}
-                        style={{ minWidth: '280px', maxWidth: '350px' }}
-                    >
-                        {item.type === 'video' ? (
-                            <div className="w-full h-full bg-black relative">
-                                <video src={item.src} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" autoPlay muted loop playsInline />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-6">
-                                    <p className="text-white font-medium text-sm drop-shadow-md">"{item.text}"</p>
-                                </div>
-                                <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white">
-                                    <PlayCircle className="w-5 h-5" />
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="w-full h-full relative">
-                                <img src={item.src} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Travel moment" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-6">
-                                    <p className="text-white font-medium text-sm drop-shadow-md">"{item.text}"</p>
-                                </div>
-                                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors pointer-events-none" />
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
+// ... (JourneyInFrames removed)
 
 // 9. SIDEBAR LEAD FORM
 const SidebarLeadForm = ({ data }: { data?: typeof packageData }) => {

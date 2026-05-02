@@ -3,10 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
-import PackageCardStack from '../components/common/PackageCardStack';
 import {
-    CloudSun, Clock, Wallet, FileCheck, CheckCircle2, ChevronRight, ChevronLeft,
-    Search, Calendar, Star, Phone, MessageCircle, Plane, ArrowRight, Filter, Users, User, Briefcase
+    Clock, CheckCircle2, ChevronRight,
+    Search, Star, Phone, MessageCircle, Plane, ArrowRight
 } from 'lucide-react';
 import VisualExperience from '../components/common/VisualExperience';
 
@@ -106,7 +105,7 @@ export default function ContinentDetail() {
     const [packageFilter, setPackageFilter] = useState('All');
     const [visiblePackages, setVisiblePackages] = useState(4);
 
-    const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>(
+    useKeenSlider<HTMLDivElement>(
         {
             loop: true,
             slides: { perView: 1, spacing: 10 },
@@ -457,7 +456,7 @@ export default function ContinentDetail() {
 
                     {/* VISUAL EXPERIENCE */}
                     <VisualExperience
-                        items={data.visualExperiences}
+                        items={data.visualExperiences as any}
                         title={`Visual Experience in ${data.name}`}
                         subtitle={`Step into the magic of ${data.name} through these immersive moments.`}
                     />

@@ -6,8 +6,8 @@ import { motion } from 'framer-motion';
 import {
     MapPin, Sun, Info, Clock, Wallet, FileCheck, Plane, Star,
     Heart, Users, User, Briefcase, Utensils, ShoppingBag,
-    AlertTriangle, CheckCircle2, XCircle, ArrowRight, Instagram, ArrowLeft,
-    ChevronLeft, ChevronRight, Phone, MessageCircle
+    CheckCircle2, XCircle, ArrowRight, Instagram, ArrowLeft,
+    ChevronLeft, ChevronRight
 } from 'lucide-react';
 import VisualExperience from '../components/common/VisualExperience';
 
@@ -674,7 +674,7 @@ export default function DestinationDetail() {
 
                     {/* NEW: VISUAL EXPERIENCE */}
                     <VisualExperience 
-                        items={data.visualExperiences} 
+                        items={data.visualExperiences as any} 
                         title={`Experience ${data.name} in Motion`}
                         subtitle="Get a real feel of the destination through these trending visual stories."
                     />
