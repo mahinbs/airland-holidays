@@ -98,7 +98,7 @@ export const navStructure = [
       { label: 'Forex & Currency', href: '/services/forex' },
       { label: 'Travel Insurance', href: '/services/travel-insurance' },
       { label: 'Visa Assistance', href: '/visa' },
-      { label: 'Cruise Booking', href: '/services/cruise-booking' },
+      { label: 'Cruise Booking', href: '/cruises' },
       { label: 'Group Travel', href: '/services/group-travel' },
       { label: 'Holiday Customisation', href: '/services/holiday-customisation' },
     ],
@@ -107,6 +107,11 @@ export const navStructure = [
     label: 'Visa',
     type: 'link',
     href: '/visa',
+  },
+  {
+    label: 'Cruises',
+    type: 'link',
+    href: '/cruises',
   },
   {
     label: 'Guide',

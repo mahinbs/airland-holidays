@@ -12,6 +12,8 @@ import Visa from './pages/Visa';
 import VisaDetail from './pages/VisaDetail';
 import Services from './pages/Services';
 import ServiceDetail from './pages/ServiceDetail';
+import Cruises from './pages/Cruises';
+import CruiseDetail from './pages/CruiseDetail';
 import Guide from './pages/Guide';
 import GuideArticle from './pages/GuideArticle';
 import About from './pages/About';
@@ -37,6 +39,8 @@ function App() {
           <Route path="visa/:country" element={<VisaDetail />} />
           <Route path="services" element={<Services />} />
           <Route path="services/:slug" element={<ServiceDetail />} />
+          <Route path="cruises" element={<Cruises />} />
+          <Route path="cruises/:id" element={<CruiseDetail />} />
           <Route path="guide" element={<Guide />} />
           <Route path="guide/:id" element={<GuideArticle />} />
           <Route path="about" element={<About />} />

@@ -95,6 +95,7 @@ export default function Navbar() {
         if (href === '/services') return pathname === '/services';
         if (href.startsWith('/services/')) return pathname === href;
         if (href === '/visa') return pathname.startsWith('/visa');
+        if (href === '/cruises') return pathname.startsWith('/cruises');
         if (href.startsWith('/guide/')) return pathname === href;
         if (href === '/about') return pathname === '/about';
         if (href === '/testimonials') return pathname === '/testimonials';
@@ -111,7 +112,7 @@ export default function Navbar() {
             return item.items.some((sub) => {
                 // If the sub-item is '/visa' but we are checking the 'Services' menu,
                 // don't highlight 'Services' as active, because 'Visa' is its own top-level link.
-                if (item.label === 'Services' && sub.href === '/visa') {
+                if (item.label === 'Services' && (sub.href === '/visa' || sub.href === '/cruises')) {
                     return false;
                 }
                 return matchNavHref(location.pathname, sub.href);

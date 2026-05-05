@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 import {
@@ -23,6 +23,9 @@ import {
     Layers,
     ArrowRight,
     MessageCircle,
+    Share2,
+    CheckCircle2,
+    Send,
     type LucideIcon,
 } from 'lucide-react';
 
@@ -380,6 +383,263 @@ const experiencesChild = {
     show: { opacity: 1, scale: 1 },
 };
 
+const promoSlides = [
+  {
+    id: 1,
+    type: 'image' as const,
+    title: 'Emirates Business Class',
+    subtitle: 'Fly in ultimate comfort to 150+ destinations',
+    badge: 'Airline Offer',
+    badgeColor: 'bg-blue-600',
+    cta: 'Enquire Now',
+    ctaHref: '/contact',
+    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80',
+    shareUrl: '/services/flight-booking',
+  },
+  {
+    id: 2,
+    type: 'image' as const,
+    title: 'Marriott Luxury Stays',
+    subtitle: 'Exclusive rates at 800+ premium properties worldwide',
+    badge: 'Hotel Offer',
+    badgeColor: 'bg-amber-600',
+    cta: 'Book Now',
+    ctaHref: '/services/hotel-reservation',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
+    shareUrl: '/services/hotel-reservation',
+  },
+  {
+    id: 3,
+    type: 'image' as const,
+    title: 'Complete Travel Insurance',
+    subtitle: 'Medical, trip cancellation & lost baggage coverage',
+    badge: 'Insurance',
+    badgeColor: 'bg-emerald-600',
+    cta: 'Get Covered',
+    ctaHref: '/services/travel-insurance',
+    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80',
+    shareUrl: '/services/travel-insurance',
+  },
+  {
+    id: 4,
+    type: 'video' as const,
+    title: 'Premium Cruise Packages',
+    subtitle: "Luxury ocean voyages to the world's most scenic destinations",
+    badge: 'Cruise Special',
+    badgeColor: 'bg-cyan-700',
+    cta: 'Explore Cruises',
+    ctaHref: '/services/cruise-booking',
+    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80',
+    shareUrl: '/services/cruise-booking',
+  },
+];
+
+function PromoCarousel() {
+  const [current, setCurrent] = useState(0);
+  const [isShared, setIsShared] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent(prev => (prev + 1) % promoSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleShare = async (slide: typeof promoSlides[0]) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: slide.title, url: window.location.origin + slide.shareUrl });
+      } else {
+        await navigator.clipboard.writeText(window.location.origin + slide.shareUrl);
+        setIsShared(true);
+        setTimeout(() => setIsShared(false), 2000);
+      }
+    } catch {}
+  };
+
+  const slide = promoSlides[current];
+
+  return (
+    <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-white">
+      <div className="relative h-[320px] md:h-[360px] overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute inset-0"
+          >
+            {slide.type === 'video' ? (
+              <video
+                ref={videoRef}
+                src={slide.image}
+                className="w-full h-full object-cover"
+                autoPlay muted loop playsInline
+              />
+            ) : (
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+          <span className={`${slide.badgeColor} text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full`}>
+            {slide.badge}
+          </span>
+          <button
+            onClick={() => handleShare(slide)}
+            className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+            title="Share"
+          >
+            {isShared
+              ? <CheckCircle2 className="w-4 h-4 text-green-400" />
+              : <Share2 className="w-4 h-4" />
+            }
+          </button>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
+          <h3 className="font-['Marcellus'] text-xl text-white font-bold leading-tight mb-1">
+            {slide.title}
+          </h3>
+          <p className="text-white/75 text-sm font-light leading-snug">
+            {slide.subtitle}
+          </p>
+        </div>
+      </div>
+
+      <div className="p-5 flex items-center justify-between gap-4 bg-white">
+        <div className="flex gap-1.5">
+          {promoSlides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`w-2 h-2 rounded-full transition-colors ${i === current ? 'bg-primary' : 'bg-slate-200'}`}
+            />
+          ))}
+        </div>
+        <a
+          href={slide.ctaHref}
+          className="btn-primary flex items-center gap-2 px-6 py-3 text-sm min-h-[44px]"
+        >
+          {slide.cta} <ArrowRight className="w-4 h-4" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function SideLeadForm() {
+  const [captcha] = useState(() => {
+    const n1 = Math.floor(Math.random() * 10) + 1;
+    const n2 = Math.floor(Math.random() * 10) + 1;
+    return { n1, n2, sum: n1 + n2 };
+  });
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    if (parseInt(fd.get('captcha') as string) !== captcha.sum) {
+      alert('Incorrect answer. Please try again.');
+      return;
+    }
+    setSubmitted(true);
+  };
+
+  return (
+    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+      <div className="bg-primary px-6 py-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4" />
+        <h3 className="font-['Marcellus'] text-xl text-white relative z-10">Quick Enquiry</h3>
+        <p className="text-white/70 text-xs mt-1 relative z-10 font-light">
+          Get expert assistance for any service
+        </p>
+      </div>
+
+      <div className="p-5">
+        {submitted ? (
+          <div className="py-8 text-center">
+            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-7 h-7 text-green-600" />
+            </div>
+            <p className="font-['Marcellus'] text-lg text-slate-900 mb-1">Enquiry Received!</p>
+            <p className="text-slate-500 text-sm">Our team will contact you shortly.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <input type="hidden" name="page" value="services" />
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Name *</label>
+                <input
+                  required type="text" placeholder="Your name"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Phone *</label>
+                <input
+                  required type="tel" placeholder="+91..."
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Email *</label>
+              <input
+                required type="email" placeholder="your@email.com"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400"
+              />
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Service of Interest</label>
+              <select className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm text-slate-700">
+                <option value="">Select a service</option>
+                {services.map(s => (
+                  <option key={s.id} value={s.id}>{s.title}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                Captcha: {captcha.n1} + {captcha.n2} = ?
+              </label>
+              <input
+                required name="captcha" type="number" placeholder="Enter sum"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-secondary text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm hover:bg-secondary/90 transition-colors shadow-md shadow-secondary/20 mt-1 min-h-[44px]"
+            >
+              <Send className="w-4 h-4" /> Send Enquiry
+            </button>
+            <p className="text-[10px] text-center text-slate-400">🔒 Encrypted. No spam.</p>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Services() {
     const trustRef = useRef(null);
     const trustInView = useInView(trustRef, { once: true, margin: '-80px' });
@@ -515,7 +775,7 @@ export default function Services() {
             </section>
 
             {/* —— Trust strip —— */}
-            <div ref={trustRef} className="border-b border-slate-700 bg-white py-7">
+            <div ref={trustRef} className="border-b border-slate-200 bg-white py-7">
                 <div className="content-container">
                     <motion.div
                         className="grid grid-cols-2 gap-6 md:grid-cols-5 md:gap-4"
@@ -530,7 +790,7 @@ export default function Services() {
                                 <motion.div
                                     key={item.label}
                                     variants={trustChild}
-                                    className={`flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left ${idx !== trustItems.length - 1 ? 'md:border-r md:border-slate-700 md:pr-4' : ''
+                                    className={`flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left ${idx !== trustItems.length - 1 ? 'md:border-r md:border-slate-200 md:pr-4' : ''
                                         }`}
                                 >
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -571,21 +831,24 @@ export default function Services() {
                         </p>
                     </motion.div>
 
-                    <motion.div
-                        className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4"
-                        variants={priorityContainer}
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, margin: '-60px' }}
-                    >
-                        {priorityServices.map((srv) => {
-                            const Icon = serviceIcons[srv.icon];
-                            return (
-                                <motion.div key={srv.id} variants={priorityChild}>
-                                    <a
-                                        href={srv.href}
-                                        className="group relative block h-[240px] overflow-hidden rounded-3xl shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl sm:h-[280px] md:h-[320px]"
-                                    >
+                    <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
+                        {/* LEFT COLUMN — all existing service cards */}
+                        <div className="flex-1 min-w-0">
+                            <motion.div
+                                className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4"
+                                variants={priorityContainer}
+                                initial="hidden"
+                                whileInView="show"
+                                viewport={{ once: true, margin: '-60px' }}
+                            >
+                                {priorityServices.map((srv) => {
+                                    const Icon = serviceIcons[srv.icon];
+                                    return (
+                                        <motion.div key={srv.id} variants={priorityChild}>
+                                            <a
+                                                href={srv.href}
+                                                className="group relative block h-[240px] sm:h-[260px] md:h-[300px] overflow-hidden rounded-3xl shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                                            >
                                         <img
                                             src={srv.image}
                                             alt=""
@@ -632,7 +895,7 @@ export default function Services() {
                                 <motion.div key={srv.id} variants={secondaryChild}>
                                     <a
                                         href={srv.href}
-                                        className="group flex min-h-[48px] flex-col overflow-hidden rounded-2xl border border-slate-700 bg-white transition-all duration-300 hover:border-primary/25 hover:shadow-xl sm:flex-row sm:items-stretch"
+                                        className="group flex min-h-[48px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:border-primary/25 hover:shadow-xl sm:flex-row sm:items-stretch"
                                     >
                                         <div className="relative h-[140px] w-full shrink-0 overflow-hidden sm:h-auto sm:w-[180px] md:w-[220px]">
                                             <img
@@ -666,7 +929,15 @@ export default function Services() {
                                 </motion.div>
                             );
                         })}
-                    </motion.div>
+                            </motion.div>
+                        </div>
+
+                        {/* RIGHT COLUMN — new promo carousel + lead form */}
+                        <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0 flex flex-col gap-6 lg:sticky lg:top-[7rem] self-start">
+                            <PromoCarousel />
+                            <SideLeadForm />
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -692,14 +963,16 @@ export default function Services() {
                     <div className="overflow-hidden">
                         <div ref={airlinesRef} className="keen-slider">
                             {[...partners.airlines, ...partners.airlines].map((p, i) => (
-                                <div key={`${p.name}-${i}`} className="keen-slider__slide flex items-center justify-center" style={{ minWidth: 140, maxWidth: 140 }}>
-                                    <img
-                                        src={p.logo}
-                                        alt={p.name}
-                                        className="h-8 w-full cursor-pointer object-contain opacity-100 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0 brightness-200"
-                                        loading="lazy"
-                                        decoding="async"
-                                    />
+                                <div key={`${p.name}-${i}`} className="keen-slider__slide">
+                                    <div className="flex items-center justify-center h-16 px-4" style={{ minWidth: 160, maxWidth: 180 }}>
+                                        <img
+                                            src={p.logo}
+                                            alt={p.name}
+                                            className="h-10 md:h-12 w-full cursor-pointer object-contain opacity-80 transition-all duration-500 hover:opacity-100 brightness-[1.8] contrast-125"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -713,14 +986,16 @@ export default function Services() {
                     <div className="overflow-hidden">
                         <div ref={hotelsRef} className="keen-slider">
                             {[...partners.hotels, ...partners.hotels].map((p, i) => (
-                                <div key={`${p.name}-${i}`} className="keen-slider__slide flex items-center justify-center" style={{ minWidth: 140, maxWidth: 140 }}>
-                                    <img
-                                        src={p.logo}
-                                        alt={p.name}
-                                        className="h-8 w-full cursor-pointer object-contain grayscale-0 brightness-200 transition-all duration-500 hover:opacity-100 hover:grayscale-0"
-                                        loading="lazy"
-                                        decoding="async"
-                                    />
+                                <div key={`${p.name}-${i}`} className="keen-slider__slide">
+                                    <div className="flex items-center justify-center h-16 px-4" style={{ minWidth: 160, maxWidth: 180 }}>
+                                        <img
+                                            src={p.logo}
+                                            alt={p.name}
+                                            className="h-10 md:h-12 w-full cursor-pointer object-contain opacity-80 transition-all duration-500 hover:opacity-100 brightness-[1.8] contrast-125"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    </div>
                                 </div>
                             ))}
                         </div>
