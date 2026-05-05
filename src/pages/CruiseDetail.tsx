@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Clock, MapPin, CheckCircle, XCircle, Ship, Send, ChevronDown, ChevronUp, Star, Coffee, Music, Utensils } from 'lucide-react';
+import { Clock, MapPin, CheckCircle, XCircle, Send, ChevronDown, ChevronUp, Star, Coffee, Music, Utensils } from 'lucide-react';
 import { cruisePackages } from '../data/cruiseData';
 
 export default function CruiseDetail() {
