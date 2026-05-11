@@ -127,6 +127,7 @@ export const navStructure = [
     type: 'dropdown',
     items: [
       { label: 'About Us', href: '/about' },
+      { label: 'View Gallery', href: '/company/media-events' },
       { label: 'Testimonials', href: '/testimonials' },
       { label: 'FAQ', href: '/faq' },
       { label: 'Contact', href: '/contact' },

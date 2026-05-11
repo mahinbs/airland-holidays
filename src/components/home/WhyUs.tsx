@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
     Clock,
     Users,
@@ -33,13 +33,58 @@ const founderBlock = {
     title: 'Founder & CEO – Airland Group of Companies',
     roles: [
         'Chairman – Travel Agents Federation of India (TAFI), Tamil Nadu Chapter',
-        'Former Secretary – TAFI Tamil Nadu',
         'Active member of national and international travel bodies',
     ],
     impactStatement: 'Strong relationships with tourism boards, global partners, and industry bodies contribute to higher credibility and global access.',
-    // Founder portrait — local image, developer will import
-    photoPlaceholder: '/whychooseus/5.jpeg',
 };
+
+type FounderMediaItem = {
+    type: 'image' | 'video';
+    src: string;
+    alt: string;
+    label: string;
+    location: string;
+    year: string;
+    poster?: string;
+};
+
+const founderMedia: FounderMediaItem[] = [
+    {
+        type: 'image',
+        src: '/founder.png',
+        alt: 'Mr. C.K. Raja at Airland leadership office',
+        label: 'Leadership Office Session',
+        location: 'Chennai',
+        year: '2026',
+    },
+    {
+        type: 'image',
+        src: '/whychooseus/5.jpeg',
+        alt: 'Mr. C.K. Raja founder portrait at industry meeting',
+        label: 'Industry Leadership Moment',
+        location: 'Tamil Nadu',
+        year: '2025',
+    },
+    {
+        type: 'image',
+        src: '/whychooseus/6.jpeg',
+        alt: 'Founder in discussion with travel partners',
+        label: 'Partner Board Discussion',
+        location: 'India',
+        year: '2024',
+    },
+    // Future-ready slot for founder message video.
+    // Keep this pattern for upcoming clips:
+    // {
+    //     type: 'video',
+    //     src: '/media/founder-message.mp4',
+    //     poster: '/founder.png',
+    //     alt: 'Founder message video',
+    //     label: 'Founder Message',
+    //     location: 'Chennai',
+    //     year: '2026',
+    // },
+];
 
 const trustPoints = [
     { icon: Clock, text: '21+ Years of proven expertise' },
@@ -52,18 +97,23 @@ const trustPoints = [
 
 // Gallery images — local files, developer will import actual paths
 const galleryImages = [
-    { src: '/whychooseus/1.jpeg', alt: 'Airland in The Hindu – 3.75 Lakh Indians Visited Sri Lanka', aspect: 'portrait' },
-    { src: '/whychooseus/2.jpeg', alt: 'Industry event – national tourism board', aspect: 'landscape' },
-    { src: '/whychooseus/3.jpeg', alt: 'Sri Lanka National Day event', aspect: 'landscape' },
-    { src: '/whychooseus/4.jpeg', alt: 'Sri Lanka Tourism Awareness Session, Chennai', aspect: 'landscape' },
-    { src: '/whychooseus/5.jpeg', alt: 'Mr. C.K. Raja – Founder portrait', aspect: 'portrait' },
-    { src: '/whychooseus/6.jpeg', alt: 'Boardroom discussion with travel industry leaders', aspect: 'landscape' },
+    { src: '/whychooseus/1.jpeg', alt: 'Airland in The Hindu – 3.75 Lakh Indians Visited Sri Lanka', aspect: 'portrait', event: 'The Hindu Coverage', location: 'India', year: '2024' },
+    { src: '/whychooseus/2.jpeg', alt: 'Industry event – national tourism board', aspect: 'landscape', event: 'Tourism Board Event', location: 'Chennai', year: '2024' },
+    { src: '/whychooseus/3.jpeg', alt: 'Sri Lanka National Day event', aspect: 'landscape', event: 'National Day Networking', location: 'Chennai', year: '2025' },
+    { src: '/whychooseus/4.jpeg', alt: 'Sri Lanka Tourism Awareness Session, Chennai', aspect: 'landscape', event: 'Tourism Awareness Session', location: 'Chennai', year: '2025' },
+    { src: '/whychooseus/5.jpeg', alt: 'Mr. C.K. Raja – Founder portrait', aspect: 'portrait', event: 'Founder Feature', location: 'India', year: '2025' },
+    { src: '/whychooseus/6.jpeg', alt: 'Boardroom discussion with travel industry leaders', aspect: 'landscape', event: 'Industry Strategy Meet', location: 'India', year: '2024' },
 ];
 
 const animation = { duration: 20000, easing: (t: number) => t };
 
 export default function WhyUs() {
     const mouseOver = useRef(false);
+    const [founderSliderRef, founderSliderInstanceRef] = useKeenSlider<HTMLDivElement>({
+        loop: true,
+        drag: true,
+        slides: { perView: 1, spacing: 0 },
+    });
     const [sliderRef] = useKeenSlider<HTMLDivElement>({
         loop: true,
         renderMode: "performance",
@@ -94,6 +144,14 @@ export default function WhyUs() {
             spacing: 16,
         },
     });
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            founderSliderInstanceRef.current?.next();
+        }, 3600);
+
+        return () => clearInterval(timer);
+    }, [founderSliderInstanceRef]);
 
     return (
         <>
@@ -187,35 +245,70 @@ export default function WhyUs() {
             </section>
 
             {/* BOTTOM ZONE — Founder Authority + Gallery */}
-            <section className="bg-primary-dark section-padding overflow-hidden">
-                <div className="">
+            <section className="relative section-padding overflow-hidden bg-gradient-to-br from-[#0a2d38] via-primary-dark to-[#071e25]">
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-[0.10]"
+                    style={{
+                        backgroundImage:
+                            'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.35) 1px, transparent 0)',
+                        backgroundSize: '22px 22px',
+                    }}
+                />
+                <div className="pointer-events-none absolute -top-24 left-1/2 w-[40rem] h-[40rem] -translate-x-1/2 rounded-full bg-secondary/10 blur-3xl" />
+                <div className="relative">
                     <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mb-12"></div>
 
                     <div className="content-container flex flex-col lg:flex-row items-start gap-12 mb-16">
-                        {/* Left - Founder Photo */}
+                        {/* Left - Founder Media Carousel */}
                         <motion.div
-                            className="max-w-[240px] mx-auto lg:mx-0 lg:w-[280px] shrink-0"
+                            className="w-full max-w-[340px] mx-auto lg:mx-0 lg:w-[360px] shrink-0"
                             initial={{ x: -30, opacity: 0 }}
                             whileInView={{ x: 0, opacity: 1 }}
                             viewport={{ once: true, margin: "-80px" }}
                         >
-                            <div className="relative">
-                                <img
-                                    src={founderBlock.photoPlaceholder}
-                                    alt={founderBlock.name}
-                                    className="w-full object-cover object-center rounded-3xl aspect-[3/4]"
-                                    loading="lazy"
-                                />
-                                <div className="absolute inset-0 rounded-3xl border-2 border-primary/30 translate-x-3 translate-y-3 -z-10"></div>
+                            <div ref={founderSliderRef} className="keen-slider rounded-3xl overflow-hidden border border-white/15 shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
+                                {founderMedia.map((media, idx) => (
+                                    <div key={idx} className="keen-slider__slide relative aspect-[3/4]">
+                                        {media.type === 'video' ? (
+                                            <video
+                                                src={media.src}
+                                                poster={media.poster}
+                                                className="w-full h-full object-cover"
+                                                autoPlay
+                                                muted
+                                                loop
+                                                controls
+                                                playsInline
+                                                preload="metadata"
+                                            />
+                                        ) : (
+                                            <img
+                                                src={media.src}
+                                                alt={media.alt}
+                                                className="w-full h-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
+                                        )}
+
+                                        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 via-black/45 to-transparent">
+                                            <p className="text-white text-sm font-semibold leading-tight">{media.label}</p>
+                                            <p className="text-white/80 text-xs mt-1">{media.location} • {media.year}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
 
-                            <div className="mt-4 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-center">
-                                <div className="font-['Marcellus'] text-white font-bold text-lg">
-                                    {founderBlock.name}
-                                </div>
-                                <div className="text-white/55 text-xs mt-0.5">
-                                    {founderBlock.title}
-                                </div>
+                            <div className="mt-4 flex items-center justify-center gap-2">
+                                {founderMedia.map((_, i) => (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => founderSliderInstanceRef.current?.moveToIdx(i)}
+                                        className="w-2.5 h-2.5 rounded-full bg-white/35 hover:bg-secondary transition-colors"
+                                        aria-label={`Go to founder media slide ${i + 1}`}
+                                    />
+                                ))}
                             </div>
                         </motion.div>
 
@@ -268,10 +361,16 @@ export default function WhyUs() {
                         viewport={{ once: true, margin: "-80px" }}
                         transition={{ duration: 0.7 }}
                     >
-                        <div className="content-container flex items-center justify-between mb-6">
-                            <div className="font-['Marcellus'] text-white/40 text-xs uppercase tracking-widest font-bold">
-                                Recognition & Industry Presence
-                            </div>
+                        <div className="content-container flex flex-col items-center text-center mb-8 md:mb-10">
+                            <h3 className="font-['Marcellus'] text-2xl md:text-4xl text-white font-bold tracking-wide">
+                                Milestones &amp; Industry Authority
+                            </h3>
+                            {/* <Link
+                                to="/company/media-events"
+                                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary text-primary-dark font-bold hover:bg-secondary-light transition-colors"
+                            >
+                                View Gallery
+                            </Link> */}
                         </div>
 
                         <div className="overflow-hidden -mx-4 px-4 md:-mx-8 md:px-8">
@@ -279,7 +378,7 @@ export default function WhyUs() {
                                 {galleryImages.concat(galleryImages).map((img, i) => (
                                     <div
                                         key={i}
-                                        className={`keen-slider__slide rounded-2xl overflow-hidden border border-white/10 group ${img.aspect === 'portrait'
+                                        className={`keen-slider__slide relative rounded-2xl overflow-hidden border border-white/10 group ${img.aspect === 'portrait'
                                             ? 'min-w-[130px] h-[180px] sm:min-w-[160px] sm:h-[220px]'
                                             : 'min-w-[260px] h-[180px] sm:min-w-[320px] sm:h-[220px]'
                                             }`}
@@ -295,6 +394,10 @@ export default function WhyUs() {
                                             loading="lazy"
                                             decoding="async"
                                         />
+                                        <div className="absolute inset-x-0 bottom-0 px-3 py-2.5 bg-black/45 backdrop-blur-[2px]">
+                                            <p className="text-white text-xs font-semibold truncate">{img.event}</p>
+                                            <p className="text-white/80 text-[11px] mt-0.5">{img.location} • {img.year}</p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
