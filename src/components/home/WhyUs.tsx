@@ -365,12 +365,12 @@ export default function WhyUs() {
                             <h3 className="font-['Marcellus'] text-2xl md:text-4xl text-white font-bold tracking-wide">
                                 Milestones &amp; Industry Authority
                             </h3>
-                            {/* <Link
+                            <Link
                                 to="/company/media-events"
                                 className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary text-primary-dark font-bold hover:bg-secondary-light transition-colors"
                             >
                                 View Gallery
-                            </Link> */}
+                            </Link>
                         </div>
 
                         <div className="overflow-hidden -mx-4 px-4 md:-mx-8 md:px-8">
