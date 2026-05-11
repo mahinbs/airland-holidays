@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { PlayCircle, Images, Trophy, Camera, Megaphone, UserCircle2 } from 'lucide-react';
 
 type MediaType = 'image' | 'video';
