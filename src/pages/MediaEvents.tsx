@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { PlayCircle, Images, Trophy, Camera, Megaphone, UserCircle2 } from 'lucide-react';
 
 type MediaType = 'image' | 'video';
@@ -134,7 +135,7 @@ export default function MediaEvents() {
               key={`${item.title}-${idx}`}
               className="group bg-white rounded-2xl border border-primary/10 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
             >
-              <div className="relative aspect-[4/3] overflow-hidden">
+              <div className="relative h-56">
                 {item.type === 'video' ? (
                   <video
                     src={item.src}
@@ -151,7 +152,7 @@ export default function MediaEvents() {
                   <img
                     src={item.src}
                     alt={item.title}
-                    className="w-auto mx-auto h-full object-cover bg-white transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
                   />
@@ -171,6 +172,18 @@ export default function MediaEvents() {
               </div>
             </article>
           ))}
+        </div>
+
+        <div className="mt-12 bg-white border border-primary/10 rounded-2xl p-5 md:p-6">
+          <h2 className="text-xl md:text-2xl font-['Marcellus'] text-primary">Admin Content Management Ready</h2>
+          <p className="mt-2 text-slate-600">
+            This page is structured to scale for image and video uploads. Connect this collection to your CMS or admin panel API to let admins upload, edit, and organise gallery content easily.
+          </p>
+          <div className="mt-4">
+            <Link to="/contact" className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-primary-dark transition-colors">
+              Request Gallery Setup
+            </Link>
+          </div>
         </div>
       </div>
     </section>

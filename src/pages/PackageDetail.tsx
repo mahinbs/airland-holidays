@@ -8,8 +8,13 @@ import {
     Send, ArrowRight, Phone, Camera, Briefcase, ChevronLeft, ChevronRight, FileText
 } from 'lucide-react';
 import { useKeenSlider } from 'keen-slider/react';
-import PackageCardStack from '../components/common/PackageCardStack';
 import VisualExperience from '../components/common/VisualExperience';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Autoplay } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
+import 'swiper/css';
+// @ts-expect-error missing typings in some swiper versions
+import 'swiper/css/navigation';
 
 const packageData = {
     title: 'Bali 5 Nights / 6 Days – Premium Island Escape',
@@ -95,11 +100,27 @@ const packageData = {
         { type: 'image', src: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80&w=2000', user: 'Sarah Jenkins', text: 'The food in Bali is delicious. Nasi Goreng is my new favorite dish!' }
     ],
     related: [
-        { id: 2, title: 'Maldives Paradise Escape', duration: '4N/5D', price: 1800, image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80&w=800' },
-        { id: 3, title: 'Swiss Alps Luxury', duration: '6N/7D', price: 3400, image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&q=80&w=800' },
-        { id: 4, title: 'Dubai City Glamour', duration: '3N/4D', price: 950, image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800' },
-        { id: 5, title: 'Parisian Romance', duration: '5N/6D', price: 2100, image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=800' }
-    ]
+        { id: 2, title: 'Maldives Paradise Escape', duration: '4N/5D', price: 1800, images: ['https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&q=80&w=800'] },
+        { id: 3, title: 'Swiss Alps Luxury', duration: '6N/7D', price: 3400, images: ['https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&q=80&w=800'] },
+        { id: 4, title: 'Dubai City Glamour', duration: '3N/4D', price: 950, images: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800'] },
+        { id: 5, title: 'Parisian Romance', duration: '5N/6D', price: 2100, images: ['https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800'] }
+    ],
+    accommodation: {
+        title: "Premium Accommodation",
+        desc: "Stay in carefully selected 5-star properties ensuring the highest standards of luxury, comfort, and local aesthetics.",
+        options: [
+            {
+                name: "Luxury Private Villa",
+                desc: "Your own private sanctuary featuring a plunge pool, traditional Balinese architecture, and modern luxury amenities.",
+                image: "https://images.unsplash.com/photo-1522798514-97ceb8c4f1c8?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                name: "Ocean View Suite",
+                desc: "Wake up to stunning panoramic views of the Indian Ocean from your spacious balcony.",
+                image: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=800"
+            }
+        ]
+    }
 };
 
 // 1. HERO SECTION
@@ -289,6 +310,32 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof packageData,
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+};
+
+// 3.5 ACCOMMODATION
+const Accommodation = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
+    if (!data?.accommodation) return null;
+    return (
+        <div className="flex flex-col gap-8 pt-4">
+            <div className="space-y-4 max-w-4xl">
+                <h2 className="text-3xl font-marcellus text-primary mb-2">{data.accommodation.title}</h2>
+                <p className="text-slate-700 leading-relaxed text-lg font-medium">{data.accommodation.desc}</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {data.accommodation.options.map((option: { name: string, desc: string, image: string }, i: number) => (
+                    <div key={i} className="rounded-3xl overflow-hidden border border-slate-200 shadow-sm group bg-white">
+                        <div className="aspect-[4/3] overflow-hidden relative">
+                            <img src={option.image} alt={option.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        </div>
+                        <div className="p-6">
+                            <h4 className="font-bold text-slate-900 mb-2 text-xl font-['Marcellus']">{option.name}</h4>
+                            <p className="text-slate-600 leading-relaxed">{option.desc}</p>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );
@@ -570,13 +617,11 @@ const FAQSection = ({ data }: { data?: typeof packageData, [key: string]: unknow
 
 // 9. SIDEBAR LEAD FORM
 const SidebarLeadForm = ({ data }: { data?: typeof packageData }) => {
-    const [captchaObj, setCaptchaObj] = useState({ num1: 0, num2: 0, sum: 0 });
-
-    useEffect(() => {
+    const [captchaObj] = useState(() => {
         const n1 = Math.floor(Math.random() * 10) + 1;
         const n2 = Math.floor(Math.random() * 10) + 1;
-        setCaptchaObj({ num1: n1, num2: n2, sum: n1 + n2 });
-    }, []);
+        return { num1: n1, num2: n2, sum: n1 + n2 };
+    });
 
     const handleCapture = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -727,6 +772,8 @@ const PartnerTrust = () => {
 
 // 11. RELATED PACKAGES
 const RelatedPackages = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
+    const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
+
     return (
         <section className="py-24 bg-white overflow-hidden relative border-t border-slate-200">
             <div className="absolute top-1/4 left-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -translate-x-1/2" />
@@ -738,51 +785,52 @@ const RelatedPackages = ({ data }: { data?: typeof packageData, [key: string]: u
                     <p className="text-slate-600">Discover other luxurious destinations curated by our experts.</p>
                 </div>
 
-                <div className="w-full">
-                    {/* On Desktop use grid, on mobile use keen slider */}
-                    <div className="hidden lg:grid grid-cols-3 gap-8">
-                        {(data?.related || []).slice(0, 3).map((p) => (
-                            <div key={p.id} className="aspect-[4/5] w-full h-full relative group cursor-pointer rounded-2xl overflow-hidden shadow-lg border border-slate-100">
-                                <img
-                                    src={p.image}
-                                    alt={p.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                <div className="w-full relative group/slider">
+                    <button
+                        type="button"
+                        onClick={() => swiperInstance?.slidePrev()}
+                        className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white border border-slate-200 text-slate-700 shadow-lg items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-all hover:bg-primary hover:text-white hover:border-primary disabled:opacity-0 hidden md:flex"
+                        aria-label="Previous trips"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
 
-                                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full text-[11px] font-bold text-primary shadow-lg flex items-center gap-1.5">
-                                    <Clock className="w-3 h-3" /> {p.duration}
-                                </div>
+                    <button
+                        type="button"
+                        onClick={() => swiperInstance?.slideNext()}
+                        className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white border border-slate-200 text-slate-700 shadow-lg items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-all hover:bg-primary hover:text-white hover:border-primary disabled:opacity-0 hidden md:flex"
+                        aria-label="Next trips"
+                    >
+                        <ChevronRight className="w-5 h-5" />
+                    </button>
 
-                                <div className="absolute bottom-0 left-0 right-0 p-6 text-white text-center">
-                                    <div className="mx-auto w-10 h-10 rounded-full border border-white/30 flex items-center justify-center mb-4 group-hover:bg-secondary group-hover:border-transparent transition-colors">
-                                        <Map className="w-4 h-4 text-white" />
-                                    </div>
-                                    <h3 className="font-marcellus text-2xl mb-2 min-h-[64px] flex items-center justify-center text-white drop-shadow-md">
-                                        {p.title}
-                                    </h3>
-                                    <p className="text-white/80 font-medium mb-4 text-sm tracking-wide">
-                                        Starting Price <span className="text-secondary font-bold">${p.price}</span>
-                                    </p>
-                                    <a
-                                        href={`/packages/${p.id}`}
-                                        className="block w-full bg-secondary/90 hover:bg-secondary text-white py-3 rounded-xl font-bold backdrop-blur-sm transition-all shadow-lg shadow-black/20 hover:-translate-y-1"
-                                    >
-                                        Explore Package
-                                    </a>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="lg:hidden w-full flex justify-center pb-8 mt-4">
-                        <PackageCardStack>
-                            {(data?.related || []).map((p) => (
-                                <div key={p.id} className="w-full h-full relative group cursor-pointer overflow-hidden">
+                    <Swiper
+                        modules={[Navigation, Autoplay]}
+                        onSwiper={setSwiperInstance}
+                        autoplay={{ delay: 3500, disableOnInteraction: true }}
+                        speed={800}
+                        grabCursor
+                        slidesPerView={1.1}
+                        spaceBetween={16}
+                        breakpoints={{
+                            480: { slidesPerView: 1.5, spaceBetween: 20 },
+                            768: { slidesPerView: 2.2, spaceBetween: 24 },
+                            1024: { slidesPerView: 3, spaceBetween: 24 },
+                        }}
+                        className="pb-10 pt-4 px-2"
+                    >
+                        {(data?.related || []).map((p) => (
+                            <SwiperSlide key={p.id} className="h-auto">
+                                <div className="aspect-[4/5] w-full h-full relative group cursor-pointer rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-200">
                                     <img
-                                        src={p.image}
+                                        src={p.images[0]}
                                         alt={p.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-700 group-hover:opacity-0"
+                                    />
+                                    <img
+                                        src={p.images[1] || p.images[0]}
+                                        alt={p.title}
+                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-0 group-hover:opacity-100"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
@@ -791,6 +839,9 @@ const RelatedPackages = ({ data }: { data?: typeof packageData, [key: string]: u
                                     </div>
 
                                     <div className="absolute bottom-0 left-0 right-0 p-6 text-white text-center">
+                                        <div className="mx-auto w-10 h-10 rounded-full border border-white/30 flex items-center justify-center mb-4 group-hover:bg-secondary group-hover:border-transparent transition-colors">
+                                            <Map className="w-4 h-4 text-white" />
+                                        </div>
                                         <h3 className="font-marcellus text-2xl mb-2 min-h-[64px] flex items-center justify-center text-white drop-shadow-md">
                                             {p.title}
                                         </h3>
@@ -805,9 +856,9 @@ const RelatedPackages = ({ data }: { data?: typeof packageData, [key: string]: u
                                         </a>
                                     </div>
                                 </div>
-                            ))}
-                        </PackageCardStack>
-                    </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
                 </div>
             </div>
         </section>
@@ -964,6 +1015,9 @@ export default function PackageDetail() {
 
                     <section id="overview" className="scroll-mt-32">
                         <OverviewExperience data={packageData} onMediaClick={handleMediaClick} />
+                        <div className="mt-16">
+                            <Accommodation data={packageData} />
+                        </div>
                     </section>
 
                     <section id="itinerary" className="scroll-mt-32">
@@ -984,9 +1038,9 @@ export default function PackageDetail() {
 
                     <section id="experiences" className="scroll-mt-32 -mx-4 md:-mx-8">
                         <VisualExperience 
-                            items={packageData.socialGallery.map((item: any, i: number) => ({
+                            items={packageData.socialGallery.map((item: { type: string, src: string }, i: number) => ({
                                 id: i,
-                                type: item.type,
+                                type: item.type as "image" | "video",
                                 url: item.src,
                                 thumbnail: item.src,
                                 title: `Guest Experience ${i+1}`,

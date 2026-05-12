@@ -10,44 +10,44 @@ import 'swiper/css';
 type DestinationCard = {
   id: number;
   name: string;
-  image: string;
+  images: string[];
   type: 'domestic' | 'international';
   href: string;
 };
 
 const destinations: DestinationCard[] = [
-  { id: 1, name: 'Ladakh', image: 'https://images.unsplash.com/photo-1593181629936-11c609b8db9b?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=ladakh' },
-  { id: 2, name: 'Sri Lanka', image: 'https://images.unsplash.com/photo-1586500036706-41963de24d8b?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=sri-lanka' },
-  { id: 3, name: 'Kashmir', image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=kashmir' },
-  { id: 4, name: 'Bhutan', image: 'https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=bhutan' },
-  { id: 5, name: 'Himachal Pradesh', image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=himachal-pradesh' },
-  { id: 6, name: 'Sikkim', image: 'https://images.pexels.com/photos/417074/pexels-photo-417074.jpeg?auto=compress&cs=tinysrgb&w=700', type: 'domestic', href: '/packages?destination=sikkim' },
-  { id: 7, name: 'Maldives', image: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=maldives' },
-  { id: 8, name: 'Dubai', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=dubai' },
-  { id: 9, name: 'Switzerland', image: 'https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=switzerland' },
-  { id: 10, name: 'Thailand', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=thailand' },
-  { id: 11, name: 'Goa', image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=goa' },
-  { id: 12, name: 'Kerala', image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=kerala' },
-  { id: 13, name: 'Rajasthan', image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=rajasthan' },
-  { id: 14, name: 'Andaman', image: 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=andaman' },
-  { id: 15, name: 'Uttarakhand', image: 'https://images.pexels.com/photos/2901209/pexels-photo-2901209.jpeg?auto=compress&cs=tinysrgb&w=700', type: 'domestic', href: '/packages?destination=uttarakhand' },
-  { id: 16, name: 'Meghalaya', image: 'https://images.pexels.com/photos/355241/pexels-photo-355241.jpeg?auto=compress&cs=tinysrgb&w=700', type: 'domestic', href: '/packages?destination=meghalaya' },
-  { id: 17, name: 'Tamil Nadu', image: 'https://images.unsplash.com/photo-1593693411515-c20261bcad6e?auto=format&fit=crop&w=700&q=80', type: 'domestic', href: '/packages?destination=tamil-nadu' },
-  { id: 18, name: 'Karnataka', image: 'https://images.pexels.com/photos/21014/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=700', type: 'domestic', href: '/packages?destination=karnataka' },
-  { id: 19, name: 'Arunachal Pradesh', image: 'https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&w=700', type: 'domestic', href: '/packages?destination=arunachal-pradesh' },
-  { id: 20, name: 'Odisha', image: 'https://images.pexels.com/photos/534164/pexels-photo-534164.jpeg?auto=compress&cs=tinysrgb&w=700', type: 'domestic', href: '/packages?destination=odisha' },
-  { id: 21, name: 'Vietnam', image: 'https://images.pexels.com/photos/2166711/pexels-photo-2166711.jpeg?auto=compress&cs=tinysrgb&w=700', type: 'international', href: '/packages?destination=vietnam' },
-  { id: 22, name: 'Japan', image: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=japan' },
-  { id: 23, name: 'Singapore', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=singapore' },
-  { id: 24, name: 'Bali', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=bali' },
-  { id: 25, name: 'Turkey', image: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=turkey' },
-  { id: 26, name: 'France', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=france' },
-  { id: 27, name: 'Italy', image: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=italy' },
-  { id: 28, name: 'Norway', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=norway' },
-  { id: 29, name: 'South Korea', image: 'https://images.pexels.com/photos/237211/pexels-photo-237211.jpeg?auto=compress&cs=tinysrgb&w=700', type: 'international', href: '/packages?destination=south-korea' },
-  { id: 30, name: 'Mauritius', image: 'https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg?auto=compress&cs=tinysrgb&w=700', type: 'international', href: '/packages?destination=mauritius' },
-  { id: 31, name: 'Canada', image: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=canada' },
-  { id: 32, name: 'Australia', image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=700&q=80', type: 'international', href: '/packages?destination=australia' },
+  { id: 1, name: 'Ladakh', images: ['https://images.unsplash.com/photo-1593181629936-11c609b8db9b?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=ladakh' },
+  { id: 2, name: 'Sri Lanka', images: ['https://images.unsplash.com/photo-1586500036706-41963de24d8b?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=sri-lanka' },
+  { id: 3, name: 'Kashmir', images: ['https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=kashmir' },
+  { id: 4, name: 'Bhutan', images: ['https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=bhutan' },
+  { id: 5, name: 'Himachal Pradesh', images: ['https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=himachal-pradesh' },
+  { id: 6, name: 'Sikkim', images: ['https://images.pexels.com/photos/417074/pexels-photo-417074.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=sikkim' },
+  { id: 7, name: 'Maldives', images: ['https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=maldives' },
+  { id: 8, name: 'Dubai', images: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=dubai' },
+  { id: 9, name: 'Switzerland', images: ['https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=switzerland' },
+  { id: 10, name: 'Thailand', images: ['https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=thailand' },
+  { id: 11, name: 'Goa', images: ['https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=goa' },
+  { id: 12, name: 'Kerala', images: ['https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1593693411515-c20261bcad6e?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=kerala' },
+  { id: 13, name: 'Rajasthan', images: ['https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=rajasthan' },
+  { id: 14, name: 'Andaman', images: ['https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=andaman' },
+  { id: 15, name: 'Uttarakhand', images: ['https://images.pexels.com/photos/2901209/pexels-photo-2901209.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=uttarakhand' },
+  { id: 16, name: 'Meghalaya', images: ['https://images.pexels.com/photos/355241/pexels-photo-355241.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=meghalaya' },
+  { id: 17, name: 'Tamil Nadu', images: ['https://images.unsplash.com/photo-1593693411515-c20261bcad6e?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=tamil-nadu' },
+  { id: 18, name: 'Karnataka', images: ['https://images.pexels.com/photos/21014/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=karnataka' },
+  { id: 19, name: 'Arunachal Pradesh', images: ['https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=arunachal-pradesh' },
+  { id: 20, name: 'Odisha', images: ['https://images.pexels.com/photos/534164/pexels-photo-534164.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=odisha' },
+  { id: 21, name: 'Vietnam', images: ['https://images.pexels.com/photos/2166711/pexels-photo-2166711.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=vietnam' },
+  { id: 22, name: 'Japan', images: ['https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=japan' },
+  { id: 23, name: 'Singapore', images: ['https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=singapore' },
+  { id: 24, name: 'Bali', images: ['https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=bali' },
+  { id: 25, name: 'Turkey', images: ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=turkey' },
+  { id: 26, name: 'France', images: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=france' },
+  { id: 27, name: 'Italy', images: ['https://images.unsplash.com/photo-1514890547357-a9ee288728e0?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=italy' },
+  { id: 28, name: 'Norway', images: ['https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=norway' },
+  { id: 29, name: 'South Korea', images: ['https://images.pexels.com/photos/237211/pexels-photo-237211.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=south-korea' },
+  { id: 30, name: 'Mauritius', images: ['https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=mauritius' },
+  { id: 31, name: 'Canada', images: ['https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=canada' },
+  { id: 32, name: 'Australia', images: ['https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=australia' },
 ];
 
 export default function FeaturedPackages() {
@@ -127,12 +127,18 @@ export default function FeaturedPackages() {
             {filteredDestinations.map((destination) => (
               <SwiperSlide key={destination.id}>
                 <a href={destination.href} className="group block">
-                  <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-md transition-all duration-300 hover:shadow-xl hover:border-primary/20">
-                    <div className="aspect-[3/4] overflow-hidden relative">
+                  <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-md transition-all duration-300 hover:shadow-xl hover:border-primary/20 bg-slate-200">
+                    <div className="aspect-[3/4] overflow-hidden relative group/image">
                       <img
-                        src={destination.image}
+                        src={destination.images[0]}
                         alt={destination.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover/image:opacity-0"
+                        loading="lazy"
+                      />
+                      <img
+                        src={destination.images[1] || destination.images[0]}
+                        alt={destination.name}
+                        className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 opacity-0 group-hover/image:opacity-100"
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />

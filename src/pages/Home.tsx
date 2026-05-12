@@ -2,7 +2,7 @@ import Hero from '../components/home/Hero';
 import FeaturedPackages from '../components/home/FeaturedPackages';
 import FixedDepartures from '../components/home/FixedDepartures';
 import Continents from '../components/home/Continents';
-import Destinations from '../components/home/Destinations';
+import FeaturedExperiences from '../components/home/FeaturedExperiences';
 import FestivalsEvents from '../components/homepage/FestivalsEvents';
 import ServicesOverview from '../components/home/ServicesOverview';
 import VisaHighlight from '../components/home/VisaHighlight';
@@ -21,10 +21,10 @@ export default function Home() {
         <div className="min-h-screen bg-white">
             <Hero />
             <FeaturedPackages />
-            <FixedDepartures />
-            <Continents />
-            <Destinations />
             <FestivalsEvents />
+            <FeaturedExperiences />
+            <Continents />
+            <FixedDepartures />
             <WindowScroll />
             <ServicesOverview />
             <VisaHighlight />

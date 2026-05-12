@@ -2,6 +2,7 @@ export interface CruisePackage {
     id: string;
     name: string;
     image: string;
+    videoUrl?: string;
     duration: string;
     departureLocation: string;
     startingPrice: number;
@@ -10,10 +11,15 @@ export interface CruisePackage {
     destination: string;
     overview: string;
     highlights: string[];
-    itinerary: { day: string; title: string; desc: string }[];
+    itinerary: { day: string; title: string; desc: string; attractions?: string[]; images?: string[] }[];
     inclusions: string[];
     exclusions: string[];
     experience: { title: string; desc: string }[];
+    accommodation?: {
+        title: string;
+        desc: string;
+        cabins: { name: string; desc: string; image: string }[];
+    };
     gallery: string[];
     faqs: { question: string; answer: string }[];
 }
@@ -23,6 +29,7 @@ export const cruisePackages: CruisePackage[] = [
         id: 'singapore-malaysia-cruise',
         name: 'Singapore & Malaysia Getaway',
         image: 'https://images.unsplash.com/photo-1599640842225-85d111c60e6b?q=80&w=1000&auto=format&fit=crop',
+        videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-cruise-ship-sailing-in-the-ocean-4364-small.mp4',
         duration: '3 Nights / 4 Days',
         departureLocation: 'Singapore',
         startingPrice: 35000,
@@ -37,10 +44,10 @@ export const cruisePackages: CruisePackage[] = [
             'Luxurious ocean-view accommodation'
         ],
         itinerary: [
-            { day: 'Day 1', title: 'Embarkation in Singapore', desc: 'Board the cruise in Singapore. Enjoy a welcome dinner and live entertainment as we set sail.' },
-            { day: 'Day 2', title: 'Kuala Lumpur (Port Klang)', desc: 'Arrive at Port Klang. Optional shore excursions to explore Kuala Lumpur. Evening themed party on board.' },
-            { day: 'Day 3', title: 'Cruising the Malacca Strait', desc: 'A full day at sea. Enjoy the ship\'s amenities, spa treatments, and water park.' },
-            { day: 'Day 4', title: 'Disembarkation in Singapore', desc: 'Arrive back in Singapore in the morning. Disembark after breakfast.' }
+            { day: 'Day 1', title: 'Embarkation in Singapore', desc: 'Board the cruise in Singapore. Enjoy a welcome dinner and live entertainment as we set sail.', attractions: ['Welcome Dinner', 'Live Entertainment', 'Pool Deck Party'], images: ['https://images.unsplash.com/photo-1548574505-5e239809ee19?q=80&w=800'] },
+            { day: 'Day 2', title: 'Kuala Lumpur (Port Klang)', desc: 'Arrive at Port Klang. Optional shore excursions to explore Kuala Lumpur. Evening themed party on board.', attractions: ['Port Klang', 'Batu Caves', 'Themed Party'], images: ['https://images.unsplash.com/photo-1596422846543-75c6fc197f0a?q=80&w=800'] },
+            { day: 'Day 3', title: 'Cruising the Malacca Strait', desc: 'A full day at sea. Enjoy the ship\'s amenities, spa treatments, and water park.', attractions: ['Spa Treatments', 'Water Park', 'Broadway Show'], images: ['https://images.unsplash.com/photo-1582236166827-0db7218671c6?q=80&w=800'] },
+            { day: 'Day 4', title: 'Disembarkation in Singapore', desc: 'Arrive back in Singapore in the morning. Disembark after breakfast.', attractions: ['Farewell Breakfast', 'Marina Bay Sands'], images: ['https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=800'] }
         ],
         inclusions: [
             'Accommodation in selected cabin category',
@@ -59,6 +66,27 @@ export const cruisePackages: CruisePackage[] = [
             { title: 'Family Fun', desc: 'Dedicated kids clubs, water slides, and family-friendly activities.' },
             { title: 'Entertainment', desc: 'Dazzling performances, live bands, and comedy clubs every evening.' }
         ],
+        accommodation: {
+            title: "Luxurious Cabins & Suites",
+            desc: "Choose from a range of beautifully appointed cabins designed for your ultimate comfort at sea.",
+            cabins: [
+                {
+                    name: "Interior Stateroom",
+                    desc: "Cozy and comfortable with modern amenities, perfect for budget-conscious travelers.",
+                    image: "https://images.unsplash.com/photo-1590490359683-658d3d23f972?q=80&w=800"
+                },
+                {
+                    name: "Oceanview Cabin",
+                    desc: "Wake up to stunning views of the sea right from your personal window.",
+                    image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                    name: "Balcony Suite",
+                    desc: "Enjoy the fresh ocean breeze from your private balcony with spacious seating.",
+                    image: "https://images.unsplash.com/photo-1560662105-57f8ad6ae2d1?q=80&w=800"
+                }
+            ]
+        },
         gallery: [
             'https://images.unsplash.com/photo-1505832018823-50331d70d237?q=80&w=800&auto=format&fit=crop',
             'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=800&auto=format&fit=crop',

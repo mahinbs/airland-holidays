@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarDays, Calendar, Clock, ArrowRight } from 'lucide-react';
+import { CalendarDays, Calendar, Clock, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Autoplay } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
+import 'swiper/css';
+// @ts-expect-error
+import 'swiper/css/navigation';
 
 const trips = [
   // INTERNATIONAL
@@ -10,7 +16,10 @@ const trips = [
     badge: 'Limited Seats',
     badgeType: 'limited', // 'limited' | 'trending' | 'festival'
     title: 'Bali Island Escape – Group Edition',
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80',
+      'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80'
+    ],
     duration: '5N / 6D',
     dateRange: '12 May – 18 May',
     monthNum: 5,
@@ -26,7 +35,10 @@ const trips = [
     badge: 'Trending',
     badgeType: 'trending',
     title: 'Thailand Adventure – Group Tour',
-    image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80',
+      'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80'
+    ],
     duration: '6N / 7D',
     dateRange: '05 Jun – 12 Jun',
     monthNum: 6,
@@ -42,7 +54,10 @@ const trips = [
     badge: 'Limited Seats',
     badgeType: 'limited',
     title: 'Dubai Discovery – Group Departure',
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80',
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80'
+    ],
     duration: '4N / 5D',
     dateRange: '18 Jul – 23 Jul',
     monthNum: 7,
@@ -58,7 +73,10 @@ const trips = [
     badge: 'Festival Special',
     badgeType: 'festival',
     title: 'Singapore Fest – Group Edition',
-    image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&q=80',
+      'https://images.unsplash.com/photo-1565967511849-76a60a516170?w=800&q=80'
+    ],
     duration: '5N / 6D',
     dateRange: '08 Aug – 14 Aug',
     monthNum: 8,
@@ -75,7 +93,10 @@ const trips = [
     badge: 'Trending',
     badgeType: 'trending',
     title: 'Kerala Monsoon Magic – Group Trip',
-    image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800&q=80',
+      'https://images.unsplash.com/photo-1593693411515-c20261bcad6e?w=800&q=80'
+    ],
     duration: '4N / 5D',
     dateRange: '20 Jun – 25 Jun',
     monthNum: 6,
@@ -91,7 +112,10 @@ const trips = [
     badge: 'Limited Seats',
     badgeType: 'limited',
     title: 'Rajasthan Royal – Group Departure',
-    image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80',
+      'https://images.unsplash.com/photo-1477587458883-47145ed94245?w=800&q=80'
+    ],
     duration: '6N / 7D',
     dateRange: '10 Nov – 17 Nov',
     monthNum: 11,
@@ -107,7 +131,10 @@ const trips = [
     badge: 'Festival Special',
     badgeType: 'festival',
     title: 'Andaman New Year Group Trip',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+      'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=800&q=80'
+    ],
     duration: '5N / 6D',
     dateRange: '28 Dec – 02 Jan',
     monthNum: 12,
@@ -132,32 +159,31 @@ const months = [
   { num: 12, label: 'Dec' },
 ];
 
-const TripCard = ({ trip, index }: { trip: typeof trips[0]; index: number }) => {
+const TripCard = ({ trip }: { trip: typeof trips[0] }) => {
   const seatColor =
     trip.seatsLeft <= 4 ? 'text-red-600' :
       trip.seatsLeft <= 8 ? 'text-orange-500' :
         'text-slate-400';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.08, duration: 0.5 }}
-      className="shrink-0 snap-start h-full"
-    >
+    <div className="shrink-0 snap-start h-full">
       <a
         href={trip.href}
-        className="flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-400 group w-full"
+        className="flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-md hover:shadow-2xl transition-all duration-400 group w-full"
       >
         {/* IMAGE */}
-        <div className="relative h-[200px] overflow-hidden">
+        <div className="relative h-[200px] overflow-hidden bg-slate-200">
           <img
-            src={trip.image}
+            src={trip.images[0]}
             alt={trip.title}
-            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-all duration-500 group-hover:opacity-0"
             loading="lazy"
-            decoding="async"
+          />
+          <img
+            src={trip.images[1] || trip.images[0]}
+            alt={trip.title}
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-all duration-500 opacity-0 group-hover:opacity-100"
+            loading="lazy"
           />
           {/* Gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
@@ -219,19 +245,20 @@ const TripCard = ({ trip, index }: { trip: typeof trips[0]; index: number }) => 
                 <span className="text-slate-400 text-sm font-normal ml-1">{trip.priceNote}</span>
               </p>
             </div>
-            <span className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300 max-md:opacity-100 max-md:translate-y-0">
+            <span className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300">
               View Trip <ArrowRight className="w-3.5 h-3.5" />
             </span>
           </div>
         </div>
       </a>
-    </motion.div>
+    </div>
   );
 };
 
 export default function FixedDepartures() {
   const [activeTab, setActiveTab] = useState<'international' | 'india'>('international');
   const [activeMonth, setActiveMonth] = useState<number>(0);
+  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
 
   if (trips.length === 0) return null;
 
@@ -324,11 +351,47 @@ export default function FixedDepartures() {
             key={`${activeTab}-${activeMonth}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+            className="relative group/slider px-2 md:px-0"
           >
-            {filteredTrips.map((trip, i) => (
-              <TripCard key={trip.id} trip={trip} index={i} />
-            ))}
+            <button
+              type="button"
+              onClick={() => swiperInstance?.slidePrev()}
+              className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white border border-slate-200 text-slate-700 shadow-lg items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-all hover:bg-primary hover:text-white hover:border-primary disabled:opacity-0 hidden md:flex"
+              aria-label="Previous trips"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => swiperInstance?.slideNext()}
+              className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white border border-slate-200 text-slate-700 shadow-lg items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-all hover:bg-primary hover:text-white hover:border-primary disabled:opacity-0 hidden md:flex"
+              aria-label="Next trips"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
+
+            <Swiper
+              modules={[Navigation, Autoplay]}
+              onSwiper={setSwiperInstance}
+              autoplay={{ delay: 3500, disableOnInteraction: true }}
+              speed={800}
+              grabCursor
+              slidesPerView={1.1}
+              spaceBetween={16}
+              breakpoints={{
+                480: { slidesPerView: 1.5, spaceBetween: 20 },
+                768: { slidesPerView: 2.2, spaceBetween: 24 },
+                1024: { slidesPerView: 3, spaceBetween: 24 },
+              }}
+              className="pb-10 pt-4 px-2"
+            >
+              {filteredTrips.map((trip) => (
+                <SwiperSlide key={trip.id} className="h-auto">
+                  <TripCard trip={trip} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </motion.div>
         )}
       </div>

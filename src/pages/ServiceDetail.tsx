@@ -130,7 +130,7 @@ export default function ServiceDetail() {
                 <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${service.heroImage}')` }} />
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/30" />
                 
-                <div className="content-container relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+                <div className="content-container relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 mt-12 w-full">
                     <div className="max-w-2xl">
                         <Link to="/services" className="text-secondary-light hover:text-white transition-colors text-sm font-medium mb-8 inline-flex items-center gap-2">
                             ← Back to all services
@@ -160,27 +160,24 @@ export default function ServiceDetail() {
                             </a>
                         </div>
                     </div>
-                    
-                    {/* Trust Badges - Hidden on mobile, visible on large screens */}
-                    <div className="hidden lg:grid grid-cols-2 gap-4 w-full max-w-sm">
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl text-white text-center shadow-xl">
-                            <Shield className="w-10 h-10 mx-auto mb-3 text-secondary-light drop-shadow" />
-                            <div className="font-bold tracking-wide">100% Secure</div>
-                            <div className="text-xs text-white/70 mt-1">Verified Partners</div>
+                </div>
+
+                <div className="content-container relative z-10 w-full mt-16 md:mt-24">
+                    {/* Trust Badges at bottom */}
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }} className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-6 border-t border-white/20">
+                        <div className="flex items-center gap-2 text-white">
+                            <Shield className="w-5 h-5 text-secondary drop-shadow" />
+                            <span className="text-sm font-semibold tracking-wide drop-shadow">100% Secure & Verified</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl text-white text-center shadow-xl">
-                            <Clock className="w-10 h-10 mx-auto mb-3 text-secondary-light drop-shadow" />
-                            <div className="font-bold tracking-wide">24/7 Support</div>
-                            <div className="text-xs text-white/70 mt-1">Always Available</div>
+                        <div className="flex items-center gap-2 text-white">
+                            <Clock className="w-5 h-5 text-secondary drop-shadow" />
+                            <span className="text-sm font-semibold tracking-wide drop-shadow">24/7 Support</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl text-white text-center col-span-2 shadow-xl flex items-center justify-center gap-4">
-                            <Award className="w-10 h-10 text-secondary-light drop-shadow" />
-                            <div className="text-left">
-                                <div className="font-bold tracking-wide text-lg">IATA Certified</div>
-                                <div className="text-sm text-white/70">Industry Leading Standards</div>
-                            </div>
+                        <div className="flex items-center gap-2 text-white">
+                            <Award className="w-5 h-5 text-secondary drop-shadow" />
+                            <span className="text-sm font-semibold tracking-wide drop-shadow">IATA Certified</span>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
 
