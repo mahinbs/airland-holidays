@@ -21,6 +21,8 @@ import Contact from './pages/Contact';
 import Testimonials from './pages/Testimonials';
 import FAQ from './pages/FAQ';
 import Payment from './pages/Payment';
+import Gallery from './pages/Gallery';
+import MediaPage from './pages/MediaPage';
 import MediaEvents from './pages/MediaEvents';
 import ScrollToTopOnRouteChange from './components/common/ScrollToTopOnRouteChange';
 
@@ -49,6 +51,8 @@ function App() {
           <Route path="testimonials" element={<Testimonials />} />
           <Route path="faq" element={<FAQ />} />
           <Route path="payment" element={<Payment />} />
+          <Route path="company/gallery" element={<Gallery />} />
+          <Route path="company/media" element={<MediaPage />} />
           <Route path="company/media-events" element={<MediaEvents />} />
           {/* Default 404 can go here */}
         </Route>

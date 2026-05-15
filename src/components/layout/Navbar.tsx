@@ -89,14 +89,17 @@ export default function Navbar() {
         };
     }, [isMobileMenuOpen]);
 
-    /** Matches App.tsx routes: packages, destinations, visa, services, guide, about, testimonials, faq, contact, payment */
+    /** Matches App.tsx routes: packages, destinations, visa, services, guide, company, and utility pages */
     const matchNavHref = (pathname: string, href: string) => {
+        if (href === '/') return pathname === '/';
         if (href === '/destinations') return pathname.startsWith('/destinations') || pathname.startsWith('/continents');
         if (href === '/services') return pathname === '/services';
         if (href.startsWith('/services/')) return pathname === href;
         if (href === '/visa') return pathname.startsWith('/visa');
         if (href === '/cruises') return pathname.startsWith('/cruises');
         if (href.startsWith('/guide/')) return pathname === href;
+        if (href === '/company/gallery') return pathname.startsWith('/company/gallery');
+        if (href === '/company/media') return pathname.startsWith('/company/media');
         if (href === '/about') return pathname === '/about';
         if (href === '/testimonials') return pathname === '/testimonials';
         if (href === '/faq') return pathname === '/faq';

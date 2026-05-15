@@ -1,5 +1,10 @@
 export const navStructure = [
   {
+    label: 'Home',
+    type: 'link',
+    href: '/',
+  },
+  {
     label: 'Holidays',
     type: 'mega',
     tabs: [
@@ -127,7 +132,8 @@ export const navStructure = [
     type: 'dropdown',
     items: [
       { label: 'About Us', href: '/about' },
-      // { label: 'View Gallery', href: '/company/media-events' },
+      { label: 'Gallery', href: '/company/gallery' },
+      { label: 'Media Page', href: '/company/media' },
       { label: 'Testimonials', href: '/testimonials' },
       { label: 'FAQ', href: '/faq' },
       { label: 'Contact', href: '/contact' },
