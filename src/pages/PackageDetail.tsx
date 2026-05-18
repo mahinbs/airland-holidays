@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,10 @@ import {
 } from 'lucide-react';
 import { useKeenSlider } from 'keen-slider/react';
 import VisualExperience from '../components/common/VisualExperience';
+import LabeledImageCarousel from '../components/common/LabeledImageCarousel';
+import SectionStickyNav from '../components/common/SectionStickyNav';
+import { useSectionScrollSpy } from '../hooks/useSectionScrollSpy';
+import { normalizeLabeledImages, type PackageLabeledImage } from '../types/packageDetail';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -41,8 +45,8 @@ const packageData = {
             desc: 'Welcome to Bali! Our representative will meet you at the airport and transfer you to your luxury resort in Seminyak. Rest and recover from your flight in your private villa.',
             attractions: ['VIP Fast Track', 'Welcome Drink', 'Private Villa'],
             images: [
-                'https://images.unsplash.com/photo-1522798514-97ceb8c4f1c8?auto=format&fit=crop&q=80&w=800',
-                'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=800'
+                { src: 'https://images.unsplash.com/photo-1522798514-97ceb8c4f1c8?auto=format&fit=crop&q=80&w=800', title: 'Private pool villa' },
+                { src: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=800', title: 'Seminyak welcome' },
             ]
         },
         {
@@ -51,8 +55,8 @@ const packageData = {
             desc: 'Morning at leisure. In the afternoon, visit the iconic Uluwatu Temple perched on a cliff edge. Watch the traditional Kecak Fire Dance as the sun sets over the Indian Ocean.',
             attractions: ['Uluwatu Temple', 'Kecak Fire Dance', 'Jimbaran Seafood Dinner'],
             images: [
-                'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80&w=800',
-                'https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&q=80&w=800'
+                { src: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80&w=800', title: 'Uluwatu cliff temple' },
+                { src: 'https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&q=80&w=800', title: 'Sunset Kecak dance' },
             ]
         },
         {
@@ -61,7 +65,8 @@ const packageData = {
             desc: 'Head to the cultural heart of Bali, Ubud. Explore the Sacred Monkey Forest, vibrant art markets, and the breathtaking Tegalalang Rice Terraces.',
             attractions: ['Monkey Forest', 'Ubud Market', 'Tegalalang Terraces'],
             images: [
-                'https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&q=80&w=800'
+                { src: 'https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&q=80&w=800', title: 'Tegalalang rice terraces' },
+                { src: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800', title: 'Ubud art market' },
             ]
         },
     ],
@@ -80,11 +85,40 @@ const packageData = {
         'Gratuities'
     ],
     insights: {
-        food: 'Balinese cuisine is incredibly diverse. Don\'t miss Nasi Goreng, Babi Guling, and Sate Lilit. We highly recommend trying local warungs along with fine dining.',
-        nightlife: 'Seminyak and Canggu offer world-class beach clubs like Potato Head and Finns. Enjoy sunset cocktails with international DJs.',
-        shopping: 'From high-end boutiques in Seminyak to traditional crafts at the Ubud Art Market, there\'s something for every shopper.',
-        tips: 'Dress modestly when visiting temples (sarongs are usually provided). Tap water is not safe to drink; stick to bottled water.',
-        essentials: 'Currency: Indonesian Rupiah (IDR). Plugs: Type C/F. Transport: Gojek/Grab are the best local ride-hailing apps. Sim Cards: Easily available at the airport.'
+        food: {
+            text: 'Balinese cuisine is incredibly diverse. Don\'t miss Nasi Goreng, Babi Guling, and Sate Lilit. We highly recommend trying local warungs along with fine dining.',
+            gallery: [
+                { src: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=900', title: 'Nasi Goreng' },
+                { src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=900', title: 'Babi Guling spread' },
+                { src: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=900', title: 'Sate Lilit' },
+            ],
+        },
+        nightlife: {
+            text: 'Seminyak and Canggu offer world-class beach clubs like Potato Head and Finns. Enjoy sunset cocktails with international DJs.',
+            gallery: [
+                { src: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=900', title: 'Beach club sunset' },
+                { src: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&q=80&w=900', title: 'Rooftop cocktails' },
+                { src: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80&w=900', title: 'Late-night lounge' },
+            ],
+        },
+        shopping: {
+            text: 'From high-end boutiques in Seminyak to traditional crafts at the Ubud Art Market, there\'s something for every shopper.',
+            gallery: [
+                { src: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=900', title: 'Seminyak boutique' },
+                { src: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=900', title: 'Ubud Art Market' },
+                { src: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=900', title: 'Local crafts' },
+            ],
+        },
+        tips: {
+            text: 'Dress modestly when visiting temples (sarongs are usually provided). Tap water is not safe to drink; stick to bottled water.',
+            gallery: [
+                { src: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&q=80&w=900', title: 'Temple dress code' },
+                { src: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=900', title: 'Sacred sarong' },
+            ],
+        },
+        essentials: {
+            text: 'Currency: Indonesian Rupiah (IDR). Plugs: Type C/F. Transport: Gojek/Grab are the best local ride-hailing apps. Sim Cards: Easily available at the airport.',
+        },
     },
     faqs: [
         { question: "Do I need a visa to visit Bali?", answer: "Visa requirements depend on your nationality. For many countries, a Visa on Arrival (VoA) is available. Our package includes Visa Assistance to make this process seamless." },
@@ -194,44 +228,14 @@ const HeroSection = ({ data, scrollToForm }: { data?: typeof packageData, scroll
     );
 };
 
-// 2. STICKY NAV SECTION
-const StickyNav = ({ activeSection }: { activeSection: string }) => {
-    const navItems = [
-        { id: 'overview', label: 'Overview' },
-        { id: 'itinerary', label: 'Itinerary' },
-        { id: 'inclusions', label: 'Inclusions/Exclusions' },
-        { id: 'insights', label: 'Travel Information' },
-        { id: 'faq', label: 'FAQ' },
-        { id: 'experiences', label: 'Guest Experiences' }
-    ];
-
-    const scrollToSection = (id: string) => {
-        const element = document.getElementById(id);
-        if (element) {
-            const yOffset = -90;
-            const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-        }
-    };
-
-    return (
-        <div className="sticky top-[4.25rem] md:top-[4rem] lg:top-[6.5rem] z-40 bg-white border-b border-slate-200 shadow-sm w-full font-sans hide-scrollbar">
-            <div className="content-container px-6 lg:px-8">
-                <div className="flex overflow-x-auto gap-4 md:gap-8 no-scrollbar scroll-smooth py-3">
-                    {navItems.map(item => (
-                        <button
-                            key={item.id}
-                            onClick={() => scrollToSection(item.id)}
-                            className={`px-4 py-2 whitespace-nowrap text-[13px] md:text-sm font-bold uppercase tracking-wider transition-all rounded-lg shrink-0 ${activeSection === item.id ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-slate-800 font-semibold hover:bg-primary/8 hover:text-primary'}`}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
+const detailNavItems = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'itinerary', label: 'Itinerary' },
+    { id: 'inclusions', label: 'Inclusions/Exclusions' },
+    { id: 'insights', label: 'Travel Information' },
+    { id: 'faq', label: 'FAQ' },
+    { id: 'experiences', label: 'Guest Experiences' }
+];
 
 // 3. OVERVIEW + VISUAL EXPERIENCE BLOCK
 const OverviewExperience = ({ data, onMediaClick }: { data?: typeof packageData, onMediaClick: (src: string) => void, [key: string]: unknown }) => {
@@ -365,7 +369,9 @@ const Itinerary = ({ data }: { data?: typeof packageData, [key: string]: unknown
             </div>
 
             <div className="space-y-4">
-                {data?.itinerary.map((day: { day: number, title: string, desc: string, attractions: string[], images: string[] }) => (
+                {data?.itinerary.map((day: { day: number; title: string; desc: string; attractions: string[]; images: (string | { src: string; title: string })[] }) => {
+                    const dayImages = normalizeLabeledImages(day.images);
+                    return (
                     <div key={day.day} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${openDay === day.day ? 'border-primary/30 shadow-md ring-1 ring-primary/10' : 'border-slate-200 shadow-sm hover:border-slate-300'}`}>
                         <button
                             className="w-full flex items-center justify-between p-5 text-left focus:outline-none group bg-white"
@@ -387,18 +393,12 @@ const Itinerary = ({ data }: { data?: typeof packageData, [key: string]: unknown
                                     exit={{ height: 0, opacity: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="px-5 pb-6 pt-2 border-t border-slate-50 flex flex-col gap-6">
-                                        {/* Media at top */}
-                                        <div className="w-full flex gap-3 overflow-x-auto snap-x hide-scrollbar pb-2">
-                                            {day.images.map((img, idx) => (
-                                                <div key={idx} className="w-full sm:w-[280px] md:w-[320px] h-48 md:h-56 rounded-xl overflow-hidden shrink-0 shadow-sm snap-center">
-                                                    <img src={img} alt={`${day.title} - ${idx}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-                                                </div>
-                                            ))}
-                                        </div>
+                                    <div className="px-4 sm:px-5 pb-6 pt-2 border-t border-slate-50 flex flex-col gap-6">
+                                        {dayImages.length > 0 && (
+                                            <LabeledImageCarousel items={dayImages} ariaLabel={`Day ${day.day} — ${day.title}`} />
+                                        )}
 
-                                        {/* Content below media */}
-                                        <div className="flex-1 md:pl-2">
+                                        <div className="flex-1 md:pl-1">
                                             <p className="text-slate-700 leading-relaxed mb-6">{day.desc}</p>
                                             <div className="flex flex-wrap gap-2 mb-2">
                                                 {day.attractions.map((attr: string, idx: number) => (
@@ -413,7 +413,8 @@ const Itinerary = ({ data }: { data?: typeof packageData, [key: string]: unknown
                             )}
                         </AnimatePresence>
                     </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
@@ -492,6 +493,24 @@ const InclusionsExclusions = ({ data }: { data?: typeof packageData, [key: strin
     );
 };
 
+/** Supports legacy string-only insights from API + new { text, gallery } blocks. */
+function getInsightPanel(
+    insights: typeof packageData.insights | undefined,
+    tabId: string
+): { text: string; gallery: PackageLabeledImage[] } {
+    if (!insights) return { text: '', gallery: [] };
+    const raw = insights[tabId as keyof typeof insights] as
+        | string
+        | { text: string; gallery?: (string | PackageLabeledImage)[] }
+        | undefined;
+    if (raw == null) return { text: '', gallery: [] };
+    if (typeof raw === 'string') return { text: raw, gallery: [] };
+    return {
+        text: raw.text ?? '',
+        gallery: normalizeLabeledImages(raw.gallery),
+    };
+}
+
 // 6. DESTINATION INSIGHTS & TERMS
 const DestinationInsights = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
     const tabs = [
@@ -504,6 +523,9 @@ const DestinationInsights = ({ data }: { data?: typeof packageData, [key: string
     const [activeTab, setActiveTab] = useState(tabs[0].id);
     const [termsOpen, setTermsOpen] = useState(false);
 
+    const { text, gallery } = getInsightPanel(data?.insights, activeTab);
+    const tabLabel = tabs.find((t) => t.id === activeTab)?.label ?? 'Travel information';
+
     return (
         <div>
             <div className="border-b border-slate-200 pb-4 mb-8">
@@ -511,8 +533,8 @@ const DestinationInsights = ({ data }: { data?: typeof packageData, [key: string
                 <p className="text-slate-600">Essential insights to make the most of your journey.</p>
             </div>
 
-            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow mb-6">
-                <div className="flex flex-wrap border-b border-slate-100 bg-slate-100/80">
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow mb-6">
+                <div className="flex flex-wrap border-b border-slate-100 bg-slate-100/80 rounded-t-3xl overflow-hidden">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
@@ -524,16 +546,21 @@ const DestinationInsights = ({ data }: { data?: typeof packageData, [key: string
                         </button>
                     ))}
                 </div>
-                <div className="p-8 min-h-[280px] flex items-center bg-white relative">
+                <div className="p-6 sm:p-8 min-h-[280px] flex items-start bg-white relative rounded-b-3xl">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="text-slate-700 leading-relaxed text-lg max-h-[380px] overflow-y-auto custom-scrollbar w-full"
+                            className="w-full flex flex-col gap-6"
                         >
-                            {data?.insights[activeTab as keyof typeof data.insights]}
+                            {gallery.length > 0 && (
+                                <LabeledImageCarousel items={gallery} ariaLabel={tabLabel} />
+                            )}
+                            <p className="text-slate-700 leading-relaxed text-lg max-h-[380px] overflow-y-auto custom-scrollbar">
+                                {text}
+                            </p>
                         </motion.div>
                     </AnimatePresence>
                 </div>
@@ -957,29 +984,16 @@ const MediaModal = ({
 };
 
 export default function PackageDetail() {
-    const { id } = useParams();
-    console.log('Viewing package ID:', id);
+    const packageId = useParams().id ?? 'preview';
 
-    const [activeSection, setActiveSection] = useState('overview');
+    const { activeSection, scrollToSection } = useSectionScrollSpy(
+        detailNavItems.map((item) => item.id),
+        { initialSection: 'overview', topOffset: 200 }
+    );
     const [lightbox, setLightbox] = useState<{ isOpen: boolean, index: number }>({
         isOpen: false,
         index: 0
     });
-
-    useEffect(() => {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setActiveSection(entry.target.id);
-                }
-            });
-        }, { rootMargin: '-20% 0px -70% 0px' });
-
-        const sections = document.querySelectorAll('section[id]');
-        sections.forEach(sec => observer.observe(sec));
-
-        return () => observer.disconnect();
-    }, []);
 
     const scrollToForm = () => {
         const formElement = document.getElementById('lead-form');
@@ -1000,12 +1014,16 @@ export default function PackageDetail() {
     };
 
     return (
-        <div className="bg-[#faf9f6] min-h-screen font-sans text-slate-800">
+        <div key={packageId} className="bg-[#faf9f6] min-h-screen font-sans text-slate-800">
             {/* HERO SECTION */}
             <HeroSection data={packageData} scrollToForm={scrollToForm} />
 
             {/* STICKY NAV LAYER */}
-            <StickyNav activeSection={activeSection} />
+            <SectionStickyNav
+                items={detailNavItems}
+                activeSection={activeSection}
+                onNavigate={scrollToSection}
+            />
 
             {/* MAIN TWO-COLUMN GRID */}
             <div className="content-container px-4 md:px-8 mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start pb-20">

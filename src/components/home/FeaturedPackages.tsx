@@ -7,6 +7,8 @@ import type { Swiper as SwiperType } from 'swiper';
 
 import 'swiper/css';
 
+import PackageCardStack from '../common/PackageCardStack';
+
 type DestinationCard = {
   id: number;
   name: string;
@@ -65,11 +67,11 @@ export default function FeaturedPackages() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between"
+          className="mb-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between" 
         >
           <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">Trending Destinations</h2>
 
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-700">
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-700 w-fit">
             <button
               onClick={() => setActiveTab('domestic')}
               className={`px-5 py-2 text-sm rounded-lg font-semibold transition-colors ${
@@ -89,23 +91,54 @@ export default function FeaturedPackages() {
           </div>
         </motion.div>
 
-        <div className="relative group/slider">
+        {/* Mobile: stacked card swiper (swipe between destinations) */}
+        <div className="md:hidden flex justify-center px-2 pb-2">
+          <PackageCardStack key={`${activeTab}-${filteredDestinations.length}`}>
+            {filteredDestinations.map((destination) => (
+              <a
+                key={destination.id}
+                href={destination.href}
+                className="group relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-slate-900"
+              >
+                <div className="relative min-h-0 flex-1 overflow-hidden">
+                  <img
+                    src={destination.images[0]}
+                    alt={destination.name}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-active:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+                  <span className="absolute bottom-6 left-4 right-4 text-center font-['Marcellus'] text-xl font-bold tracking-wide text-white drop-shadow-lg">
+                    {destination.name}
+                  </span>
+                </div>
+                <div className="shrink-0 border-t border-white/10 bg-white/95 px-4 py-3 text-center">
+                  <span className="text-sm font-semibold text-primary">View packages</span>
+                  <ArrowRight className="ml-1 inline-block h-4 w-4 align-middle text-primary" />
+                </div>
+              </a>
+            ))}
+          </PackageCardStack>
+        </div>
+
+        {/* Desktop / tablet: horizontal carousel */}
+        <div className="relative hidden group/slider md:block">
           <button
             type="button"
             aria-label="Previous destinations"
             onClick={() => swiperInstance?.slidePrev()}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 border border-slate-700 text-primary shadow-md flex items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-opacity"
+            className="absolute left-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-700 bg-white/95 text-primary shadow-md opacity-0 pointer-events-none transition-opacity group-hover/slider:pointer-events-auto group-hover/slider:opacity-100"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
           </button>
 
           <button
             type="button"
             aria-label="Next destinations"
             onClick={() => swiperInstance?.slideNext()}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 border border-slate-700 text-primary shadow-md flex items-center justify-center opacity-0 group-hover/slider:opacity-100 pointer-events-none group-hover/slider:pointer-events-auto transition-opacity"
+            className="absolute right-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-700 bg-white/95 text-primary shadow-md opacity-0 pointer-events-none transition-opacity group-hover/slider:pointer-events-auto group-hover/slider:opacity-100"
           >
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="h-4 w-4" />
           </button>
 
           <Swiper

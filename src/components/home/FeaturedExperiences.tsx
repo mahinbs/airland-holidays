@@ -270,7 +270,7 @@ export default function FeaturedExperiences() {
               }}
               className="pb-10 pt-4 px-2"
             >
-              {filteredPackages.map((pkg, index) => (
+              {filteredPackages.concat(filteredPackages).map((pkg, index) => (
                 <SwiperSlide key={pkg.id}>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}

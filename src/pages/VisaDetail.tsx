@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -24,6 +24,8 @@ import {
     CheckCircle2,
     Share2
 } from 'lucide-react';
+import SectionStickyNav from '../components/common/SectionStickyNav';
+import { useSectionScrollSpy } from '../hooks/useSectionScrollSpy';
 
 interface VisaType {
     name: string;
@@ -454,7 +456,6 @@ const navLinks = [
 export default function VisaDetail() {
     const { country } = useParams();
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
-    const [activeTab, setActiveTab] = useState<string>('overview');
     const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
 
     const countryKey = country?.toLowerCase() || '';
@@ -466,31 +467,10 @@ export default function VisaDetail() {
             title: `${country ?? 'Country'} Visa Services`,
         };
 
-    const scrollToSection = useCallback((id: string) => {
-        const element = document.getElementById(id);
-        if (!element) return;
-        const yOffset = -120;
-        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-    }, []);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const sections = navLinks.map(link => document.getElementById(link.id));
-            const scrollPosition = window.scrollY + 150;
-
-            for (let i = sections.length - 1; i >= 0; i--) {
-                const section = sections[i];
-                if (section && section.offsetTop <= scrollPosition) {
-                    setActiveTab(navLinks[i].id);
-                    break;
-                }
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    const { activeSection, scrollToSection } = useSectionScrollSpy(
+        navLinks.map((item) => item.id),
+        { initialSection: 'overview', topOffset: 200 }
+    );
 
     const nextReview = () => {
         if (data.reviews) {
@@ -572,32 +552,12 @@ export default function VisaDetail() {
             </div>
 
             {/* Sticky Navigation */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-                <div className="content-container">
-                    <ul className="flex items-center gap-2 md:gap-8 overflow-x-auto py-0 scrollbar-hide">
-                        {navLinks.map((link) => (
-                            <li key={link.id} className="shrink-0">
-                                <button
-                                    type="button"
-                                    onClick={() => scrollToSection(link.id)}
-                                    className={`font-bold whitespace-nowrap transition-all tracking-wider text-[11px] md:text-xs uppercase py-5 px-1 border-b-2 relative ${activeTab === link.id
-                                        ? 'text-primary border-primary'
-                                        : 'text-slate-500 hover:text-primary border-transparent'
-                                        }`}
-                                >
-                                    {link.label}
-                                    {activeTab === link.id && (
-                                        <motion.div
-                                            layoutId="activeTab"
-                                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                                        />
-                                    )}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
+            <SectionStickyNav
+                items={navLinks}
+                activeSection={activeSection}
+                onNavigate={scrollToSection}
+                useContainer={true}
+            />
 
             <div className="content-container mt-16">
                 <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
@@ -610,7 +570,7 @@ export default function VisaDetail() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="relative"
+                            className="relative scroll-mt-32"
                         >
                             <Quote className="absolute -top-6 -left-8 w-24 h-24 text-slate-100 -z-10 rotate-180" />
                             <h2 className="text-4xl text-slate-900 mb-8 tracking-tight" >
@@ -641,6 +601,7 @@ export default function VisaDetail() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
+                            className="scroll-mt-32"
                         >
                             <h2 className="text-4xl text-slate-900 mb-4 tracking-tight font-medium" >Visa Categories</h2>
                             <p className="text-slate-600 mb-10 text-lg">Choose the right visa type for your travel needs. Our experts ensure accurate filing for each category.</p>
@@ -686,6 +647,7 @@ export default function VisaDetail() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
+                                className="scroll-mt-32"
                             >
                                 <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 text-white p-10 md:p-14 shadow-2xl">
                                     {/* Diagonal Grid Lines */}
@@ -714,6 +676,7 @@ export default function VisaDetail() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
+                            className="scroll-mt-32"
                         >
                             <h2 className="text-4xl text-slate-900 mb-4 tracking-tight font-medium" >Documentation Guide</h2>
                             <p className="text-slate-600 mb-10 text-lg">Proper documentation is the key to a successful visa application. We provide a tailored checklist for your profile.</p>
@@ -783,6 +746,7 @@ export default function VisaDetail() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
+                            className="scroll-mt-32"
                         >
                             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                                 <div>
@@ -831,6 +795,7 @@ export default function VisaDetail() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
+                            className="scroll-mt-32"
                         >
                             <div className="text-center mb-16">
                                 <p className="text-secondary font-bold tracking-[0.3em] uppercase text-xs mb-4">Simple, Guided & Expert-Handled Process</p>
@@ -893,6 +858,7 @@ export default function VisaDetail() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
+                            className="scroll-mt-32"
                         >
                             <h2 className="text-4xl text-slate-900 mb-10 tracking-tight font-medium" >Frequently Asked Questions</h2>
                             <div className="space-y-4">
@@ -933,6 +899,7 @@ export default function VisaDetail() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
+                                className="scroll-mt-32"
                             >
                                 <h2 className="text-4xl text-slate-900 mb-4 tracking-tight" >Curated Experiences</h2>
                                 <p className="text-slate-600 text-lg mb-10">Enhance your trip with our handpicked selection of premium attractions.</p>
@@ -960,7 +927,7 @@ export default function VisaDetail() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="bg-slate-900 text-white rounded-[3rem] p-10 md:p-16 relative overflow-hidden"
+                                className="bg-slate-900 text-white rounded-[3rem] p-10 md:p-16 relative overflow-hidden scroll-mt-32"
                             >
                                 <Quote className="absolute top-10 right-10 w-32 h-32 text-white/5 rotate-180" />
                                 <h2 className="text-4xl mb-12 tracking-tight" >Client Stories</h2>
@@ -1001,6 +968,55 @@ export default function VisaDetail() {
                         )}
 
                         {/* Embassy Section (Handled Above) */}
+                        <motion.section
+                            id="embassy"
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="scroll-mt-32"
+                        >
+                            <h2 className="text-4xl text-slate-900 mb-10 tracking-tight font-medium">Embassy & Official Information</h2>
+                            <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 md:p-10 space-y-6">
+                                <p className="text-slate-600 leading-relaxed">
+                                    {data.embassy?.heading ?? `${data.name} embassy and official references`}
+                                </p>
+
+                                {data.embassy?.address && (
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1">Address</p>
+                                        <p className="text-slate-900 font-semibold">{data.embassy.address}</p>
+                                    </div>
+                                )}
+
+                                {data.embassy?.contact && (
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1">Contact</p>
+                                        <p className="text-slate-900 font-semibold">{data.embassy.contact}</p>
+                                    </div>
+                                )}
+
+                                {(data.embassy?.lines ?? []).length > 0 && (
+                                    <ul className="space-y-3">
+                                        {data.embassy?.lines.map((line, idx) => (
+                                            <li key={idx} className="text-slate-600 leading-relaxed">
+                                                {line}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+
+                                {data.embassy?.linkHref && data.embassy?.linkLabel && (
+                                    <a
+                                        href={data.embassy.linkHref}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-2 text-primary font-bold hover:text-secondary transition-colors"
+                                    >
+                                        {data.embassy.linkLabel} <ArrowRight className="w-4 h-4" />
+                                    </a>
+                                )}
+                            </div>
+                        </motion.section>
 
                         {/* Terms & Conditions */}
                         <motion.section
@@ -1008,6 +1024,7 @@ export default function VisaDetail() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
+                            className="scroll-mt-32"
                         >
                             <h2 className="text-4xl text-slate-900 mb-10 tracking-tight font-medium" >Terms & Policies</h2>
                             <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] divide-y divide-slate-200 overflow-hidden">

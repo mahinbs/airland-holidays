@@ -8,7 +8,7 @@ import {
     ChevronLeft, ChevronRight 
 } from 'lucide-react';
 
-interface VisualItem {
+export interface VisualItem {
     id: number;
     type: 'video' | 'image';
     url: string;

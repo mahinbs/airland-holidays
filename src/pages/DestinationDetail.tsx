@@ -9,7 +9,7 @@ import {
     CheckCircle2, XCircle, ArrowRight, Instagram, ArrowLeft,
     ChevronLeft, ChevronRight
 } from 'lucide-react';
-import VisualExperience from '../components/common/VisualExperience';
+import VisualExperience, { type VisualItem } from '../components/common/VisualExperience';
 
 const mockCountryData = {
     name: 'Indonesia',
@@ -130,7 +130,7 @@ const mockCountryData = {
         { id: 2, type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-top-view-of-a-resort-in-the-maldives-40018-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1573790387438-4da905039392?w=600&q=80', title: 'Ubud Dreams', packageId: '4', packageName: 'Romantic Bali Escape' },
         { id: 3, type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-glacier-river-in-iceland-from-the-top-43405-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80', title: 'Icy Currents', packageId: '5', packageName: 'Volcanic Island Tour' },
         { id: 4, type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-waves-coming-to-the-shore-4113-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=600&q=80', title: 'Ocean Whispers', packageId: '2', packageName: 'Beach Paradise' },
-    ],
+    ] satisfies VisualItem[],
     airports: [
         { name: 'Soekarno–Hatta (CGK)', city: 'Jakarta', connectivity: 'Primary hub with direct flights from Delhi and Mumbai via Indigo and Air India.' },
         { name: 'Ngurah Rai (DPS)', city: 'Bali', connectivity: 'Highly connected with direct seasonal flights from Mumbai and Delhi. Excellent regional connectivity.' },
@@ -239,25 +239,28 @@ export default function DestinationDetail() {
         ]
     );
 
-    const [sidebarSliderRef, sidebarInstanceRef] = useKeenSlider(
+    const [featuredTopSliderRef, featuredTopSliderInstanceRef] = useKeenSlider(
         {
-            loop: true,
-            slides: { perView: 1, spacing: 10 },
-        },
-        [
-            (slider) => {
-                let timeout: ReturnType<typeof setTimeout>;
-                function nextTimeout() {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        slider.next();
-                    }, 4000);
-                }
-                slider.on("created", nextTimeout);
-                slider.on("animationEnded", nextTimeout);
-                slider.on("updated", nextTimeout);
+            loop: data.packages.length > 2,
+            slides: {
+                perView: 1.12,
+                spacing: 14,
             },
-        ]
+            breakpoints: {
+                '(min-width: 480px)': {
+                    slides: { perView: 1.35, spacing: 16 },
+                },
+                '(min-width: 768px)': {
+                    slides: { perView: 2.1, spacing: 18 },
+                },
+                '(min-width: 1024px)': {
+                    slides: { perView: 2.65, spacing: 20 },
+                },
+                '(min-width: 1280px)': {
+                    slides: { perView: 3.15, spacing: 22 },
+                },
+            },
+        }
     );
 
     const handleExplorePackages = () => {
@@ -330,6 +333,150 @@ export default function DestinationDetail() {
                 </motion.div>
             </section>
 
+            {/* Featured journeys — top fold, horizontal showcase */}
+            <section className="relative border-b border-slate-200/80 bg-gradient-to-b from-slate-50 to-white py-10 md:py-14">
+                <div className="content-container px-4 md:px-6">
+                    <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+                                Handpicked itineraries
+                            </span>
+                            <h2 className="font-marcellus text-3xl text-slate-900 md:text-4xl lg:text-[2.75rem] leading-tight">
+                                Most Loved {data.name} Journeys
+                            </h2>
+                            <p className="mt-2 max-w-xl text-sm font-light text-slate-600">
+                                Start with traveller favourites — expert-crafted routes with clear pricing and instant enquiry.
+                            </p>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap items-center gap-3">
+                            <Link
+                                to="/contact"
+                                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-lg transition hover:brightness-110"
+                            >
+                                Plan My Trip
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={handleExplorePackages}
+                                className="inline-flex items-center justify-center rounded-full border-2 border-slate-200 bg-white px-6 py-3 text-sm font-bold uppercase tracking-wider text-slate-800 transition hover:border-primary hover:text-primary"
+                            >
+                                All packages
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="relative group/featpkgs">
+                        <button
+                            type="button"
+                            aria-label="Previous packages"
+                            onClick={() => featuredTopSliderInstanceRef.current?.prev()}
+                            className="absolute left-0 top-[42%] z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-md transition hover:bg-primary hover:text-white hover:border-primary md:flex md:-left-2 lg:-left-4"
+                        >
+                            <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                            type="button"
+                            aria-label="Next packages"
+                            onClick={() => featuredTopSliderInstanceRef.current?.next()}
+                            className="absolute right-0 top-[42%] z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-md transition hover:bg-primary hover:text-white hover:border-primary md:flex md:-right-2 lg:-right-4"
+                        >
+                            <ChevronRight className="h-5 w-5" />
+                        </button>
+
+                        <div ref={featuredTopSliderRef} className="keen-slider !overflow-visible py-2">
+                            {data.packages.map((pkg) => (
+                                <div key={`top-${pkg.id}`} className="keen-slider__slide">
+                                    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-md transition duration-300 hover:border-primary/25 hover:shadow-xl">
+                                        <Link to={`/packages/${pkg.id}`} className="group relative block aspect-[16/11] overflow-hidden shrink-0">
+                                            <img
+                                                src={pkg.image}
+                                                alt={pkg.title}
+                                                className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                                                loading="lazy"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/15 to-transparent" />
+                                            <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+                                                {pkg.tags?.map((tag, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="rounded-md bg-secondary px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-900"
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                            <span className="absolute bottom-3 left-3 right-3 font-marcellus text-lg font-bold leading-snug text-white drop-shadow md:text-xl">
+                                                {pkg.title}
+                                            </span>
+                                        </Link>
+                                        <div className="flex flex-1 flex-col p-4 md:p-5">
+                                            <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                                                <MapPin className="h-3 w-3 text-secondary" />
+                                                {pkg.destination}
+                                            </div>
+                                            <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-700">
+                                                    <Clock className="h-3.5 w-3.5 text-primary" />
+                                                    <span className="font-semibold">{pkg.duration}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1 text-xs">
+                                                    <Star className="h-3.5 w-3.5 fill-secondary text-secondary" />
+                                                    <span className="font-bold">{pkg.rating}</span>
+                                                    <span className="text-slate-500">({pkg.reviews})</span>
+                                                </div>
+                                            </div>
+                                            <div className="mt-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                <div>
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">From</span>
+                                                    <p className="font-marcellus text-2xl font-bold text-slate-900">${pkg.price}</p>
+                                                    <span className="text-[10px] text-slate-500">per person</span>
+                                                </div>
+                                                <div className="flex flex-col gap-2 sm:items-end">
+                                                    <Link
+                                                        to={`/packages/${pkg.id}`}
+                                                        className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wide text-slate-800 transition hover:border-primary hover:bg-primary/5 hover:text-primary sm:w-auto"
+                                                    >
+                                                        View itinerary
+                                                    </Link>
+                                                    <Link
+                                                        to="/contact"
+                                                        className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:brightness-110 sm:w-auto"
+                                                    >
+                                                        Plan My Trip
+                                                        <ArrowRight className="h-3.5 w-3.5" />
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-10 overflow-hidden rounded-3xl bg-primary p-6 text-white shadow-xl md:p-10">
+                        <div className="relative z-10 flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <h3 className="font-marcellus text-2xl leading-tight text-white md:text-3xl">
+                                    Ready to visit {data.name}?
+                                </h3>
+                                <p className="mt-2 max-w-lg text-sm text-white/75">
+                                    Our specialists tailor flights, stays, and experiences — tell us your dates and style.
+                                </p>
+                            </div>
+                            <Link
+                                to="/contact"
+                                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-sm font-bold uppercase tracking-wider text-primary shadow-lg transition hover:bg-slate-100"
+                            >
+                                Plan My Trip
+                                <ArrowRight className="h-5 w-5" />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* 2. QUICK COUNTRY OVERVIEW BAR */}
             <div className="bg-white border-b border-slate-700 py-5 shadow-sm relative w-full overflow-hidden hidden md:block">
                 <motion.div
@@ -373,8 +520,8 @@ export default function DestinationDetail() {
                 </motion.div>
             </div>
 
-            <div className="content-container mt-8 flex flex-col xl:flex-row gap-8 lg:px-4">
-                <main className="xl:w-2/3">
+            <div className="content-container mt-8 px-4 lg:px-4">
+                <main className="w-full pb-16">
 
                     {/* 3. TRAVEL INSIGHTS & VISITOR STATISTICS */}
                     <section className="bg-white rounded-[32px] p-6 md:p-10 mb-10 border border-slate-100 shadow-sm overflow-hidden">
@@ -592,7 +739,7 @@ export default function DestinationDetail() {
                                         <ShoppingBag className="w-32 h-32" />
                                     </div>
                                     <div className="relative z-10">
-                                        <h3 className="font-marcellus text-2xl mb-6">Shopping Treasures</h3>
+                                        <h3 className="font-marcellus text-2xl mb-6 text-white">Shopping Treasures</h3>
                                         <div className="flex flex-wrap gap-2">
                                             {data.cultural.shopping.map((item, i) => (
                                                 <span key={i} className="bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-xl text-sm font-bold">
@@ -608,7 +755,7 @@ export default function DestinationDetail() {
                                         <Info className="w-32 h-32" />
                                     </div>
                                     <div className="relative z-10">
-                                        <h3 className="font-marcellus text-2xl mb-6">Cultural Etiquette</h3>
+                                        <h3 className="font-marcellus text-2xl mb-6 text-white">Cultural Etiquette</h3>
                                         <ul className="space-y-3">
                                             {data.cultural.etiquette.map((item, i) => (
                                                 <li key={i} className="flex items-start gap-3 text-sm font-medium">
@@ -674,7 +821,7 @@ export default function DestinationDetail() {
 
                     {/* NEW: VISUAL EXPERIENCE */}
                     <VisualExperience 
-                        items={data.visualExperiences as any} 
+                        items={data.visualExperiences} 
                         title={`Experience ${data.name} in Motion`}
                         subtitle="Get a real feel of the destination through these trending visual stories."
                     />
@@ -726,7 +873,7 @@ export default function DestinationDetail() {
                         >
                             {filteredPackages.map((pkg) => (
                                 <motion.div key={pkg.id} variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}>
-                                    <Link to={`/packages/${pkg.id}`} className="group block bg-white rounded-2xl overflow-hidden border border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-400 h-full flex flex-col">
+                                    <Link to={`/packages/${pkg.id}`} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-700 bg-white shadow-sm transition-all duration-400 hover:-translate-y-1 hover:shadow-xl">
                                         <div className="relative aspect-[4/3] overflow-hidden">
                                             <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-[1.08] transition-transform duration-500" loading="lazy" />
                                             <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
@@ -820,69 +967,6 @@ export default function DestinationDetail() {
                     </section>
 
                 </main>
-
-                {/* SIDEBAR */}
-                <aside className="xl:w-1/3 mt-8 xl:mt-0 pb-10">
-                    <div className="sticky top-28 space-y-5">
-
-                        {/* Sidebar Package Carousel */}
-                        <div className="bg-white rounded-[32px] p-6 border border-slate-200 shadow-xl overflow-hidden">
-                            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-                                <h3 className="font-marcellus text-xl text-slate-900">
-                                    Featured Packages
-                                </h3>
-                                <div className="flex gap-2">
-                                    <button 
-                                        onClick={() => sidebarInstanceRef.current?.prev()}
-                                        className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white hover:border-primary transition-all"
-                                    >
-                                        <ChevronLeft className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                        onClick={() => sidebarInstanceRef.current?.next()}
-                                        className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white hover:border-primary transition-all"
-                                    >
-                                        <ChevronRight className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div ref={sidebarSliderRef} className="keen-slider">
-                                {data.packages.map(pkg => (
-                                    <div key={pkg.id} className="keen-slider__slide">
-                                        <Link to={`/packages/${pkg.id}`} className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 hover:border-primary/20 hover:shadow-2xl transition-all duration-500">
-                                            <div className="aspect-[4/5] relative overflow-hidden">
-                                                <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                                                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-primary shadow-sm">
-                                                    ${pkg.price}
-                                                </div>
-                                                <div className="absolute bottom-6 left-6 right-6">
-                                                    <p className="text-secondary font-bold text-[10px] uppercase tracking-[0.2em] mb-2">{pkg.duration}</p>
-                                                    <h4 className="font-marcellus text-white text-xl group-hover:text-secondary transition-colors leading-tight">
-                                                        {pkg.title}
-                                                    </h4>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Direct Enquiry Card */}
-                        <div className="bg-primary rounded-[32px] p-8 mt-6 shadow-2xl relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
-                            <h3 className="font-marcellus text-2xl text-white mb-4 relative z-10 leading-tight">Ready to Visit {data.name}?</h3>
-                            <p className="text-white/70 text-sm mb-8 relative z-10 leading-relaxed">
-                                Let our experts craft your perfect itinerary with exclusive perks.
-                            </p>
-                            <Link to="/contact" className="bg-white text-primary font-bold px-8 py-4 rounded-2xl hover:bg-slate-50 w-full flex items-center justify-center gap-2 transition-all relative z-10 shadow-lg group/btn">
-                                Plan My Trip <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                            </Link>
-                        </div>
-                    </div>
-                </aside>
             </div>
         </div>
     );

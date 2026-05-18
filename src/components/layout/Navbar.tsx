@@ -14,7 +14,7 @@ export default function Navbar() {
 
     // Desktop Nav State
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'international' | 'india'>('international');
+    const [activeTab, setActiveTab] = useState<'international' | 'india' | 'honeymoon'>('international');
 
     // Mobile Accordion State
     const [expandedMobile, setExpandedMobile] = useState<Record<string, boolean>>({});
@@ -281,27 +281,27 @@ export default function Navbar() {
                         >
                             <div className="content-container py-8 flex gap-8 h-full">
                                 {/* Left: Tabs + Columns */}
-                                <div className="flex-1 flex flex-col">
+                                <div className="flex-1 flex flex-col min-w-0">
                                     {/* Tab Bar */}
                                     <div className="flex gap-1 mb-6 border-b border-slate-100 pb-4">
                                         {item.tabs?.map(tab => (
                                             <button
                                                 key={tab.id}
-                                                onClick={() => setActiveTab(tab.id as 'international' | 'india')}
+                                                onClick={() => setActiveTab(tab.id as 'international' | 'india' | 'honeymoon')}
                                                 className={clsx(
-                                                    "px-5 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer",
+                                                    "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer whitespace-nowrap",
                                                     activeTab === tab.id
                                                         ? "bg-primary text-white shadow-md"
                                                         : "text-slate-950 hover:text-primary hover:bg-primary/5"
                                                 )}
                                             >
-                                                {tab.label}
+                                                {tab.id === 'honeymoon' ? '💍 ' : ''}{tab.label}
                                             </button>
                                         ))}
                                     </div>
 
                                     {/* Columns */}
-                                    <div className="flex-1 relative">
+                                    <div className="flex-1 relative overflow-hidden">
                                         <AnimatePresence mode="wait">
                                             <motion.div
                                                 key={activeTab}
@@ -311,7 +311,9 @@ export default function Navbar() {
                                                 transition={{ duration: 0.2 }}
                                                 className={clsx(
                                                     "grid gap-6",
-                                                    activeTab === 'international' ? "grid-cols-3 lg:grid-cols-6" : "grid-cols-3 lg:grid-cols-5"
+                                                    activeTab === 'international' ? "grid-cols-3 lg:grid-cols-6" :
+                                                    activeTab === 'honeymoon'     ? "grid-cols-2" :
+                                                    "grid-cols-3 lg:grid-cols-5"
                                                 )}
                                             >
                                                 {activeTabData?.columns?.map(col => (
@@ -324,7 +326,11 @@ export default function Navbar() {
                                                                 <button
                                                                     key={dest}
                                                                     onClick={() => {
-                                                                        navigate(`/packages?destination=${encodeURIComponent(dest.toLowerCase())}`);
+                                                                        if (activeTab === 'honeymoon') {
+                                                                            navigate(`/packages?style=honeymoon&destination=${encodeURIComponent(dest.toLowerCase().replace(/\s*\([^)]*\)/g, '').trim())}`);
+                                                                        } else {
+                                                                            navigate(`/packages?destination=${encodeURIComponent(dest.toLowerCase())}`);
+                                                                        }
                                                                         setActiveMenu(null);
                                                                     }}
                                                                     className="text-left block text-sm text-slate-950 hover:text-primary hover:bg-primary/5 rounded-lg px-2 py-1.5 transition-all cursor-pointer -mx-2"
@@ -340,30 +346,52 @@ export default function Navbar() {
                                     </div>
                                 </div>
 
-                                {/* Right: Promo Image */}
-                                <div className="w-[220px] shrink-0 rounded-2xl overflow-hidden border border-slate-100 shadow-md relative h-full min-h-[280px]">
-                                    <img
-                                        src={activeTabData?.promoImage?.src}
-                                        alt={activeTabData?.promoImage?.label}
-                                        loading="lazy"
-                                        className="absolute inset-0 w-full h-full object-cover"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-4">
-                                        <h4 className="font-['Marcellus'] text-white text-lg font-bold leading-tight">
-                                            {activeTabData?.promoImage?.label}
-                                        </h4>
-                                        <p className="text-white/70 text-xs mt-1 mb-3">
-                                            {activeTabData?.promoImage?.sub}
-                                        </p>
-                                        <button
-                                            onClick={() => {
-                                                navigate(activeTabData?.promoImage?.href || '/packages');
-                                                setActiveMenu(null);
-                                            }}
-                                            className="bg-secondary text-white text-xs font-bold px-4 py-2 rounded-xl text-center hover:bg-secondary-dark transition-colors uppercase tracking-wider"
-                                        >
-                                            {activeTabData?.promoImage?.cta}
-                                        </button>
+                                {/* Right: Quick Links + Promo Image */}
+                                <div className="flex flex-col gap-4 w-[200px] xl:w-[240px] shrink-0">
+                                    {/* Quick Links panel */}
+                                    {item.quickLinks && (
+                                        <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3">Quick Browse</p>
+                                            <div className="flex flex-col gap-0.5">
+                                                {item.quickLinks.map((link: { label: string; href: string }) => (
+                                                    <a
+                                                        key={link.href}
+                                                        href={link.href}
+                                                        onClick={() => setActiveMenu(null)}
+                                                        className="flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-slate-700 hover:text-primary hover:bg-primary/5 transition-all font-medium"
+                                                    >
+                                                        {link.label}
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Promo Image */}
+                                    <div className="flex-1 rounded-2xl overflow-hidden border border-slate-100 shadow-md relative min-h-[160px]">
+                                        <img
+                                            src={activeTabData?.promoImage?.src}
+                                            alt={activeTabData?.promoImage?.label}
+                                            loading="lazy"
+                                            className="absolute inset-0 w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-4">
+                                            <h4 className="font-['Marcellus'] text-white text-base font-bold leading-tight">
+                                                {activeTabData?.promoImage?.label}
+                                            </h4>
+                                            <p className="text-white/70 text-xs mt-1 mb-3">
+                                                {activeTabData?.promoImage?.sub}
+                                            </p>
+                                            <button
+                                                onClick={() => {
+                                                    navigate(activeTabData?.promoImage?.href || '/packages');
+                                                    setActiveMenu(null);
+                                                }}
+                                                className="bg-secondary text-white text-xs font-bold px-4 py-2 rounded-xl text-center hover:bg-secondary-dark transition-colors uppercase tracking-wider"
+                                            >
+                                                {activeTabData?.promoImage?.cta}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
