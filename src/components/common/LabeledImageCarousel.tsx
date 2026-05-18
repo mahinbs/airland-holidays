@@ -1,9 +1,7 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
-// @ts-expect-error swiper types
 import "swiper/css/navigation";
-// @ts-expect-error swiper types
 import "swiper/css/pagination";
 import type { PackageLabeledImage } from "../../types/packageDetail";
 

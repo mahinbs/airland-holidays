@@ -30,9 +30,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
-// @ts-expect-error swiper types
 import "swiper/css/navigation";
-// @ts-expect-error swiper types
 import "swiper/css/pagination";
 
 const swiperCustomStyles = `

@@ -17,7 +17,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
-// @ts-expect-error missing typings in some swiper versions
 import 'swiper/css/navigation';
 
 const packageData = {

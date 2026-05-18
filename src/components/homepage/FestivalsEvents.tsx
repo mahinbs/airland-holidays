@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 
 import 'swiper/css';
-// @ts-expect-error missing typings in some swiper versions
 import 'swiper/css/navigation';
 
 type EventItem = {

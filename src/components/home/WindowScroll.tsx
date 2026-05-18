@@ -95,7 +95,6 @@ export default function WindowScroll({ banner = journeyBeyondBanner }: Props) {
 
   const imageY = useTransform(scrollYProgress, [0, 0.5, 1], ['0%', '-8%', '-15%']);
   const imageScale = useTransform(scrollYProgress, [0, 0.4, 0.8], [1.2, 1.1, 1]);
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [0.72, 0.62, 0.55, 0.65]);
   const textY = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [80, 20, -40]);
   const textOpacity = useTransform(scrollYProgress, [0.15, 0.4, 0.65], [0, 1, 0.9]);
   const textScale = useTransform(scrollYProgress, [0.2, 0.45], [0.9, 1]);
@@ -139,10 +138,6 @@ export default function WindowScroll({ banner = journeyBeyondBanner }: Props) {
           </div>
         </motion.div>
 
-        {/* <motion.div
-          style={{ opacity: overlayOpacity }}
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/55 to-slate-950/85"
-        /> */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/50 via-transparent to-slate-950/50" />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
