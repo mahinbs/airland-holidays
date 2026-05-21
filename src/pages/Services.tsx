@@ -968,7 +968,7 @@ export default function Services() {
                                         <img
                                             src={p.logo}
                                             alt={p.name}
-                                            className="h-10 md:h-12 w-full cursor-pointer object-contain opacity-80 transition-all duration-500 hover:opacity-100 brightness-[1.8] contrast-125"
+                                            className="h-10 md:h-12 w-full cursor-pointer object-contain opacity transition-all duration-500 hover:opacity-100 brightness-[1.8] contrast-125"
                                             loading="lazy"
                                             decoding="async"
                                         />
@@ -991,7 +991,7 @@ export default function Services() {
                                         <img
                                             src={p.logo}
                                             alt={p.name}
-                                            className="h-10 md:h-12 w-full cursor-pointer object-contain opacity-80 transition-all duration-500 hover:opacity-100 brightness-[1.8] contrast-125"
+                                            className="h-10 md:h-12 w-full cursor-pointer object-contain opacity transition-all duration-500 hover:opacity-100 brightness-[1.8] contrast-125"
                                             loading="lazy"
                                             decoding="async"
                                         />

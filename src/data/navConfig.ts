@@ -111,6 +111,11 @@ export const navStructure = [
     ],
   },
   {
+    label: 'Destinations',
+    type: 'link',
+    href: '/destinations',
+  },
+  {
     label: 'Services',
     type: 'dropdown',
     items: [
@@ -119,8 +124,6 @@ export const navStructure = [
       { label: 'Hotel Reservations',    href: '/services/hotel-reservation' },
       { label: 'Forex & Currency',      href: '/services/forex' },
       { label: 'Travel Insurance',      href: '/services/travel-insurance' },
-      { label: 'Visa Assistance',       href: '/visa' },
-      { label: 'Cruise Booking',        href: '/cruises' },
       { label: 'Group Travel',          href: '/services/group-travel' },
       { label: 'Holiday Customisation', href: '/services/holiday-customisation' },
     ],

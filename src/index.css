@@ -112,3 +112,8 @@
     background: #94a3b8;
   }
 }
+
+
+.swiper-button-next,.swiper-button-prev {
+  @apply p-2
+}

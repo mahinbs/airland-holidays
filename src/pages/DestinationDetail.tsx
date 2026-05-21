@@ -1,15 +1,51 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useKeenSlider } from 'keen-slider/react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
 import 'keen-slider/keen-slider.min.css';
-import { motion } from 'framer-motion';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
     MapPin, Sun, Info, Clock, Wallet, FileCheck, Plane, Star,
     Heart, Users, User, Briefcase, Utensils, ShoppingBag,
     CheckCircle2, XCircle, ArrowRight, Instagram, ArrowLeft,
-    ChevronLeft, ChevronRight
+    ChevronLeft, ChevronRight, MessageCircle,
 } from 'lucide-react';
 import VisualExperience, { type VisualItem } from '../components/common/VisualExperience';
+import LabeledImageCarousel from '../components/common/LabeledImageCarousel';
+import type { PackageLabeledImage } from '../types/packageDetail';
+
+const PACKAGE_SWIPER_STYLES = `
+  .dest-package-swiper .swiper-button-next,
+  .dest-package-swiper .swiper-button-prev {
+    color: white;
+    background: rgba(0,0,0,0.4);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    backdrop-filter: blur(6px);
+  }
+  .dest-package-swiper .swiper-button-next:after,
+  .dest-package-swiper .swiper-button-prev:after { font-size: 11px; font-weight: 900; }
+  .dest-package-swiper .swiper-pagination-bullet { background: white; opacity: 0.55; width: 5px; height: 5px; }
+  .dest-package-swiper .swiper-pagination-bullet-active { opacity: 1; width: 16px; border-radius: 3px; }
+`;
+
+type DestinationPackage = {
+    id: number;
+    title: string;
+    destination: string;
+    duration: string;
+    price: number;
+    rating: number;
+    reviews: number;
+    image: string;
+    images?: string[];
+    tags?: string[];
+    category: string;
+};
 
 const mockCountryData = {
     name: 'Indonesia',
@@ -85,11 +121,14 @@ const mockCountryData = {
     ],
 
     packages: [
-        { id: 1, title: 'Bali Bliss & Temples', destination: 'Bali, Indonesia', duration: '7 Days', price: 1200, rating: 4.8, reviews: 124, image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=600&q=80', tags: ['Best Seller'], category: 'Family' },
-        { id: 4, title: 'Romantic Bali Escape', destination: 'Bali, Indonesia', duration: '5 Days', price: 950, rating: 4.7, reviews: 88, image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80', tags: ['Honeymoon'], category: 'Honeymoon' },
-        { id: 9, title: 'Komodo & Lombok Explorer', destination: 'Lombok, Indonesia', duration: '8 Days', price: 1800, rating: 4.9, reviews: 56, image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600&q=80', tags: ['Adventure'], category: 'Solo' },
-        { id: 11, title: 'Java & Bali Cultural Circuit', destination: 'Java & Bali', duration: '10 Days', price: 2100, rating: 4.8, reviews: 42, image: 'https://images.unsplash.com/photo-1573790387438-4da905039392?w=600&q=80', tags: ['Culture'], category: 'Family' },
-    ],
+        { id: 1, title: 'Bali Bliss & Temples', destination: 'Bali, Indonesia', duration: '7 Days', price: 1200, rating: 4.8, reviews: 124, image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800&q=85', images: ['https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800&q=85', 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=85', 'https://images.unsplash.com/photo-1573790387438-4da905039392?w=800&q=85'], tags: ['Best Seller'], category: 'Family' },
+        { id: 4, title: 'Romantic Bali Escape', destination: 'Bali, Indonesia', duration: '5 Days', price: 950, rating: 4.7, reviews: 88, image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=85', images: ['https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=85', 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=85'], tags: ['Honeymoon'], category: 'Honeymoon' },
+        { id: 9, title: 'Komodo & Lombok Explorer', destination: 'Lombok, Indonesia', duration: '8 Days', price: 1800, rating: 4.9, reviews: 56, image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&q=85', images: ['https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&q=85', 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=800&q=85'], tags: ['Adventure'], category: 'Solo' },
+        { id: 11, title: 'Java & Bali Cultural Circuit', destination: 'Java & Bali', duration: '10 Days', price: 2100, rating: 4.8, reviews: 42, image: 'https://images.unsplash.com/photo-1573790387438-4da905039392?w=800&q=85', images: ['https://images.unsplash.com/photo-1573790387438-4da905039392?w=800&q=85', 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800&q=85'], tags: ['Culture'], category: 'Family' },
+        { id: 2, title: 'Ubud Wellness Retreat', destination: 'Ubud, Bali', duration: '6 Days', price: 1350, rating: 4.9, reviews: 67, image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=85', images: ['https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=85', 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=85'], tags: ['Wellness'], category: 'Luxury' },        
+        { id: 5, title: 'Bali Family Adventure', destination: 'Bali, Indonesia', duration: '9 Days', price: 1650, rating: 4.8, reviews: 103, image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=85', images: ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=85', 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=85'], tags: ['Family Pick'], category: 'Family' },        
+        { id: 7, title: 'Yogyakarta Heritage Trail', destination: 'Yogyakarta', duration: '5 Days', price: 890, rating: 4.6, reviews: 58, image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800&q=85', images: ['https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800&q=85'], tags: ['Culture'], category: 'Culture' },
+    ] satisfies DestinationPackage[],
 
     audienceSuggestions: [
         {
@@ -137,11 +176,22 @@ const mockCountryData = {
     ],
     cultural: {
         food: [
-            { name: 'Nasi Goreng', desc: 'Indonesian fried rice with a unique sweet-savory flavor from kecap manis, topped with a fried egg.', images: ['https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=600&q=80', 'https://images.unsplash.com/photo-1512058560366-cd2427bb085f?w=600&q=80'] },
+            { name: 'Nasi Goreng', desc: 'Indonesian fried rice with a unique sweet-savory flavor from kecap manis, topped with a fried egg.', images: ['https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80', 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600&q=80'] },
             { name: 'Satay', desc: 'Skewered grilled meat served with a rich peanut sauce. A beloved street food across the archipelago.', images: ['https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=600&q=80'] },
             { name: 'Rendang', desc: 'Slow-cooked beef in coconut milk and spices until tender and caramelized. Voted one of the best foods in the world.', images: ['https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=600&q=80'] },
         ],
-        shopping: ['Batik Fabric', 'Silver Jewelry (Ubud)', 'Wooden Carvings', 'Kopi Luwak Coffee'],
+        shopping: [
+            { name: 'Batik Fabric', desc: 'Hand-woven traditional textiles from Java and Bali — perfect for gifts and home décor.', images: ['https://images.pexels.com/photos/994523/pexels-photo-994523.jpeg?auto=compress&cs=tinysrgb&w=800', 'https://images.pexels.com/photos/3641059/pexels-photo-3641059.jpeg?auto=compress&cs=tinysrgb&w=800'] },
+            { name: 'Silver Jewelry (Ubud)', desc: 'Artisan silver crafted in Ubud\'s famous workshops — unique designs at fair prices.', images: ['https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=85'] },
+            { name: 'Wooden Carvings', desc: 'Intricately carved statues and masks from Balinese master craftsmen.', images: ['https://images.unsplash.com/photo-1719169396076-20ea603742ed?w=800&q=85', 'https://images.pexels.com/photos/26792824/pexels-photo-26792824.jpeg?auto=compress&cs=tinysrgb&w=800'] },
+            { name: 'Kopi Luwak Coffee', desc: 'World-renowned coffee from the archipelago — bring home Indonesia\'s finest brew.', images: ['https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&q=85'] },
+        ],
+        shoppingOverview: 'From vibrant local markets to boutique galleries, Indonesia offers exceptional handicrafts, textiles, and artisan goods. Ubud and Yogyakarta are must-visit shopping hubs for authentic souvenirs.',
+        etiquetteOverview: 'Indonesia is deeply respectful of tradition and religion. Dress modestly at temples, greet locals warmly, and observe local customs for a richer, more welcome experience.',
+        etiquetteGallery: [
+            { src: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800&q=85', title: 'Temple visit — modest dress required' },
+            { src: 'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=800&q=85', title: 'Respectful greetings at sacred sites' },
+        ] satisfies PackageLabeledImage[],
         etiquette: [
             'Remove shoes before entering temples and homes',
             'Dress modestly at religious sites — sarongs provided',
@@ -157,6 +207,343 @@ const mockCountryData = {
     },
 };
 
+function DestinationPackageCard({ pkg }: { pkg: DestinationPackage }) {
+    const images = pkg.images ?? [pkg.image];
+
+    return (
+        <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg">
+            <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-slate-100">
+                <Swiper
+                    modules={[Navigation, Pagination]}
+                    navigation
+                    pagination={{ clickable: true, dynamicBullets: true }}
+                    className="dest-package-swiper h-full w-full"
+                >
+                    {images.map((img, i) => (
+                        <SwiperSlide key={i}>
+                            <Link to={`/packages/${pkg.id}`} className="block h-full w-full">
+                                <img
+                                    src={img}
+                                    alt={`${pkg.title} ${i + 1}`}
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                />
+                            </Link>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+                <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+                {pkg.tags?.map((tag, i) => (
+                    <span
+                        key={i}
+                        className="absolute left-2.5 top-2.5 z-[3] rounded-md bg-secondary px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-slate-900"
+                    >
+                        {tag}
+                    </span>
+                ))}
+                <span className="absolute right-2.5 top-2.5 z-[3] flex items-center gap-1 rounded-md border border-white/20 bg-black/40 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
+                    <Clock className="h-3 w-3" /> {pkg.duration}
+                </span>
+            </div>
+            <div className="flex flex-1 flex-col p-3.5">
+                <div className="mb-1 flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                    <MapPin className="h-3 w-3 text-secondary" />
+                    <span className="truncate">{pkg.destination}</span>
+                </div>
+                <Link
+                    to={`/packages/${pkg.id}`}
+                    className="mb-1.5 line-clamp-2 font-marcellus text-base font-bold leading-snug text-slate-900 transition-colors group-hover:text-primary"
+                >
+                    {pkg.title}
+                </Link>
+                <div className="mb-3 flex items-center gap-1 text-[11px] text-slate-600">
+                    <Star className="h-3 w-3 fill-secondary text-secondary" />
+                    <span className="font-bold text-slate-700">{pkg.rating}</span>
+                    <span>({pkg.reviews})</span>
+                </div>
+                <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-2.5">
+                    <div>
+                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500">From</span>
+                        <p className="font-marcellus text-lg font-bold leading-none text-slate-900">${pkg.price}</p>
+                    </div>
+                    <Link
+                        to="/contact"
+                        className="rounded-lg bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary transition-colors hover:bg-primary hover:text-white"
+                    >
+                        Enquire
+                    </Link>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function FoodCarouselCard({ name, desc, images }: { name: string; desc: string; images: string[] }) {
+    return (
+        <div className="flex h-full w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm md:w-[300px]">
+            {images.length <= 1 ? (
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-200">
+                    <img
+                        src={images[0]}
+                        alt={name}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                    />
+                </div>
+            ) : (
+                <LabeledImageCarousel
+                    items={images.map((src) => ({ src, title: name }))}
+                    ariaLabel={name}
+                    className="[&_.detail-labeled-swiper]:pb-8"
+                />
+            )}
+            <div className="border-t border-slate-100 p-4">
+                <h4 className="mb-1 font-marcellus text-lg text-slate-900">{name}</h4>
+                <p className="line-clamp-3 text-xs leading-relaxed text-slate-600">{desc}</p>
+            </div>
+        </div>
+    );
+}
+
+function HorizontalFoodScroller({ items }: { items: typeof mockCountryData.cultural.food }) {
+    const [needsNav, setNeedsNav] = useState(false);
+
+    const [sliderRef, instanceRef] = useKeenSlider(
+        {
+            slides: { perView: 1, spacing: 14 },
+            rubberband: true,
+            breakpoints: {
+                '(min-width: 768px)': {
+                    slides: { perView: 'auto', spacing: 14 },
+                },
+            },
+        },
+        [
+            (slider) => {
+                const update = () => {
+                    setNeedsNav(slider.track.details.maxIdx > 0);
+                };
+                slider.on('created', update);
+                slider.on('updated', update);
+                slider.on('detailsChanged', update);
+            },
+        ]
+    );
+
+    return (
+        <div className="relative group/food">
+            {needsNav && (
+                <>
+                    <button
+                        type="button"
+                        aria-label="Previous cuisines"
+                        onClick={() => instanceRef.current?.prev()}
+                        className="absolute -left-2 top-[38%] z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-md transition hover:bg-primary hover:text-white md:flex"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                        type="button"
+                        aria-label="Next cuisines"
+                        onClick={() => instanceRef.current?.next()}
+                        className="absolute -right-2 top-[38%] z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-md transition hover:bg-primary hover:text-white md:flex"
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                </>
+            )}
+            <div ref={sliderRef} className="keen-slider overflow-hidden py-1 md:!overflow-visible">
+                {items.map((item) => (
+                    <div key={item.name} className="keen-slider__slide md:!w-auto">
+                        <FoodCarouselCard name={item.name} desc={item.desc} images={item.images} />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function DestinationCulturalPanel({ cultural }: { cultural: typeof mockCountryData.cultural }) {
+    const tabs = [
+        { id: 'food', icon: Utensils, label: 'Local Cuisine' },
+        { id: 'shopping', icon: ShoppingBag, label: 'Shopping' },
+        { id: 'etiquette', icon: Info, label: 'Etiquette' },
+        { id: 'dos', icon: CheckCircle2, label: "Do's & Don'ts" },
+    ] as const;
+    const [activeTab, setActiveTab] = useState<(typeof tabs)[number]['id']>('food');
+
+    const shoppingGallery: PackageLabeledImage[] = cultural.shopping.flatMap((item) =>
+        item.images.map((src) => ({ src, title: item.name }))
+    );
+
+    return (
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex flex-wrap overflow-hidden rounded-t-3xl border-b border-slate-100 bg-slate-50/90">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-3 py-4 text-[11px] font-bold uppercase tracking-wide transition-colors sm:text-xs ${
+                            activeTab === tab.id
+                                ? 'border-secondary bg-white text-secondary'
+                                : 'border-transparent text-slate-600 hover:bg-white hover:text-primary'
+                        }`}
+                    >
+                        <tab.icon className="hidden h-3.5 w-3.5 sm:block" />
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+            <div className="min-h-[240px] p-5 sm:p-7">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex flex-col gap-5"
+                    >
+                        {activeTab === 'food' && (
+                            <>
+                                <HorizontalFoodScroller items={cultural.food} />
+                                <p className="text-sm leading-relaxed text-slate-600">
+                                    Indonesian cuisine blends spice, sweetness, and depth — from street satay to slow-cooked rendang.
+                                </p>
+                            </>
+                        )}
+                        {activeTab === 'shopping' && (
+                            <>
+                                {shoppingGallery.length > 0 && (
+                                    <LabeledImageCarousel items={shoppingGallery} ariaLabel="Shopping treasures" />
+                                )}
+                                <p className="text-sm leading-relaxed text-slate-700">{cultural.shoppingOverview}</p>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    {cultural.shopping.map((item) => (
+                                        <div key={item.name} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                                            <h4 className="mb-1 text-sm font-bold text-slate-900">{item.name}</h4>
+                                            <p className="text-xs leading-relaxed text-slate-600">{item.desc}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                        {activeTab === 'etiquette' && (
+                            <>
+                                <LabeledImageCarousel items={cultural.etiquetteGallery} ariaLabel="Cultural etiquette" />
+                                <p className="text-sm leading-relaxed text-slate-700">{cultural.etiquetteOverview}</p>
+                                <ul className="grid gap-2 sm:grid-cols-2">
+                                    {cultural.etiquette.map((item) => (
+                                        <li key={item} className="flex items-start gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs text-slate-700">
+                                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                                            {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+                        {activeTab === 'dos' && (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Recommended</p>
+                                    {cultural.dosDonts.filter((d) => d.startsWith('Do:')).map((item) => (
+                                        <div key={item} className="flex items-start gap-2 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3 text-xs text-slate-700">
+                                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                                            {item.replace('Do:', '').trim()}
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-red-500">Avoid</p>
+                                    {cultural.dosDonts.filter((d) => d.startsWith("Don't:")).map((item) => (
+                                        <div key={item} className="flex items-start gap-2 rounded-xl border border-red-100 bg-red-50/60 p-3 text-xs text-slate-700">
+                                            <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                                            {item.replace("Don't:", '').trim()}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+        </div>
+    );
+}
+
+function DestinationConversionSection({ destinationName }: { destinationName: string }) {
+    const navigate = useNavigate();
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const params = new URLSearchParams({ destination: destinationName });
+        if (name.trim()) params.set('name', name.trim());
+        if (phone.trim()) params.set('phone', phone.trim());
+        navigate(`/contact?${params.toString()}`);
+    };
+
+    return (
+        <section className="mb-10 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-primary via-primary to-primary-dark shadow-xl">
+            <div className="grid gap-0 lg:grid-cols-2">
+                <div className="flex flex-col justify-center p-8 text-white md:p-10">
+                    <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-secondary-light">Start Planning</p>
+                    <h2 className="mb-3 font-marcellus text-3xl leading-tight md:text-4xl !text-white">
+                        Ready to Explore {destinationName}?
+                    </h2>
+                    <p className="mb-6 max-w-md text-sm text-white/75">
+                        Speak with our destination specialists for a tailored itinerary, best fares, and seamless bookings.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                        <Link
+                            to="/contact"
+                            className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary shadow-lg transition hover:bg-slate-100"
+                        >
+                            Plan My Trip <ArrowRight className="h-4 w-4" />
+                        </Link>
+                        <a
+                            href="https://wa.me/919090403075"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-white/20"
+                        >
+                            <MessageCircle className="h-4 w-4" /> Contact Expert
+                        </a>
+                    </div>
+                </div>
+                <div className="border-t border-white/10 bg-white/95 p-8 backdrop-blur-sm lg:border-t-0 lg:border-l md:p-10">
+                    <h3 className="mb-1 font-marcellus text-xl text-slate-900">Quick Enquiry</h3>
+                    <p className="mb-5 text-xs text-slate-500">Share your details — we&apos;ll respond within 24 hours.</p>
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                        <input
+                            type="text"
+                            placeholder="Your name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                        />
+                        <input
+                            type="tel"
+                            placeholder="Phone number"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                        />
+                        <button
+                            type="submit"
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition hover:brightness-110"
+                        >
+                            Send Enquiry <ArrowRight className="h-4 w-4" />
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    );
+}
+
 export default function DestinationDetail() {
     const { country } = useParams();
     // Using simple mock data logic for now
@@ -167,6 +554,8 @@ export default function DestinationDetail() {
     const [activeAttractionCat, setActiveAttractionCat] = useState('All');
     const [activePackageCat, setActivePackageCat] = useState('All');
     const [packageSort, setPackageSort] = useState('Popular');
+    const [packagesVisibleCount, setPackagesVisibleCount] = useState(6);
+    const PACKAGES_PER_LOAD = 3;
 
     const filteredAttractions = activeAttractionCat === 'All'
         ? data.attractions
@@ -184,6 +573,9 @@ export default function DestinationDetail() {
             }
             return 0; // Default: Popular/Original
         });
+
+    const visiblePackages = filteredPackages.slice(0, packagesVisibleCount);
+    const hasMorePackages = packagesVisibleCount < filteredPackages.length;
 
     const [sliderRef] = useKeenSlider(
         // ... (existing slider config)
@@ -270,6 +662,7 @@ export default function DestinationDetail() {
 
     return (
         <div className="bg-white min-h-screen pb-20 md:pb-0 font-sans">
+            <style>{PACKAGE_SWIPER_STYLES}</style>
 
             {/* 1. HERO SECTION */}
             <section className="relative min-h-[90svh] w-full bg-slate-900 overflow-hidden flex items-end">
@@ -629,7 +1022,7 @@ export default function DestinationDetail() {
                     </section>
 
                     {/* 6. AIRPORT & CONNECTIVITY INFORMATION */}
-                    <section className="mb-10 bg-slate-900 rounded-[32px] p-8 md:p-12 text-white relative overflow-hidden">
+                    <section className="mb-10 bg-primary-dark rounded-[32px] p-8 md:p-12 text-white relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full -mr-32 -mt-32" />
                         <div className="relative z-10">
                             <div className="flex items-center gap-4 mb-8">
@@ -704,96 +1097,11 @@ export default function DestinationDetail() {
 
                     {/* 8. CULTURAL & TRAVEL INSIGHTS */}
                     <section className="mb-14">
-                        <h2 className="font-marcellus text-3xl md:text-4xl text-slate-900 text-center mb-10">Cultural & Travel Insights</h2>
-
-                        <div className="space-y-12">
-                            {/* Food Section - Larger Cards with Image Carousel */}
-                            <div>
-                                <h3 className="font-marcellus text-2xl text-slate-800 mb-6 flex items-center gap-3">
-                                    <Utensils className="w-6 h-6 text-orange-500" /> Must-Try Cuisines
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    {data.cultural.food.map((item, i) => (
-                                        <div key={i} className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
-                                            <div className="aspect-video relative overflow-hidden">
-                                                <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                                {item.images.length > 1 && (
-                                                    <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-white text-[10px] font-bold">
-                                                        +{item.images.length - 1} More
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="p-6">
-                                                <h4 className="font-marcellus text-xl text-slate-900 mb-2">{item.name}</h4>
-                                                <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Shopping & Activities - Visual Cards with Gradients */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                                        <ShoppingBag className="w-32 h-32" />
-                                    </div>
-                                    <div className="relative z-10">
-                                        <h3 className="font-marcellus text-2xl mb-6 text-white">Shopping Treasures</h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {data.cultural.shopping.map((item, i) => (
-                                                <span key={i} className="bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-xl text-sm font-bold">
-                                                    {item}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                                        <Info className="w-32 h-32" />
-                                    </div>
-                                    <div className="relative z-10">
-                                        <h3 className="font-marcellus text-2xl mb-6 text-white">Cultural Etiquette</h3>
-                                        <ul className="space-y-3">
-                                            {data.cultural.etiquette.map((item, i) => (
-                                                <li key={i} className="flex items-start gap-3 text-sm font-medium">
-                                                    <CheckCircle2 className="w-5 h-5 text-white/80 shrink-0" />
-                                                    <span>{item}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Do's & Don'ts */}
-                            <div className="bg-slate-900 rounded-3xl p-10 text-white shadow-2xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full" />
-                                <h3 className="font-marcellus text-2xl text-white mb-8 text-center">Do's & Don'ts</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                    <div className="space-y-4">
-                                        <p className="text-green-400 font-bold uppercase tracking-widest text-xs mb-4">Recommended</p>
-                                        {data.cultural.dosDonts.filter(d => d.startsWith('Do:')).map((item, i) => (
-                                            <div key={i} className="flex items-start gap-4 bg-white/5 border border-white/10 p-4 rounded-2xl">
-                                                <CheckCircle2 className="w-6 h-6 text-green-400 shrink-0" />
-                                                <span className="text-sm text-white/80 leading-relaxed">{item.replace('Do:', '').trim()}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="space-y-4">
-                                        <p className="text-red-400 font-bold uppercase tracking-widest text-xs mb-4">Avoid</p>
-                                        {data.cultural.dosDonts.filter(d => d.startsWith('Don\'t:')).map((item, i) => (
-                                            <div key={i} className="flex items-start gap-4 bg-white/5 border border-white/10 p-4 rounded-2xl">
-                                                <XCircle className="w-6 h-6 text-red-400 shrink-0" />
-                                                <span className="text-sm text-white/80 leading-relaxed">{item.replace('Don\'t:', '').trim()}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="mb-6 border-b border-slate-200 pb-4">
+                            <h2 className="font-marcellus text-2xl text-primary md:text-3xl">Cultural & Travel Insights</h2>
+                            <p className="mt-1 text-sm text-slate-600">Essential insights to make the most of your journey.</p>
                         </div>
+                        <DestinationCulturalPanel cultural={data.cultural} />
                     </section>
 
                     {/* 9. INSTAGRAM SPOTS */}
@@ -837,7 +1145,10 @@ export default function DestinationDetail() {
                                 <select 
                                     className="bg-transparent text-xs font-bold text-slate-900 outline-none w-full cursor-pointer"
                                     value={packageSort}
-                                    onChange={(e) => setPackageSort(e.target.value)}
+                                    onChange={(e) => {
+                                        setPackageSort(e.target.value);
+                                        setPackagesVisibleCount(6);
+                                    }}
                                 >
                                     <option>Popular</option>
                                     <option>Price: Low to High</option>
@@ -852,7 +1163,10 @@ export default function DestinationDetail() {
                                 {['All', 'Honeymoon', 'Family', 'Solo', 'Adventure', 'Luxury', 'Culture'].map(cat => (
                                     <button
                                         key={cat}
-                                        onClick={() => setActivePackageCat(cat)}
+                                        onClick={() => {
+                                            setActivePackageCat(cat);
+                                            setPackagesVisibleCount(6);
+                                        }}
                                         className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-wider font-bold transition-all shadow-sm border ${activePackageCat === cat ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-700 hover:border-primary/40'
                                             }`}
                                     >
@@ -864,60 +1178,36 @@ export default function DestinationDetail() {
                         </div>
 
                         <motion.div
-                            key={activePackageCat}
+                            key={`${activePackageCat}-${packageSort}-${packagesVisibleCount}`}
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.07 } } }}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-5"
+                            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
+                            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
                         >
-                            {filteredPackages.map((pkg) => (
-                                <motion.div key={pkg.id} variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}>
-                                    <Link to={`/packages/${pkg.id}`} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-700 bg-white shadow-sm transition-all duration-400 hover:-translate-y-1 hover:shadow-xl">
-                                        <div className="relative aspect-[4/3] overflow-hidden">
-                                            <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-[1.08] transition-transform duration-500" loading="lazy" />
-                                            <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                                                {pkg.tags?.map((tag, i) => (
-                                                    <span key={i} className="bg-secondary px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-900 rounded-sm shadow-sm">
-                                                        {tag}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                            <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md text-[10px] font-bold text-slate-700 shadow-sm flex items-center gap-1 border border-white/20">
-                                                <Clock className="w-3 h-3 text-primary" /> {pkg.duration}
-                                            </div>
-                                        </div>
-                                        <div className="p-4 flex flex-col flex-1">
-                                            <div className="flex items-center gap-1.5 text-slate-600 text-[10px] font-bold mb-2 uppercase tracking-widest">
-                                                <MapPin className="w-3 h-3 text-secondary" /> {pkg.destination}
-                                            </div>
-                                            <h3 className="text-lg font-marcellus font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                                                {pkg.title}
-                                            </h3>
-                                            <div className="flex items-center gap-1 mb-4 text-xs">
-                                                <Star className="w-3 h-3 fill-secondary text-secondary" />
-                                                <span className="font-bold text-slate-700">{pkg.rating}</span>
-                                                <span className="text-slate-600">({pkg.reviews})</span>
-                                            </div>
-                                            <div className="mt-auto flex items-center justify-between pt-3 border-t border-slate-100">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[9px] uppercase tracking-widest text-slate-700 font-bold mb-0.5">From</span>
-                                                    <div className="flex items-baseline gap-0.5">
-                                                        <span className="text-base font-bold text-slate-900">${pkg.price}</span>
-                                                    </div>
-                                                </div>
-                                                <Link to="/contact" className="bg-primary/5 hover:bg-primary text-primary hover:text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-colors">
-                                                    Enquire
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </Link>
+                            {visiblePackages.map((pkg) => (
+                                <motion.div key={pkg.id} variants={{ hidden: { y: 16, opacity: 0 }, visible: { y: 0, opacity: 1 } }}>
+                                    <DestinationPackageCard pkg={pkg} />
                                 </motion.div>
                             ))}
                         </motion.div>
 
-                        <div className="text-center mt-8">
-                            <Link to={`/packages?destination=${data.slug}`} className="btn-outline inline-flex items-center gap-2 mx-auto">
+                        {visiblePackages.length === 0 && (
+                            <p className="py-10 text-center text-sm text-slate-500">No packages match this filter.</p>
+                        )}
+
+                        <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                            {hasMorePackages && (
+                                <button
+                                    type="button"
+                                    onClick={() => setPackagesVisibleCount((c) => c + PACKAGES_PER_LOAD)}
+                                    className="inline-flex items-center gap-2 rounded-xl border-2 border-primary bg-white px-6 py-3 text-sm font-bold text-primary transition hover:bg-primary hover:text-white"
+                                >
+                                    Load More Packages
+                                    <ChevronRight className="h-4 w-4" />
+                                </button>
+                            )}
+                            <Link to={`/packages?destination=${data.slug}`} className="btn-outline inline-flex items-center gap-2">
                                 View All Packages <ArrowRight className="w-4 h-4" />
                             </Link>
                         </div>
@@ -965,6 +1255,8 @@ export default function DestinationDetail() {
                             ))}
                         </motion.div>
                     </section>
+
+                    <DestinationConversionSection destinationName={data.name} />
 
                 </main>
             </div>

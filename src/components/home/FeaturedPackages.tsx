@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -8,198 +8,300 @@ import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
 
 import PackageCardStack from '../common/PackageCardStack';
+import {
+    featuredDestinations,
+    type DestinationMedia,
+    type FeaturedDestination,
+} from '../../data/featuredDestinations';
 
-type DestinationCard = {
-  id: number;
-  name: string;
-  images: string[];
-  type: 'domestic' | 'international';
-  href: string;
-};
+type TabType = 'international' | 'india';
 
-const destinations: DestinationCard[] = [
-  { id: 1, name: 'Ladakh', images: ['https://images.unsplash.com/photo-1593181629936-11c609b8db9b?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=ladakh' },
-  { id: 2, name: 'Sri Lanka', images: ['https://images.unsplash.com/photo-1586500036706-41963de24d8b?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=sri-lanka' },
-  { id: 3, name: 'Kashmir', images: ['https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=kashmir' },
-  { id: 4, name: 'Bhutan', images: ['https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=bhutan' },
-  { id: 5, name: 'Himachal Pradesh', images: ['https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=himachal-pradesh' },
-  { id: 6, name: 'Sikkim', images: ['https://images.pexels.com/photos/417074/pexels-photo-417074.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=sikkim' },
-  { id: 7, name: 'Maldives', images: ['https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=maldives' },
-  { id: 8, name: 'Dubai', images: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=dubai' },
-  { id: 9, name: 'Switzerland', images: ['https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=switzerland' },
-  { id: 10, name: 'Thailand', images: ['https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=thailand' },
-  { id: 11, name: 'Goa', images: ['https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=goa' },
-  { id: 12, name: 'Kerala', images: ['https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1593693411515-c20261bcad6e?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=kerala' },
-  { id: 13, name: 'Rajasthan', images: ['https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=rajasthan' },
-  { id: 14, name: 'Andaman', images: ['https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=andaman' },
-  { id: 15, name: 'Uttarakhand', images: ['https://images.pexels.com/photos/2901209/pexels-photo-2901209.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=uttarakhand' },
-  { id: 16, name: 'Meghalaya', images: ['https://images.pexels.com/photos/355241/pexels-photo-355241.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=meghalaya' },
-  { id: 17, name: 'Tamil Nadu', images: ['https://images.unsplash.com/photo-1593693411515-c20261bcad6e?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=tamil-nadu' },
-  { id: 18, name: 'Karnataka', images: ['https://images.pexels.com/photos/21014/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=karnataka' },
-  { id: 19, name: 'Arunachal Pradesh', images: ['https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=arunachal-pradesh' },
-  { id: 20, name: 'Odisha', images: ['https://images.pexels.com/photos/534164/pexels-photo-534164.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=700&q=80'], type: 'domestic', href: '/packages?destination=odisha' },
-  { id: 21, name: 'Vietnam', images: ['https://images.pexels.com/photos/2166711/pexels-photo-2166711.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=vietnam' },
-  { id: 22, name: 'Japan', images: ['https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=japan' },
-  { id: 23, name: 'Singapore', images: ['https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=singapore' },
-  { id: 24, name: 'Bali', images: ['https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=bali' },
-  { id: 25, name: 'Turkey', images: ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=turkey' },
-  { id: 26, name: 'France', images: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=france' },
-  { id: 27, name: 'Italy', images: ['https://images.unsplash.com/photo-1514890547357-a9ee288728e0?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=italy' },
-  { id: 28, name: 'Norway', images: ['https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=norway' },
-  { id: 29, name: 'South Korea', images: ['https://images.pexels.com/photos/237211/pexels-photo-237211.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=south-korea' },
-  { id: 30, name: 'Mauritius', images: ['https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg?auto=compress&cs=tinysrgb&w=700', 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=mauritius' },
-  { id: 31, name: 'Canada', images: ['https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=canada' },
-  { id: 32, name: 'Australia', images: ['https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=700&q=80', 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=700&q=80'], type: 'international', href: '/packages?destination=australia' },
-];
+function getPosterSrc(media: DestinationMedia): string {
+    return media.type === 'video' ? media.poster : media.src;
+}
+
+function DestinationCardMedia({
+    media,
+    name,
+    playVideo,
+    showHoverImage,
+    isMobileStack = false,
+}: {
+    media: DestinationMedia;
+    name: string;
+    playVideo: boolean;
+    showHoverImage?: boolean;
+    isMobileStack?: boolean;
+}) {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const posterSrc = getPosterSrc(media);
+    const hoverSrc = media.type === 'image' ? media.hoverSrc : undefined;
+    const motionClass = isMobileStack ? '' : 'transition-all duration-700';
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video || media.type !== 'video') return;
+
+        if (playVideo) {
+            const playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => undefined);
+            }
+        } else {
+            video.pause();
+            if (!isMobileStack) {
+                video.currentTime = 0;
+            }
+        }
+    }, [playVideo, media, isMobileStack]);
+
+    return (
+        <div className="absolute inset-0">
+            <img
+                src={posterSrc}
+                alt={name}
+                className={`absolute inset-0 h-full w-full object-cover ${motionClass} ${
+                    playVideo && media.type === 'video' ? 'scale-105 opacity-0' : 'scale-100 opacity-100'
+                } ${showHoverImage && hoverSrc ? 'group-hover:opacity-0 group-hover:scale-105' : !isMobileStack ? 'group-hover:scale-105' : ''}`}
+                loading="lazy"
+                draggable={false}
+            />
+
+            {media.type === 'image' && hoverSrc && (
+                <img
+                    src={hoverSrc}
+                    alt=""
+                    aria-hidden
+                    className={`absolute inset-0 h-full w-full object-cover opacity-0 ${motionClass} lg:group-hover:scale-105 lg:group-hover:opacity-100`}
+                    loading="lazy"
+                    draggable={false}
+                />
+            )}
+
+            {media.type === 'video' && (
+                <video
+                    ref={videoRef}
+                    src={media.src}
+                    poster={media.poster}
+                    muted
+                    loop
+                    playsInline
+                    preload={isMobileStack ? 'none' : 'metadata'}
+                    disablePictureInPicture
+                    className={`absolute inset-0 h-full w-full object-cover ${isMobileStack ? '' : 'transition-opacity duration-700'} ${
+                        playVideo ? 'scale-105 opacity-100' : 'opacity-0'
+                    }`}
+                />
+            )}
+
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+        </div>
+    );
+}
+
+function DestinationCardInfo({
+    destination,
+    size = 'desktop',
+}: {
+    destination: FeaturedDestination;
+    size?: 'mobile' | 'desktop';
+}) {
+    const isMobile = size === 'mobile';
+
+    return (
+        <div className={`absolute inset-x-0 bottom-0 z-10 ${isMobile ? 'p-5 pb-6' : 'p-4 pb-5 md:p-5'}`}>
+            <h3
+                className={`font-['Marcellus'] font-bold leading-tight tracking-wide text-white drop-shadow-md ${
+                    isMobile ? 'mb-1.5 text-2xl' : 'mb-1 text-xl md:text-2xl lg:text-[1.65rem]'
+                }`}
+            >
+                {destination.name}
+            </h3>
+            <p className={`font-medium text-white/90 ${isMobile ? 'text-sm' : 'text-xs md:text-sm'}`}>
+                <span className="text-white/70">Starts From: </span>
+                <span className="font-semibold text-white">{destination.startsFrom}</span>
+            </p>
+        </div>
+    );
+}
+
+const DestinationCard = memo(function DestinationCard({
+    destination,
+    variant,
+    playVideo = false,
+}: {
+    destination: FeaturedDestination;
+    variant: 'mobile' | 'desktop';
+    playVideo?: boolean;
+}) {
+    const [isHovered, setIsHovered] = useState(false);
+    const isMobile = variant === 'mobile';
+    const shouldPlayVideo =
+        destination.media.type === 'video' && (isMobile ? playVideo : isHovered);
+
+    return (
+        <a
+            href={destination.href}
+            className={`group relative block h-full w-full select-none overflow-hidden bg-slate-900 ${
+                isMobile ? 'rounded-3xl touch-pan-y' : 'rounded-2xl'
+            }`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            draggable={false}
+        >
+            <div className={`relative w-full overflow-hidden ${isMobile ? 'h-full' : 'aspect-[3/4]'}`}>
+                <DestinationCardMedia
+                    media={destination.media}
+                    name={destination.name}
+                    playVideo={shouldPlayVideo}
+                    showHoverImage={!isMobile}
+                    isMobileStack={isMobile}
+                />
+                <DestinationCardInfo destination={destination} size={variant} />
+            </div>
+        </a>
+    );
+});
 
 export default function FeaturedPackages() {
-  const [activeTab, setActiveTab] = useState<'domestic' | 'international'>('domestic');
-  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
-  const filteredDestinations = useMemo(
-    () => destinations.filter((destination) => destination.type === activeTab),
-    [activeTab]
-  );
+    const [activeTab, setActiveTab] = useState<TabType>('international');
+    const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
+    const [activeMobileIndex, setActiveMobileIndex] = useState(0);
 
-  return (
-    <section className="section-padding bg-white">
-      <div className="content-container">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between" 
-        >
-          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">Trending Destinations</h2>
+    const filteredDestinations = useMemo(
+        () => featuredDestinations.filter((destination) => destination.type === activeTab),
+        [activeTab]
+    );
 
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-700 w-fit">
-            <button
-              onClick={() => setActiveTab('domestic')}
-              className={`px-5 py-2 text-sm rounded-lg font-semibold transition-colors ${
-                activeTab === 'domestic' ? 'bg-primary text-white shadow-sm' : 'text-slate-700 hover:text-primary'
-              }`}
-            >
-              Domestic
-            </button>
-            <button
-              onClick={() => setActiveTab('international')}
-              className={`px-5 py-2 text-sm rounded-lg font-semibold transition-colors ${
-                activeTab === 'international' ? 'bg-primary text-white shadow-sm' : 'text-slate-700 hover:text-primary'
-              }`}
-            >
-              International
-            </button>
-          </div>
-        </motion.div>
+    const activeMobileDestinationId = filteredDestinations[activeMobileIndex]?.id;
 
-        {/* Mobile: stacked card swiper (swipe between destinations) */}
-        <div className="md:hidden flex justify-center px-2 pb-2">
-          <PackageCardStack key={`${activeTab}-${filteredDestinations.length}`}>
-            {filteredDestinations.map((destination) => (
-              <a
-                key={destination.id}
-                href={destination.href}
-                className="group relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-slate-900"
-              >
-                <div className="relative min-h-0 flex-1 overflow-hidden">
-                  <img
-                    src={destination.images[0]}
-                    alt={destination.name}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-active:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-                  <span className="absolute bottom-6 left-4 right-4 text-center font-['Marcellus'] text-xl font-bold tracking-wide text-white drop-shadow-lg">
-                    {destination.name}
-                  </span>
-                </div>
-                <div className="shrink-0 border-t border-white/10 bg-white/95 px-4 py-3 text-center">
-                  <span className="text-sm font-semibold text-primary">View packages</span>
-                  <ArrowRight className="ml-1 inline-block h-4 w-4 align-middle text-primary" />
-                </div>
-              </a>
-            ))}
-          </PackageCardStack>
-        </div>
-
-        {/* Desktop / tablet: horizontal carousel */}
-        <div className="relative hidden group/slider md:block">
-          <button
-            type="button"
-            aria-label="Previous destinations"
-            onClick={() => swiperInstance?.slidePrev()}
-            className="absolute left-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-700 bg-white/95 text-primary shadow-md opacity-0 pointer-events-none transition-opacity group-hover/slider:pointer-events-auto group-hover/slider:opacity-100"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            aria-label="Next destinations"
-            onClick={() => swiperInstance?.slideNext()}
-            className="absolute right-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-700 bg-white/95 text-primary shadow-md opacity-0 pointer-events-none transition-opacity group-hover/slider:pointer-events-auto group-hover/slider:opacity-100"
-          >
-            <ArrowRight className="h-4 w-4" />
-          </button>
-
-          <Swiper
-            modules={[Autoplay]}
-            onSwiper={setSwiperInstance}
-            autoplay={{ delay: 2600, disableOnInteraction: false, pauseOnMouseEnter: true }}
-            loop={filteredDestinations.length > 6}
-            speed={700}
-            grabCursor
-            slidesPerView={2}
-            spaceBetween={14}
-            breakpoints={{
-              640: { slidesPerView: 3, spaceBetween: 16 },
-              768: { slidesPerView: 4, spaceBetween: 18 },
-              1024: { slidesPerView: 6, spaceBetween: 20 },
-            }}
-            className="pb-4"
-          >
-            {filteredDestinations.map((destination) => (
-              <SwiperSlide key={destination.id}>
-                <a href={destination.href} className="group block">
-                  <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-md transition-all duration-300 hover:shadow-xl hover:border-primary/20 bg-slate-200">
-                    <div className="aspect-[3/4] overflow-hidden relative group/image">
-                      <img
-                        src={destination.images[0]}
-                        alt={destination.name}
-                        className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover/image:opacity-0"
-                        loading="lazy"
-                      />
-                      <img
-                        src={destination.images[1] || destination.images[0]}
-                        alt={destination.name}
-                        className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 opacity-0 group-hover/image:opacity-100"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
-                      <span className="absolute bottom-4 left-3 right-3 text-center text-white/95 font-bold font-['Marcellus'] text-lg leading-tight tracking-wide drop-shadow-md">
-                        {destination.name}
-                      </span>
+    return (
+        <section className="section-padding bg-white">
+            <div className="content-container">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mb-8 flex flex-col gap-5 md:mb-10 md:flex-row md:items-end md:justify-between"
+                >
+                    <div>
+                        <h2 className="mb-2 font-['Marcellus'] text-3xl leading-tight text-slate-900 md:text-4xl lg:text-5xl">
+                            Destinations Worth Discovering
+                        </h2>
+                        <p className="text-base font-light text-slate-600 md:text-lg">
+                            Curated for unforgettable experiences.
+                        </p>
                     </div>
-                  </div>
-                </a>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mt-8"
-        >
-          <a
-            href="/packages"
-            className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-semibold px-6 py-3 rounded-full transition-colors"
-          >
-            Explore Now <ArrowRight className="w-4 h-4" />
-          </a>
-        </motion.div>
-      </div>
-    </section>
-  );
+                    <div className="inline-flex w-fit rounded-xl border border-slate-700 bg-slate-100 p-1">
+                        <button
+                            onClick={() => {
+                                setActiveTab('international');
+                                setActiveMobileIndex(0);
+                            }}
+                            className={`rounded-lg px-5 py-2 text-sm font-semibold transition-colors ${
+                                activeTab === 'international'
+                                    ? 'bg-primary text-white shadow-sm'
+                                    : 'text-slate-700 hover:text-primary'
+                            }`}
+                            type="button"
+                        >
+                            International
+                        </button>
+                        <button
+                            onClick={() => {
+                                setActiveTab('india');
+                                setActiveMobileIndex(0);
+                            }}
+                            className={`rounded-lg px-5 py-2 text-sm font-semibold transition-colors ${
+                                activeTab === 'india'
+                                    ? 'bg-primary text-white shadow-sm'
+                                    : 'text-slate-700 hover:text-primary'
+                            }`}
+                            type="button"
+                        >
+                            India
+                        </button>
+                    </div>
+                </motion.div>
+
+                {/* Mobile: stacked card swiper */}
+                <div className="flex justify-center px-2 pb-2 md:hidden">
+                    <PackageCardStack
+                        key={`${activeTab}-${filteredDestinations.length}`}
+                        onActiveIndexChange={setActiveMobileIndex}
+                    >
+                        {filteredDestinations.map((destination) => (
+                            <DestinationCard
+                                key={destination.id}
+                                destination={destination}
+                                variant="mobile"
+                                playVideo={destination.id === activeMobileDestinationId}
+                            />
+                        ))}
+                    </PackageCardStack>
+                </div>
+
+                {/* Desktop / tablet: horizontal carousel */}
+                <div className="group/slider relative hidden md:block">
+                    <button
+                        type="button"
+                        aria-label="Previous destinations"
+                        onClick={() => swiperInstance?.slidePrev()}
+                        className="absolute left-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-700 bg-white/95 text-primary shadow-md opacity-0 pointer-events-none transition-opacity group-hover/slider:pointer-events-auto group-hover/slider:opacity-100"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                    </button>
+
+                    <button
+                        type="button"
+                        aria-label="Next destinations"
+                        onClick={() => swiperInstance?.slideNext()}
+                        className="absolute right-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-700 bg-white/95 text-primary shadow-md opacity-0 pointer-events-none transition-opacity group-hover/slider:pointer-events-auto group-hover/slider:opacity-100"
+                    >
+                        <ArrowRight className="h-4 w-4" />
+                    </button>
+
+                    <Swiper
+                        modules={[Autoplay]}
+                        onSwiper={setSwiperInstance}
+                        autoplay={{ delay: 2600, disableOnInteraction: false, pauseOnMouseEnter: true }}
+                        loop={filteredDestinations.length > 6}
+                        speed={700}
+                        grabCursor
+                        slidesPerView={2}
+                        spaceBetween={14}
+                        breakpoints={{
+                            640: { slidesPerView: 3, spaceBetween: 16 },
+                            768: { slidesPerView: 4, spaceBetween: 18 },
+                            1024: { slidesPerView: 6, spaceBetween: 20 },
+                        }}
+                        className="pb-4"
+                    >
+                        {filteredDestinations.map((destination) => (
+                            <SwiperSlide key={destination.id}>
+                                <div className="overflow-hidden rounded-2xl border border-slate-100 shadow-md transition-all duration-300 hover:border-primary/20 hover:shadow-xl">
+                                    <DestinationCard destination={destination} variant="desktop" />
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    className="mt-8 text-center"
+                >
+                    <a
+                        href="/packages"
+                        className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary/90"
+                    >
+                        Explore Now <ArrowRight className="h-4 w-4" />
+                    </a>
+                </motion.div>
+            </div>
+        </section>
+    );
 }
