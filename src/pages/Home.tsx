@@ -15,8 +15,14 @@ import InstagramReels from '../components/home/InstagramReels';
 import TravelBlog from '../components/home/TravelBlog';
 import ContactUs from '../components/home/ContactUs';
 import WindowScroll from '../components/home/WindowScroll';
+import { useJourneyBanner } from '../hooks/useContent';
+import { journeyBeyondBanner } from '../data/journeyBeyondBanner';
+import type { JourneyBeyondBannerConfig } from '../data/journeyBeyondBanner';
 
 export default function Home() {
+    const { data: bannerRow } = useJourneyBanner();
+    const banner = (bannerRow?.config as JourneyBeyondBannerConfig | undefined) ?? journeyBeyondBanner;
+
     return (
         <div className="min-h-screen bg-white">
             <Hero />
@@ -25,7 +31,7 @@ export default function Home() {
             <FeaturedExperiences />
             <Continents />
             <FixedDepartures />
-            <WindowScroll />
+            <WindowScroll banner={banner} />
             <ServicesOverview />
             <VisaHighlight />
             <WhyUs />

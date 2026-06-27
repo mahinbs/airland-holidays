@@ -1,13 +1,39 @@
+import { useMemo } from 'react';
 import { Star, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTestimonials } from '../../hooks/useContent';
+import { mapTestimonialToCard } from '../../lib/mapContent';
 
-const reviews = [
+const staticReviews = [
     { name: 'Raj K.', rating: 5, text: 'Exceptional service! Our Bali trip was perfectly planned.', date: '2 weeks ago' },
     { name: 'Priya M.', rating: 5, text: 'Best travel agency. Highly recommend for honeymoon packages.', date: '1 month ago' },
     { name: 'Amit S.', rating: 5, text: 'Smooth visa processing and great customer support.', date: '3 weeks ago' },
 ];
 
 export default function GoogleReviews() {
+    const { data: cmsTestimonials } = useTestimonials();
+    const reviews = useMemo(() => {
+        if (cmsTestimonials?.length) {
+            const written = cmsTestimonials
+                .filter((t) => t.testimonial_type !== 'video')
+                .slice(0, 6)
+                .map(mapTestimonialToCard);
+            if (written.length) {
+                return written.map((r) => ({
+                    name: r.name,
+                    rating: r.rating,
+                    text: r.text,
+                    date: r.location || 'Verified review',
+                }));
+            }
+        }
+        return staticReviews;
+    }, [cmsTestimonials]);
+
+    const avgRating = reviews.length
+        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+        : '4.9';
+
     return (
         <section className="section-padding bg-white">
             <div className="content-container">
@@ -29,8 +55,8 @@ export default function GoogleReviews() {
                             ))}
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-900">4.9</p>
-                            <p className="text-slate-600 text-sm">Based on 500+ reviews</p>
+                            <p className="text-2xl font-bold text-slate-900">{avgRating}</p>
+                            <p className="text-slate-600 text-sm">Based on {reviews.length}+ reviews</p>
                         </div>
                     </div>
                 </motion.div>
@@ -38,35 +64,38 @@ export default function GoogleReviews() {
                 <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: '-50px' }}
                     className="grid grid-cols-1 md:grid-cols-3 gap-6"
                 >
-                    {reviews.map((r, i) => (
+                    {reviews.map((review, i) => (
                         <div key={i} className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                            <div className="flex items-center gap-2 text-yellow-500 mb-3">
-                                {[...Array(r.rating)].map((_, j) => (
+                            <div className="flex items-center gap-1 text-yellow-500 mb-3">
+                                {[...Array(review.rating)].map((_, j) => (
                                     <Star key={j} className="w-4 h-4 fill-current" />
                                 ))}
                             </div>
-                            <p className="text-slate-700 mb-4">&ldquo;{r.text}&rdquo;</p>
-                            <div className="flex justify-between items-center">
-                                <span className="font-semibold text-slate-900">{r.name}</span>
-                                <span className="text-slate-700 text-sm">{r.date}</span>
+                            <p className="text-slate-700 mb-4 leading-relaxed">&ldquo;{review.text}&rdquo;</p>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-bold text-slate-900">{review.name}</p>
+                                    <p className="text-slate-500 text-sm">{review.date}</p>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mt-10">
+                <div className="text-center mt-10">
                     <a
-                        href="#"
+                        href="https://g.page/r/airlandholidays/review"
                         target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary-dark transition-colors"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
                     >
-                        View All Reviews on Google <ExternalLink className="w-4 h-4" />
+                        View all reviews on Google
+                        <ExternalLink className="w-4 h-4" />
                     </a>
-                </motion.div>
+                </div>
             </div>
         </section>
     );

@@ -1,5 +1,8 @@
 import { motion } from 'framer-motion';
 import { Phone, MapPin, Mail, Plane, Bird } from 'lucide-react';
+import { useFooterConfig, useHomepageConfig } from '../../hooks/useContent';
+import { defaultFooterConfig, defaultHomepageConfig } from '../../data/defaultCmsContent';
+import type { FooterConfig, HomepageConfig } from '../../types/cms';
 
 const collageImages = [
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=600',
@@ -11,14 +14,21 @@ const collageImages = [
 ];
 
 export default function ContactUs() {
+    const { data: cmsFooter } = useFooterConfig<FooterConfig>();
+    const { data: cmsHomepage } = useHomepageConfig<HomepageConfig>();
+    const footer = cmsFooter ? { ...defaultFooterConfig, ...cmsFooter } : defaultFooterConfig;
+    const block = cmsHomepage?.contactBlock
+        ? { ...defaultHomepageConfig.contactBlock, ...cmsHomepage.contactBlock }
+        : defaultHomepageConfig.contactBlock;
+
+    const phoneLinks = [footer.phone, footer.mobile].filter(Boolean);
+
     return (
         <section className="section-padding bg-[#f5f0e8] relative overflow-hidden">
-            {/* Subtle wave pattern at bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-amber-100/30 to-transparent pointer-events-none" />
 
             <div className="content-container">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                    {/* Left: Image Collage */}
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -41,7 +51,6 @@ export default function ContactUs() {
                             ))}
                         </div>
 
-                        {/* Central badge card */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
@@ -54,11 +63,10 @@ export default function ContactUs() {
                                     <Bird className="w-6 h-6 text-primary" />
                                 </div>
                                 <span className="font-serif italic text-amber-800/80 text-sm tracking-wide">Airland Holidays</span>
-                                <span className="font-bold text-slate-800 text-lg uppercase tracking-wider">Best Travel Agency</span>
+                                <span className="font-bold text-slate-800 text-lg uppercase tracking-wider">{block.badgeLabel}</span>
                             </div>
                         </motion.div>
 
-                        {/* Stamp badge */}
                         <motion.div
                             initial={{ opacity: 0, rotate: -10 }}
                             whileInView={{ opacity: 1, rotate: 12 }}
@@ -72,7 +80,6 @@ export default function ContactUs() {
                         </motion.div>
                     </motion.div>
 
-                    {/* Right: Contact Info */}
                     <motion.div
                         initial={{ opacity: 0, x: 30 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -81,15 +88,15 @@ export default function ContactUs() {
                         className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-10 shadow-lg border border-amber-100/50"
                     >
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="font-serif italic text-2xl text-slate-700">Contact Us</span>
+                            <span className="font-serif italic text-2xl text-slate-700">{block.sectionTitle}</span>
                             <div className="h-px flex-1 max-w-[80px] bg-amber-400/60" />
                             <Plane className="w-5 h-5 text-primary" />
                         </div>
 
-                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Reach Us Anytime!</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">{block.heading}</h2>
 
                         <p className="text-slate-600 leading-relaxed mb-10">
-                            We specialize in crafting memorable journeys with the perfect blend of comfort, adventure, and relaxation.
+                            {block.description}
                         </p>
 
                         <div className="space-y-8">
@@ -99,13 +106,14 @@ export default function ContactUs() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-slate-800 mb-1">Call Us</h3>
-                                    <a href="tel:+911234567890" className="text-slate-700 hover:text-primary transition-colors font-medium">
-                                        +91 12345 67890
-                                    </a>
-                                    <span className="text-slate-400 mx-2">|</span>
-                                    <a href="tel:+919876543210" className="text-slate-700 hover:text-primary transition-colors font-medium">
-                                        +91 98765 43210
-                                    </a>
+                                    {phoneLinks.map((phone, i) => (
+                                        <span key={phone}>
+                                            {i > 0 && <span className="text-slate-400 mx-2">|</span>}
+                                            <a href={`tel:${phone.replace(/\s/g, '')}`} className="text-slate-700 hover:text-primary transition-colors font-medium">
+                                                {phone}
+                                            </a>
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
 
@@ -115,10 +123,8 @@ export default function ContactUs() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-slate-800 mb-1">Reach Us</h3>
-                                    <p className="text-slate-600 leading-relaxed">
-                                        Airland Holidays<br />
-                                        123 Travel Avenue, Wanderlust City<br />
-                                        Mumbai - 400001
+                                    <p className="text-slate-600 leading-relaxed whitespace-pre-line">
+                                        {footer.corporateAddress}
                                     </p>
                                 </div>
                             </div>
@@ -129,18 +135,18 @@ export default function ContactUs() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-slate-800 mb-1">Mail Us</h3>
-                                    <a href="mailto:info@airlandholidays.com" className="text-slate-600 hover:text-primary transition-colors">
-                                        info@airlandholidays.com
+                                    <a href={`mailto:${footer.email}`} className="text-slate-600 hover:text-primary transition-colors">
+                                        {footer.email}
                                     </a>
                                 </div>
                             </div>
                         </div>
 
                         <a
-                            href="/contact"
+                            href={block.ctaHref}
                             className="mt-10 inline-flex items-center gap-2 btn-primary"
                         >
-                            Get in Touch
+                            {block.ctaLabel}
                             <Plane className="w-4 h-4" />
                         </a>
                     </motion.div>

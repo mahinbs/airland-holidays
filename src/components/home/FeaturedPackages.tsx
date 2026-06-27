@@ -9,10 +9,12 @@ import 'swiper/css';
 
 import PackageCardStack from '../common/PackageCardStack';
 import {
-    featuredDestinations,
+    featuredDestinations as staticFeaturedDestinations,
     type DestinationMedia,
     type FeaturedDestination,
 } from '../../data/featuredDestinations';
+import { useFeaturedDestinations } from '../../hooks/useContent';
+import { mapFeaturedDestination } from '../../lib/mapContent';
 
 type TabType = 'international' | 'india';
 
@@ -167,10 +169,18 @@ export default function FeaturedPackages() {
     const [activeTab, setActiveTab] = useState<TabType>('international');
     const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
     const [activeMobileIndex, setActiveMobileIndex] = useState(0);
+    const { data: cmsDestinations } = useFeaturedDestinations();
+
+    const featuredDestinations = useMemo(() => {
+        if (cmsDestinations?.length) {
+            return cmsDestinations.map((d, i) => mapFeaturedDestination({ ...d, sort_order: i })) as FeaturedDestination[];
+        }
+        return staticFeaturedDestinations;
+    }, [cmsDestinations]);
 
     const filteredDestinations = useMemo(
         () => featuredDestinations.filter((destination) => destination.type === activeTab),
-        [activeTab]
+        [activeTab, featuredDestinations]
     );
 
     const activeMobileDestinationId = filteredDestinations[activeMobileIndex]?.id;

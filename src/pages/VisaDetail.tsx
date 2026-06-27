@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -26,6 +26,11 @@ import {
 } from 'lucide-react';
 import SectionStickyNav from '../components/common/SectionStickyNav';
 import { useSectionScrollSpy } from '../hooks/useSectionScrollSpy';
+import { useVisaCountry } from '../hooks/useContent';
+import { mergeVisaDetailPage } from '../lib/mapContent';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { submitContact } from '../services/submissions';
+import { useHeaderConfig } from '../hooks/useHeaderConfig';
 
 interface VisaType {
     name: string;
@@ -453,24 +458,89 @@ const navLinks = [
     { id: 'terms', label: 'Terms' },
 ];
 
+const whyChooseIcons = [Globe, ShieldCheck, Users, Truck, Clock, CreditCard];
+
+function hydrateWhyChooseUs(items: { title: string; desc: string }[]): WhyChooseUs[] {
+    return items.map((item, i) => ({
+        ...item,
+        icon: whyChooseIcons[i % whyChooseIcons.length],
+    }));
+}
+
 export default function VisaDetail() {
     const { country } = useParams();
+    const countryKey = country?.toLowerCase() || '';
+    const { data: cmsVisa, isLoading } = useVisaCountry(countryKey);
+    const { config: headerConfig } = useHeaderConfig();
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
     const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+    const [enquirySent, setEnquirySent] = useState(false);
+    const [enquiryLoading, setEnquiryLoading] = useState(false);
 
-    const countryKey = country?.toLowerCase() || '';
-    const data: VisaData = visaData[countryKey]
-        ? visaData[countryKey]
-        : {
+    const data: VisaData = useMemo(() => {
+        const staticEntry = visaData[countryKey];
+        const merged = mergeVisaDetailPage(cmsVisa, countryKey, staticEntry, {
             ...fallbackData,
-            name: country ?? 'Country',
+            name: country ? country.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Country',
             title: `${country ?? 'Country'} Visa Services`,
+        });
+        const detail =
+            cmsVisa?.detail && typeof cmsVisa.detail === 'object' && !Array.isArray(cmsVisa.detail)
+                ? (cmsVisa.detail as Record<string, unknown>)
+                : {};
+        const rawWhy = detail.whyChooseUs as { title: string; desc: string }[] | undefined;
+        return {
+            ...merged,
+            visaTypes: (detail.visaTypes as VisaType[]) ?? merged.visaTypes,
+            process: (detail.process as ProcessStep[]) ?? merged.process,
+            faqs: (detail.faqs as Faq[]) ?? merged.faqs,
+            documents: (detail.documents as string[]) ?? merged.documents,
+            mandatoryDocuments: (detail.mandatoryDocuments as VisaData['mandatoryDocuments']) ?? merged.mandatoryDocuments,
+            supportiveDocumentsList: (detail.supportiveDocumentsList as VisaData['supportiveDocumentsList']) ?? merged.supportiveDocumentsList,
+            attractions: (detail.attractions as Attraction[]) ?? merged.attractions,
+            embassy: (detail.embassy as VisaData['embassy']) ?? merged.embassy,
+            terms: (detail.terms as Faq[]) ?? merged.terms,
+            reviews: (detail.reviews as ReviewItem[]) ?? merged.reviews,
+            introExtra: (detail.introExtra as string[]) ?? merged.introExtra,
+            whyChooseUs: rawWhy?.length ? hydrateWhyChooseUs(rawWhy) : merged.whyChooseUs,
         };
+    }, [cmsVisa, countryKey, country]);
 
     const { activeSection, scrollToSection } = useSectionScrollSpy(
         navLinks.map((item) => item.id),
         { initialSection: 'overview', topOffset: 200 }
     );
+
+    const handleEnquirySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        const fullName = (fd.get('fullName') as string)?.trim() ?? '';
+        const parts = fullName.split(/\s+/);
+        const firstName = parts[0] ?? 'Guest';
+        const lastName = parts.slice(1).join(' ') || '-';
+        setEnquiryLoading(true);
+        try {
+            if (isSupabaseConfigured) {
+                await submitContact({
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: fd.get('email') as string,
+                    phone: fd.get('phone') as string,
+                    interested_in: `visa-${data.name.toLowerCase()}`,
+                    message: [
+                        `Visa type: ${fd.get('visaType') || 'Not specified'}`,
+                        `Travel dates: ${fd.get('travelDates') || 'Not specified'}`,
+                        fd.get('notes') ? `Notes: ${fd.get('notes')}` : '',
+                    ].filter(Boolean).join('\n'),
+                });
+            }
+            setEnquirySent(true);
+        } catch {
+            alert('Could not send enquiry. Please call us directly.');
+        } finally {
+            setEnquiryLoading(false);
+        }
+    };
 
     const nextReview = () => {
         if (data.reviews) {
@@ -483,6 +553,24 @@ export default function VisaDetail() {
             setCurrentReviewIndex((prev) => (prev - 1 + data.reviews!.length) % data.reviews!.length);
         }
     };
+
+    if (isLoading && isSupabaseConfigured) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+        );
+    }
+
+    if (isSupabaseConfigured && !cmsVisa && !visaData[countryKey]) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-50 px-4">
+                <h1 className="text-2xl font-bold text-slate-900">Visa country not found</h1>
+                <p className="text-slate-600 text-center max-w-md">This visa page may be unpublished or the link is incorrect.</p>
+                <Link to="/visa" className="btn-primary">Browse all visas</Link>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white min-h-screen pb-24 font-sans selection:bg-primary/20 selection:text-primary">
@@ -1065,29 +1153,37 @@ export default function VisaDetail() {
                                 <h3 className="text-3xl font-medium text-slate-900 mb-2" >Get Expert Assistance</h3>
                                 <p className="text-slate-500 mb-8 font-medium">Guided & Accurate Processing for your {data.name} Visa.</p>
 
-                                <form className="space-y-4">
+                                {enquirySent ? (
+                                    <div className="py-8 text-center">
+                                        <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+                                        <p className="font-bold text-slate-900 mb-1">Enquiry Received!</p>
+                                        <p className="text-slate-500 text-sm">Our visa experts will contact you shortly.</p>
+                                    </div>
+                                ) : (
+                                <form className="space-y-4" onSubmit={handleEnquirySubmit}>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <input type="text" placeholder="Full Name" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
-                                        <input type="email" placeholder="Email Address" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
+                                        <input type="text" name="fullName" required placeholder="Full Name" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
+                                        <input type="email" name="email" required placeholder="Email Address" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <input type="tel" placeholder="Mobile Number" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
+                                        <input type="tel" name="phone" required placeholder="Mobile Number" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
                                         <input type="text" defaultValue={data.name} readOnly disabled className="w-full px-5 py-4 bg-slate-100 rounded-2xl border border-slate-100 text-slate-500 font-bold text-sm cursor-not-allowed focus:ring-0 focus:border-0 outline-none capitalize" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <select className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm appearance-none">
+                                        <select name="visaType" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm appearance-none">
                                             <option value="">Select Visa Type</option>
                                             {data.visaTypes.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
                                         </select>
-                                        <input type="text" placeholder="Travel Dates" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
+                                        <input type="text" name="travelDates" placeholder="Travel Dates" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all font-medium text-sm" />
                                     </div>
                                     <div>
-                                        <textarea rows={3} placeholder="Additional Request / Notes" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none font-medium text-sm" />
+                                        <textarea name="notes" rows={3} placeholder="Additional Request / Notes" className="w-full px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none font-medium text-sm" />
                                     </div>
-                                    <button type="button" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-xl shadow-primary/20 text-lg group">
-                                        Get Expert Assistance <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    <button type="submit" disabled={enquiryLoading} className="w-full bg-primary hover:bg-primary-dark disabled:opacity-60 text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-xl shadow-primary/20 text-lg group">
+                                        {enquiryLoading ? 'Sending…' : 'Get Expert Assistance'} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>
                                 </form>
+                                )}
 
                                 <div className="mt-6 flex items-center justify-center gap-2 text-slate-600 text-sm">
                                     <Lock className="w-4 h-4" />
@@ -1101,22 +1197,22 @@ export default function VisaDetail() {
 
                                 <h4 className="text-2xl mb-6 relative z-10 text-white" >Direct Support</h4>
                                 <div className="space-y-4 relative z-10">
-                                    <a href="tel:02240666444" className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-all">
+                                    <a href={`tel:${headerConfig.phone.replace(/[^\d+]/g, '')}`} className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-all">
                                         <div className="bg-white/10 p-3 rounded-lg">
                                             <Phone className="w-5 h-5" />
                                         </div>
                                         <div>
                                             <p className="text-xs text-white/50 uppercase tracking-widest mb-1">Call Us</p>
-                                            <p className="font-bold tracking-wide">02240666444</p>
+                                            <p className="font-bold tracking-wide">{headerConfig.phone}</p>
                                         </div>
                                     </a>
-                                    <a href="https://wa.me/918879008992" target="_blank" rel="noreferrer" className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-all">
+                                    <a href={`https://wa.me/${headerConfig.whatsapp}`} target="_blank" rel="noreferrer" className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-all">
                                         <div className="bg-[#25D366]/20 text-[#25D366] p-3 rounded-lg">
                                             <MessageCircle className="w-5 h-5" />
                                         </div>
                                         <div>
                                             <p className="text-xs text-white/50 uppercase tracking-widest mb-1">WhatsApp</p>
-                                            <p className="font-bold tracking-wide">+91 8879008992</p>
+                                            <p className="font-bold tracking-wide">WhatsApp</p>
                                         </div>
                                     </a>
                                 </div>

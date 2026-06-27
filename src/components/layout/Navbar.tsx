@@ -4,9 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import UtilityBar from './UtilityBar';
-import { navStructure } from '../../data/navConfig';
+import { useSiteNav } from '../../hooks/useSiteNav';
+import { useHeaderConfig } from '../../hooks/useHeaderConfig';
 
 export default function Navbar() {
+    const { nav: navStructure } = useSiteNav();
+    const { config: headerConfig } = useHeaderConfig();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -108,7 +111,7 @@ export default function Navbar() {
         return pathname === href;
     };
 
-    const isRouteActive = (item: typeof navStructure[0]) => {
+    const isRouteActive = (item: { label: string; type: string; href?: string; items?: { href: string }[] }) => {
         if (item.type === 'mega') return location.pathname.startsWith('/packages');
         if (item.type === 'link' && item.href) return matchNavHref(location.pathname, item.href);
         if (item.type === 'dropdown' && item.items) {
@@ -245,11 +248,11 @@ export default function Navbar() {
                                     <Search className="w-5 h-5" />
                                 </button>
                                 <a
-                                    href="/contact"
+                                    href={headerConfig.enquireHref ?? '/contact'}
                                     className="bg-primary hover:bg-primary-dark text-white font-black text-xs md:text-sm px-5 md:px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 flex items-center gap-2 uppercase tracking-wider"
                                 >
                                     <Send className="w-3.5 h-3.5" />
-                                    Enquire Now
+                                    {headerConfig.enquireLabel ?? 'Enquire Now'}
                                 </a>
                             </div>
                         </div>
@@ -580,11 +583,11 @@ export default function Navbar() {
                         {/* Bottom Sticky CTA */}
                         <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-3">
                             <a
-                                href="/contact"
+                                href={headerConfig.enquireHref ?? '/contact'}
                                 className="flex-1 bg-primary text-white font-bold py-3.5 rounded-xl text-center text-sm font-['Marcellus']"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
-                                Enquire Now
+                                {headerConfig.enquireLabel ?? 'Enquire Now'}
                             </a>
                             <a
                                 href="https://wa.me/919090403075"

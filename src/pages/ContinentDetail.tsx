@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useKeenSlider } from 'keen-slider/react';
@@ -8,6 +8,9 @@ import {
     Search, Star, Phone, MessageCircle, Plane, ArrowRight
 } from 'lucide-react';
 import VisualExperience from '../components/common/VisualExperience';
+import { useContinent, usePackages } from '../hooks/useContent';
+import { mergeContinentPageData } from '../lib/mapContent';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 const mockEuropeData = {
     name: 'Europe',
@@ -98,8 +101,15 @@ const mockEuropeData = {
 };
 
 export default function ContinentDetail() {
-    useParams();
-    const data = mockEuropeData;
+    const { continent: continentSlug } = useParams();
+    const slug = continentSlug ?? '';
+    const { data: cmsContinent, isLoading } = useContinent(slug);
+    const { data: allPackages = [] } = usePackages();
+
+    const data = useMemo(
+        () => mergeContinentPageData(cmsContinent, slug, mockEuropeData, allPackages),
+        [cmsContinent, slug, allPackages]
+    );
 
     const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
     const [packageFilter, setPackageFilter] = useState('All');
@@ -141,6 +151,24 @@ export default function ContinentDetail() {
             },
         ]
     );
+
+    if (isLoading && isSupabaseConfigured) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+        );
+    }
+
+    if (isSupabaseConfigured && !cmsContinent && slug !== mockEuropeData.slug) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-50 px-4">
+                <h1 className="text-2xl font-bold text-slate-900">Continent not found</h1>
+                <p className="text-slate-600 text-center max-w-md">This region may be unpublished or the link is incorrect.</p>
+                <Link to="/packages" className="btn-primary">Browse packages</Link>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white min-h-screen font-sans text-slate-800">

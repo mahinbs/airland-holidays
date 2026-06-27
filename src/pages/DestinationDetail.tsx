@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useKeenSlider } from 'keen-slider/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -17,6 +17,9 @@ import {
 import VisualExperience, { type VisualItem } from '../components/common/VisualExperience';
 import LabeledImageCarousel from '../components/common/LabeledImageCarousel';
 import type { PackageLabeledImage } from '../types/packageDetail';
+import { useDestination, usePackages } from '../hooks/useContent';
+import { mergeDestinationPageData } from '../lib/mapContent';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 const PACKAGE_SWIPER_STYLES = `
   .dest-package-swiper .swiper-button-next,
@@ -546,10 +549,14 @@ function DestinationConversionSection({ destinationName }: { destinationName: st
 
 export default function DestinationDetail() {
     const { country } = useParams();
-    // Using simple mock data logic for now
-    const data = mockCountryData;
+    const slug = country ?? '';
+    const { data: cmsDestination, isLoading } = useDestination(slug);
+    const { data: cmsPackages } = usePackages();
 
-    // In a real app we would pick based on country parameter
+    const data = useMemo(
+        () => mergeDestinationPageData(cmsDestination, slug, mockCountryData, cmsPackages ?? []),
+        [cmsDestination, slug, cmsPackages]
+    );
 
     const [activeAttractionCat, setActiveAttractionCat] = useState('All');
     const [activePackageCat, setActivePackageCat] = useState('All');
@@ -659,6 +666,24 @@ export default function DestinationDetail() {
         const el = document.getElementById('packages');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
     };
+
+    if (isLoading && isSupabaseConfigured) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+        );
+    }
+
+    if (isSupabaseConfigured && !cmsDestination && slug !== mockCountryData.slug) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-50 px-4">
+                <h1 className="text-2xl font-bold text-slate-900">Destination not found</h1>
+                <p className="text-slate-600 text-center max-w-md">This destination may be unpublished or the link is incorrect.</p>
+                <Link to="/destinations" className="btn-primary">Browse destinations</Link>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white min-h-screen pb-20 md:pb-0 font-sans">

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Clock, Map, Calendar, Users, Maximize, Share2, Volume2, VolumeX, ShieldCheck, Download,
@@ -13,13 +13,17 @@ import LabeledImageCarousel from '../components/common/LabeledImageCarousel';
 import SectionStickyNav from '../components/common/SectionStickyNav';
 import { useSectionScrollSpy } from '../hooks/useSectionScrollSpy';
 import { normalizeLabeledImages, type PackageLabeledImage } from '../types/packageDetail';
+import { usePackage, usePackages } from '../hooks/useContent';
+import { buildPackageDetailView } from '../lib/mapContent';
+import { submitPackageEnquiry } from '../services/submissions';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
-const packageData = {
+const staticPackageData = {
     title: 'Bali 5 Nights / 6 Days – Premium Island Escape',
     subtitle: 'Luxury stays, curated experiences and seamless travel planning',
     destination: 'Bali, Indonesia',
@@ -157,7 +161,9 @@ const packageData = {
 };
 
 // 1. HERO SECTION
-const HeroSection = ({ data, scrollToForm }: { data?: typeof packageData, scrollToForm?: () => void, [key: string]: unknown }) => {
+type PackageDetailData = typeof staticPackageData;
+
+const HeroSection = ({ data, scrollToForm }: { data?: PackageDetailData, scrollToForm?: () => void, [key: string]: unknown }) => {
     return (
         <section className="relative min-h-[75vh] md:min-h-[85vh] w-full flex items-center bg-primary-dark overflow-hidden pb-10">
             <img src={data?.images[0]} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-[0.95]" />
@@ -237,7 +243,7 @@ const detailNavItems = [
 ];
 
 // 3. OVERVIEW + VISUAL EXPERIENCE BLOCK
-const OverviewExperience = ({ data, onMediaClick }: { data?: typeof packageData, onMediaClick: (src: string) => void, [key: string]: unknown }) => {
+const OverviewExperience = ({ data, onMediaClick }: { data?: typeof staticPackageData, onMediaClick: (src: string) => void, [key: string]: unknown }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isMuted, setIsMuted] = useState(true);
 
@@ -319,7 +325,7 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof packageData,
 };
 
 // 3.5 ACCOMMODATION
-const Accommodation = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
+const Accommodation = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
     if (!data?.accommodation) return null;
     return (
         <div className="flex flex-col gap-8 pt-4">
@@ -345,7 +351,7 @@ const Accommodation = ({ data }: { data?: typeof packageData, [key: string]: unk
 };
 
 // 4. ITINERARY
-const Itinerary = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
+const Itinerary = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
     const [openDay, setOpenDay] = useState<number | null>(1);
 
     const handleDownload = () => {
@@ -420,7 +426,7 @@ const Itinerary = ({ data }: { data?: typeof packageData, [key: string]: unknown
 };
 
 // 5. INCLUSIONS & EXCLUSIONS
-const InclusionsExclusions = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
+const InclusionsExclusions = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
     const [inclExpanded, setInclExpanded] = useState(false);
     const [exclExpanded, setExclExpanded] = useState(false);
     const SHOW_LIMIT = 4;
@@ -494,7 +500,7 @@ const InclusionsExclusions = ({ data }: { data?: typeof packageData, [key: strin
 
 /** Supports legacy string-only insights from API + new { text, gallery } blocks. */
 function getInsightPanel(
-    insights: typeof packageData.insights | undefined,
+    insights: typeof staticPackageData.insights | undefined,
     tabId: string
 ): { text: string; gallery: PackageLabeledImage[] } {
     if (!insights) return { text: '', gallery: [] };
@@ -511,7 +517,7 @@ function getInsightPanel(
 }
 
 // 6. DESTINATION INSIGHTS & TERMS
-const DestinationInsights = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
+const DestinationInsights = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
     const tabs = [
         { id: 'food', icon: Coffee, label: 'Local Cuisine' },
         { id: 'nightlife', icon: Moon, label: 'Nightlife' },
@@ -599,7 +605,7 @@ const DestinationInsights = ({ data }: { data?: typeof packageData, [key: string
 };
 
 // 7. FAQ SECTION
-const FAQSection = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
+const FAQSection = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
@@ -642,21 +648,58 @@ const FAQSection = ({ data }: { data?: typeof packageData, [key: string]: unknow
 // ... (JourneyInFrames removed)
 
 // 9. SIDEBAR LEAD FORM
-const SidebarLeadForm = ({ data }: { data?: typeof packageData }) => {
+const SidebarLeadForm = ({ data, packageSlug }: { data?: PackageDetailData; packageSlug?: string }) => {
     const [captchaObj] = useState(() => {
         const n1 = Math.floor(Math.random() * 10) + 1;
         const n2 = Math.floor(Math.random() * 10) + 1;
         return { num1: n1, num2: n2, sum: n1 + n2 };
     });
+    const [submitted, setSubmitted] = useState(false);
 
-    const handleCapture = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleCapture = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
         if (parseInt(formData.get('captcha') as string) !== captchaObj.sum) {
             alert('Incorrect Captcha!');
             return;
         }
-        alert('Enquiry Captured! (Mock Submission)');
+        const name = form.querySelector<HTMLInputElement>('input[placeholder="John Doe"]')?.value ?? '';
+        const email = form.querySelector<HTMLInputElement>('input[type="email"]')?.value ?? '';
+        const phone = form.querySelector<HTMLInputElement>('input[placeholder="+1..."]')?.value ?? '';
+        const travelDate = form.querySelector<HTMLInputElement>('input[type="date"]')?.value ?? '';
+        const travelers = form.querySelector<HTMLInputElement>('input[type="number"]')?.value ?? '';
+
+        if (isSupabaseConfigured) {
+            try {
+                await submitPackageEnquiry({
+                    package_slug: packageSlug,
+                    package_title: data?.title,
+                    name,
+                    email,
+                    phone,
+                    travel_date: travelDate,
+                    travelers,
+                    message: `Enquiry for ${data?.title}`,
+                });
+                setSubmitted(true);
+            } catch (err) {
+                alert(err instanceof Error ? err.message : 'Submission failed');
+            }
+        } else {
+            alert('Enquiry Captured! (Configure Supabase to persist submissions)');
+            setSubmitted(true);
+        }
+    }
+
+    if (submitted) {
+        return (
+            <div id="lead-form" className="bg-white rounded-3xl shadow-lg border border-slate-200 p-8 text-center mt-6 lg:mt-16">
+                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+                <h3 className="font-bold text-slate-900 text-lg">Enquiry Sent!</h3>
+                <p className="text-slate-600 text-sm mt-2">Our experts will contact you shortly.</p>
+            </div>
+        );
     }
 
     return (
@@ -797,7 +840,7 @@ const PartnerTrust = () => {
 };
 
 // 11. RELATED PACKAGES
-const RelatedPackages = ({ data }: { data?: typeof packageData, [key: string]: unknown }) => {
+const RelatedPackages = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
     const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
 
     return (
@@ -922,7 +965,7 @@ const MediaModal = ({
 }: {
     isOpen: boolean,
     onClose: () => void,
-    gallery: typeof packageData.socialGallery,
+    gallery: typeof staticPackageData.socialGallery,
     currentIndex: number,
     onNavigate: (index: number) => void
 }) => {
@@ -984,6 +1027,25 @@ const MediaModal = ({
 
 export default function PackageDetail() {
     const packageId = useParams().id ?? 'preview';
+    const { data: cmsPackage, isLoading } = usePackage(packageId);
+    const { data: allPackages = [] } = usePackages();
+
+    const packageData = React.useMemo((): PackageDetailData => {
+        if (cmsPackage) {
+            return buildPackageDetailView(cmsPackage, allPackages) as PackageDetailData;
+        }
+        if (isSupabaseConfigured) {
+            return buildPackageDetailView({
+                slug: packageId,
+                title: 'Package',
+                destination: '',
+                price: 0,
+                status: 'published',
+                id: '',
+            }) as PackageDetailData;
+        }
+        return staticPackageData;
+    }, [cmsPackage, packageId, allPackages]);
 
     const { activeSection, scrollToSection } = useSectionScrollSpy(
         detailNavItems.map((item) => item.id),
@@ -993,6 +1055,20 @@ export default function PackageDetail() {
         isOpen: false,
         index: 0
     });
+
+    if (isLoading && isSupabaseConfigured) {
+        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" /></div>;
+    }
+
+    if (isSupabaseConfigured && !cmsPackage) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#faf9f6] px-4">
+                <h1 className="text-2xl font-bold text-slate-900">Package not found</h1>
+                <p className="text-slate-600 text-center max-w-md">This package may be unpublished or the link is incorrect.</p>
+                <Link to="/packages" className="btn-primary">Browse all packages</Link>
+            </div>
+        );
+    }
 
     const scrollToForm = () => {
         const formElement = document.getElementById('lead-form');
@@ -1073,7 +1149,7 @@ export default function PackageDetail() {
 
                 {/* ---------- RIGHT COLUMN: STICKY FORM ---------- */}
                 <div className="lg:col-span-4 lg:sticky lg:top-[7rem] relative z-30 self-start">
-                    <SidebarLeadForm data={packageData} />
+                    <SidebarLeadForm data={packageData} packageSlug={packageId} />
                 </div>
             </div>
 

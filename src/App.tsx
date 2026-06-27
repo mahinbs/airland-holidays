@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import RootLayout from './layouts/RootLayout';
+import AdminRoutes from './admin/AdminRoutes';
 
-// Pages
 import Home from './pages/Home';
 import Packages from './pages/Packages';
 import PackageDetail from './pages/PackageDetail';
@@ -31,6 +31,7 @@ function App() {
     <Router>
       <ScrollToTopOnRouteChange />
       <Routes>
+        <Route path="/admin/*" element={<AdminRoutes />} />
         <Route path="/" element={<RootLayout />}>
           <Route index element={<Home />} />
           <Route path="packages" element={<Packages />} />
@@ -54,7 +55,6 @@ function App() {
           <Route path="company/gallery" element={<Gallery />} />
           <Route path="company/media" element={<MediaPage />} />
           <Route path="company/media-events" element={<MediaEvents />} />
-          {/* Default 404 can go here */}
         </Route>
       </Routes>
     </Router>

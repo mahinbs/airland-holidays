@@ -1,13 +1,32 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CalendarDays, Calendar, Clock, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
+import { useFixedDepartures } from '../../hooks/useContent';
+import { mapFixedDeparture } from '../../lib/mapContent';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
-const trips = [
+type Trip = {
+  id: string;
+  category: 'international' | 'india';
+  badge: string;
+  badgeType: 'limited' | 'trending' | 'festival';
+  title: string;
+  images: string[];
+  duration: string;
+  dateRange: string;
+  monthNum: number;
+  price: string;
+  priceNote: string;
+  microInfo: string[];
+  seatsLeft: number;
+  href: string;
+};
+
+const staticTrips: Trip[] = [
   // INTERNATIONAL
   {
     id: 'bali-group-may',
@@ -158,7 +177,7 @@ const months = [
   { num: 12, label: 'Dec' },
 ];
 
-const TripCard = ({ trip }: { trip: typeof trips[0] }) => {
+const TripCard = ({ trip }: { trip: Trip }) => {
   const seatColor =
     trip.seatsLeft <= 4 ? 'text-red-600' :
       trip.seatsLeft <= 8 ? 'text-orange-500' :
@@ -255,6 +274,14 @@ const TripCard = ({ trip }: { trip: typeof trips[0] }) => {
 };
 
 export default function FixedDepartures() {
+  const { data: cmsTrips } = useFixedDepartures();
+  const trips = useMemo(() => {
+    if (cmsTrips?.length) {
+      return cmsTrips.map((t) => mapFixedDeparture(t as unknown as Record<string, unknown>)) as Trip[];
+    }
+    return staticTrips;
+  }, [cmsTrips]);
+
   const [activeTab, setActiveTab] = useState<'international' | 'india'>('international');
   const [activeMonth, setActiveMonth] = useState<number>(0);
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);

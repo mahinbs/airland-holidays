@@ -1,26 +1,28 @@
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useKeenSlider } from 'keen-slider/react';
+import { useContinents, usePackages } from '../../hooks/useContent';
+import { mapContinentToCard } from '../../lib/mapContent';
 
 import 'keen-slider/keen-slider.min.css';
 
-const continents = [
-    { id: 'asia', name: 'Asia', tours: 142, image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80', tag: 'Trending' },
-    { id: 'europe', name: 'Europe', tours: 118, image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&q=80' },
-    { id: 'africa', name: 'Africa', tours: 48, image: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600&q=80', tag: 'Wild' },
-    { id: 'middle-east', name: 'Middle East', tours: 64, image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80' },
-    { id: 'americas', name: 'Americas', tours: 56, image: 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=600&q=80' },
-    { id: 'pacific', name: 'Australia & Pacific', tours: 32, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80' },
+const staticContinents = [
+    { id: 'asia', name: 'Asia', tours: 142, image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80', tag: 'Trending', description: '' },
+    { id: 'europe', name: 'Europe', tours: 118, image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&q=80', description: '' },
+    { id: 'africa', name: 'Africa', tours: 48, image: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600&q=80', tag: 'Wild', description: '' },
+    { id: 'middle-east', name: 'Middle East', tours: 64, image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80', description: '' },
+    { id: 'americas', name: 'Americas', tours: 56, image: 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=600&q=80', description: '' },
+    { id: 'pacific', name: 'Australia & Pacific', tours: 32, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80', description: '' },
 ];
 
-
-
-type Continent = (typeof continents)[0];
+type Continent = (typeof staticContinents)[0];
 
 function ContinentCard({ cont }: { cont: Continent }) {
     return (
-        <a
-            href={`/continents/${cont.id}`}
+        <Link
+            to={`/continents/${cont.id}`}
             className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-700 block h-full border border-slate-100"
         >
             <div className="aspect-[4/5] relative overflow-hidden">
@@ -47,11 +49,35 @@ function ContinentCard({ cont }: { cont: Continent }) {
                     </div>
                 </div>
             </div>
-        </a>
+        </Link>
     );
 }
 
 export default function Continents() {
+    const { data: cmsContinents } = useContinents();
+    const { data: cmsPackages } = usePackages();
+
+    const continents = useMemo(() => {
+        if (cmsContinents?.length) {
+            return cmsContinents.map((row) => {
+                const count = (cmsPackages ?? []).filter(
+                    (p) => (p.continent ?? '').toLowerCase() === row.slug.toLowerCase() ||
+                        (p.continent ?? '').toLowerCase() === row.name.toLowerCase()
+                ).length;
+                const card = mapContinentToCard(row, count);
+                return {
+                    id: card.id,
+                    name: card.name,
+                    tours: card.tours || count,
+                    image: card.image,
+                    tag: card.tag,
+                    description: card.description,
+                };
+            });
+        }
+        return staticContinents;
+    }, [cmsContinents, cmsPackages]);
+
     const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
         loop: true,
         slides: {
@@ -83,10 +109,10 @@ export default function Continents() {
                         <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">Travel the World</h2>
                         <p className="text-slate-600 text-lg">Explore our handpicked selection of the world's most breathtaking locations.</p>
                     </div>
-                    <a href="/continents" className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary-dark transition-colors group">
+                    <Link to="/packages" className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary-dark transition-colors group">
                         View All Regions
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </a>
+                    </Link>
                 </div>
 
                 <div ref={sliderRef} className="keen-slider overflow-visible py-4">

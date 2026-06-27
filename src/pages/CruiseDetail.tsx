@@ -3,7 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import { Clock, MapPin, CheckCircle, XCircle, Send, ChevronDown, ChevronUp, Star, Coffee, Music, Utensils, ShieldCheck, Briefcase, CheckCircle2, Download, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import { cruisePackages } from '../data/cruiseData';
+import { cruisePackages as staticCruises, type CruisePackage } from '../data/cruiseData';
+import { useCruise } from '../hooks/useContent';
+import { mapCruiseToDetail } from '../lib/mapContent';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { submitContact } from '../services/submissions';
 import SectionStickyNav from '../components/common/SectionStickyNav';
 import { useSectionScrollSpy } from '../hooks/useSectionScrollSpy';
 
@@ -16,13 +20,28 @@ const cruiseSectionNavItems = [
 
 export default function CruiseDetail() {
     const { id } = useParams();
-    const cruise = cruisePackages.find(c => c.id === id);
+    const { data: cmsCruise, isLoading } = useCruise(id ?? '');
+    const cruise: CruisePackage | undefined = cmsCruise
+        ? (mapCruiseToDetail(cmsCruise as unknown as Record<string, unknown>) as CruisePackage)
+        : !isSupabaseConfigured
+          ? staticCruises.find(c => c.id === id)
+          : undefined;
     const [openDay, setOpenDay] = useState<number | null>(0);
     const [lightbox, setLightbox] = useState<{ isOpen: boolean, index: number }>({ isOpen: false, index: 0 });
+    const [enquirySent, setEnquirySent] = useState(false);
+    const [enquiryLoading, setEnquiryLoading] = useState(false);
     const { activeSection, scrollToSection } = useSectionScrollSpy(
         cruiseSectionNavItems.map((item) => item.id),
         { initialSection: 'overview', topOffset: 200 }
     );
+
+    if (isLoading && isSupabaseConfigured) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+        );
+    }
 
     if (!cruise) {
         return (
@@ -34,6 +53,35 @@ export default function CruiseDetail() {
             </div>
         );
     }
+
+    const handleCruiseEnquiry = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        const fullName = (fd.get('name') as string)?.trim() ?? '';
+        const parts = fullName.split(/\s+/);
+        setEnquiryLoading(true);
+        try {
+            if (isSupabaseConfigured) {
+                await submitContact({
+                    first_name: parts[0] ?? 'Guest',
+                    last_name: parts.slice(1).join(' ') || '-',
+                    email: fd.get('email') as string,
+                    phone: fd.get('phone') as string,
+                    interested_in: 'cruise',
+                    message: [
+                        `Cruise: ${cruise.name}`,
+                        `Travel date: ${fd.get('travelDate') || 'Not specified'}`,
+                        `Guests: ${fd.get('guests') || 'Not specified'}`,
+                    ].join('\n'),
+                });
+            }
+            setEnquirySent(true);
+        } catch {
+            alert('Could not send enquiry. Please try again.');
+        } finally {
+            setEnquiryLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 pb-24">
@@ -300,37 +348,45 @@ export default function CruiseDetail() {
                             <h3 className="text-2xl font-bold text-slate-900 mb-2 font-['Marcellus']">Enquire Now</h3>
                             <p className="text-slate-600 mb-6 text-sm">Get the best quote for your {cruise.name} vacation.</p>
                             
-                            <form className="space-y-4">
+                            {enquirySent ? (
+                                <div className="py-8 text-center">
+                                    <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+                                    <p className="font-bold text-slate-900 mb-1">Enquiry Received!</p>
+                                    <p className="text-slate-500 text-sm">We will contact you within 24 hours.</p>
+                                </div>
+                            ) : (
+                            <form className="space-y-4" onSubmit={handleCruiseEnquiry}>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Name</label>
-                                    <input type="text" placeholder="John Doe" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+                                    <input type="text" name="name" required placeholder="John Doe" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Email</label>
-                                    <input type="email" placeholder="john@example.com" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+                                    <input type="email" name="email" required placeholder="john@example.com" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Phone Number</label>
-                                    <input type="tel" placeholder="+91 98765 43210" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+                                    <input type="tel" name="phone" required placeholder="+91 98765 43210" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Travel Date</label>
-                                    <input type="date" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+                                    <input type="date" name="travelDate" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Guests</label>
-                                    <select className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all bg-white">
+                                    <select name="guests" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all bg-white">
                                         <option>2 Adults</option>
                                         <option>2 Adults, 1 Child</option>
                                         <option>2 Adults, 2 Children</option>
                                         <option>Group (4+)</option>
                                     </select>
                                 </div>
-                                <button type="button" className="w-full btn-primary flex items-center justify-center gap-2 py-4 mt-2 text-base shadow-lg shadow-primary/30">
-                                    <Send className="w-5 h-5" /> Submit Enquiry
+                                <button type="submit" disabled={enquiryLoading} className="w-full btn-primary flex items-center justify-center gap-2 py-4 mt-2 text-base shadow-lg shadow-primary/30 disabled:opacity-60">
+                                    <Send className="w-5 h-5" /> {enquiryLoading ? 'Sending…' : 'Submit Enquiry'}
                                 </button>
                                 <p className="text-xs text-center text-slate-500 mt-4">No credit card required. We'll contact you within 24 hours.</p>
                             </form>
+                            )}
                         </div>
                     </div>
                 </div>

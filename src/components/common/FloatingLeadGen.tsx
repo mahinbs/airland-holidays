@@ -1,5 +1,5 @@
 import { Phone } from 'lucide-react';
-import { headerConfig } from '../../data/paymentConfig';
+import { useHeaderConfig } from '../../hooks/useHeaderConfig';
 
 /** Official WhatsApp brand green */
 const WHATSAPP_GREEN = '#25D366';
@@ -26,6 +26,7 @@ const fabBase =
     'hover:scale-105 hover:shadow-xl active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ';
 
 export default function FloatingLeadGen() {
+    const { config: headerConfig } = useHeaderConfig();
     const waHref = `https://wa.me/${headerConfig.whatsapp}?text=${WA_PREFILL}`;
     const telHref = `tel:${headerConfig.phone.replace(/[^\d+]/g, '')}`;
 

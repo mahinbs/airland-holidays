@@ -1,9 +1,12 @@
 import { Phone, MessageCircle, CreditCard, Facebook, Youtube, Instagram } from 'lucide-react';
-import { headerConfig } from '../../data/paymentConfig';
+import { useHeaderConfig } from '../../hooks/useHeaderConfig';
 
 export default function UtilityBar() {
-  const { phone, whatsapp, socials, marqueeItems } = headerConfig;
+  const { config } = useHeaderConfig();
+  const { phone, whatsapp, socials, marqueeItems, payNowLabel, payNowHref, marqueeSettings } = config;
+  const ms = marqueeSettings ?? { enabled: true, autoScroll: true, scrollSpeed: 30, pauseOnHover: true };
   const loopItems = [...marqueeItems, ...marqueeItems];
+  const marqueeStyle = ms.autoScroll ? { animationDuration: `${ms.scrollSpeed}s` } as React.CSSProperties : { animation: 'none' };
 
   const getIcon = (platform: string) => {
     switch (platform) {
@@ -36,8 +39,12 @@ export default function UtilityBar() {
       </div>
 
       {/* Zone 2 - Center Marquee */}
+      {ms.enabled !== false && (
       <div className="flex-1 overflow-hidden mx-2 sm:mx-4 h-full flex items-center relative">
-        <div className="flex gap-10 whitespace-nowrap utility-marquee absolute left-0 h-full items-center">
+        <div
+          className={`flex gap-10 whitespace-nowrap utility-marquee absolute left-0 h-full items-center ${ms.pauseOnHover !== false ? '' : 'no-pause'}`}
+          style={marqueeStyle}
+        >
           {loopItems.map((item, index) => (
             <div key={index} className="flex items-center gap-6 sm:gap-10">
               <span className="text-white/95 text-[10px] sm:text-xs font-medium">{item}</span>
@@ -46,8 +53,7 @@ export default function UtilityBar() {
           ))}
         </div>
       </div>
-
-      {/* Zone 3 - Right */}
+      )}
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="hidden md:flex items-center gap-2">
           {socials.map((social) => (
@@ -66,11 +72,11 @@ export default function UtilityBar() {
         <div className="border-r border-white/20 h-4 hidden md:block mx-1"></div>
         
         <a
-          href="/payment"
+          href={payNowHref ?? '/payment'}
           className="relative bg-secondary hover:bg-secondary/90 hover:scale-105 text-white text-[10px] sm:text-[11px] font-black px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg flex items-center gap-1 sm:gap-1.5 shadow-sm transition-all hover:shadow-md tracking-wide uppercase shrink-0 whitespace-nowrap"
         >
           <CreditCard className="w-3 h-3" />
-          Pay Now
+          {payNowLabel ?? 'Pay Now'}
         </a>
       </div>
     </div>

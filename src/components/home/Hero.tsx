@@ -1,14 +1,17 @@
+import { useMemo } from 'react';
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
+import { useHeroSlides } from "../../hooks/useContent";
+import { mapHeroSlide } from "../../lib/mapContent";
 
 import "swiper/css";
 import "swiper/css/effect-fade";
 
-const slides = [
+const staticSlides = [
   {
     id: 1,
     title: "INSPIRE",
@@ -67,6 +70,12 @@ const typewriterWords = [
 ];
 
 export default function Hero() {
+  const { data: cmsSlides } = useHeroSlides();
+  const slides = useMemo(() => {
+    if (cmsSlides?.length) return cmsSlides.map((s, i) => mapHeroSlide(s, i));
+    return staticSlides;
+  }, [cmsSlides]);
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [typedText, setTypedText] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
@@ -145,7 +154,7 @@ export default function Hero() {
                   disablePictureInPicture
                   preload="metadata"
                 />
-              ) : (
+              ) : slide.image ? (
                 <motion.img
                   src={slide.image}
                   alt={slide.title}
@@ -154,6 +163,8 @@ export default function Hero() {
                   animate={{ scale: 1.05 }}
                   transition={{ duration: 10, ease: "linear" }}
                 />
+              ) : (
+                <div className="w-full h-full bg-slate-800" />
               )}
               <div className="absolute inset-0 bg-black/40" />
             </div>

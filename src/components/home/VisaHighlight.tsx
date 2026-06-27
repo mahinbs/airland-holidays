@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -7,49 +7,23 @@ import {
   ShieldCheck,
   Users,
   MessageCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { useKeenSlider } from "keen-slider/react";
 
 import "keen-slider/keen-slider.min.css";
+import { useHomepageConfig, useVisaCountries } from "../../hooks/useContent";
+import { defaultHomepageConfig } from "../../data/defaultCmsContent";
+import type { HomepageConfig } from "../../types/cms";
 
-const sectionCopy = {
-  title: "Get Your Visa Approved with Confidence",
-  subtitle:
-    "Expert handling of complex visa applications for USA, UK, Canada, Schengen and Australia with 99%+ success rate. Fast, reliable and stress-free process.",
-  primaryCta: "Start Your Visa Process Now",
-  secondaryCta: "Talk to Expert on WhatsApp",
-  microCopy:
-    "Join thousands of successful travellers who trusted us for their visa approval.",
+const iconMap: Record<string, LucideIcon> = {
+  Award,
+  Clock,
+  Users,
+  ShieldCheck,
 };
 
-const trustPoints = [
-  {
-    icon: Award,
-    title: "99%+ Success Rate",
-    subtitle: "Proven visa approval outcomes",
-    tone: "bg-secondary/25 text-primary",
-  },
-  {
-    icon: Clock,
-    title: "Fast Processing",
-    subtitle: "72-hour express support available",
-    tone: "bg-primary/10 text-primary",
-  },
-  {
-    icon: Users,
-    title: "Expert Visa Consultants",
-    subtitle: "Handled by senior specialists",
-    tone: "bg-secondary/15 text-primary",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure & Verified Process",
-    subtitle: "Safe documentation and tracking",
-    tone: "bg-primary/15 text-primary",
-  },
-];
-
-const featuredCountries = [
+const staticFeaturedCountries = [
   {
     name: "USA",
     slug: "usa",
@@ -106,6 +80,44 @@ const itemVariants = {
 };
 
 export default function VisaHighlight() {
+  const { data: cmsHomepage } = useHomepageConfig<HomepageConfig>();
+  const { data: visaCountries } = useVisaCountries();
+  const copy = cmsHomepage?.visaHighlight
+    ? { ...defaultHomepageConfig.visaHighlight, ...cmsHomepage.visaHighlight }
+    : defaultHomepageConfig.visaHighlight;
+
+  const featuredCountries = useMemo(() => {
+    const featured = visaCountries?.filter((v) => v.featured);
+    if (featured?.length) {
+      return featured.slice(0, 8).map((v) => {
+        const detail =
+          v.detail && typeof v.detail === "object" && !Array.isArray(v.detail)
+            ? (v.detail as { visaTypes?: { name?: string }[] })
+            : {};
+        const firstType = detail.visaTypes?.[0]?.name;
+        return {
+          name: v.name,
+          slug: v.slug,
+          image: v.image ?? staticFeaturedCountries[0].image,
+          visaType: v.highlight_text ?? firstType ?? "Visa Services",
+          cta: "Apply Now",
+        };
+      });
+    }
+    return staticFeaturedCountries;
+  }, [visaCountries]);
+
+  const trustPoints = copy.trustPoints.map((point, idx) => ({
+    ...point,
+    icon: iconMap[point.icon] ?? [Award, Clock, Users, ShieldCheck][idx % 4],
+    tone: [
+      "bg-secondary/25 text-primary",
+      "bg-primary/10 text-primary",
+      "bg-secondary/15 text-primary",
+      "bg-primary/15 text-primary",
+    ][idx % 4],
+  }));
+
   const [sliderRef, sliderInstanceRef] = useKeenSlider<HTMLDivElement>({
     loop: true,
     drag: true,
@@ -138,10 +150,10 @@ export default function VisaHighlight() {
             className="max-w-4xl mx-auto text-center mb-10 md:mb-12"
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-primary leading-tight">
-              {sectionCopy.title}
+              {copy.title}
             </h2>
             <p className="mt-4 text-base sm:text-lg text-slate-700 leading-relaxed">
-              {sectionCopy.subtitle}
+              {copy.subtitle}
             </p>
           </motion.div>
 
@@ -254,21 +266,21 @@ export default function VisaHighlight() {
                 }}
                 className="inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-8 py-4 rounded-xl hover:bg-primary-dark transition-colors"
               >
-                {sectionCopy.primaryCta}
+                {copy.primaryCta}
                 <ArrowRight className="w-5 h-5" />
               </motion.a>
               <a
-                href="https://wa.me/919090403075"
+                href={copy.whatsappHref}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-2 text-primary border border-primary/30 bg-white/80 px-7 py-4 rounded-xl font-semibold hover:bg-white transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
-                {sectionCopy.secondaryCta}
+                {copy.secondaryCta}
               </a>
             </div>
             <p className="mt-5 text-sm sm:text-base text-slate-600">
-              {sectionCopy.microCopy}
+              {copy.microCopy}
             </p>
           </motion.div>
         </motion.div>

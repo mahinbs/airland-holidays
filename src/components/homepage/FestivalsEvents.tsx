@@ -13,6 +13,8 @@ import {
     Sparkles,
     TrendingUp,
 } from 'lucide-react';
+import { useFestivalsEvents } from '../../hooks/useContent';
+import { mapFestivalEvent } from '../../lib/mapContent';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -38,7 +40,7 @@ type EventItem = {
     trending: boolean;
 };
 
-const internationalEvents: EventItem[] = [
+const staticInternationalEvents: EventItem[] = [
     {
         id: 'tomorrowland',
         tag: 'Music Festival',
@@ -135,7 +137,7 @@ const internationalEvents: EventItem[] = [
     },
 ];
 
-const indiaEvents: EventItem[] = [
+const staticIndiaEvents: EventItem[] = [
     {
         id: 'kumbh-mela',
         tag: 'Spiritual Mega Event',
@@ -267,6 +269,25 @@ function EventCardMedia({ media, name, isActive }: { media: EventMedia; name: st
 }
 
 export default function FestivalsEvents() {
+    const { data: cmsEvents } = useFestivalsEvents();
+    const internationalEvents = useMemo(() => {
+        if (cmsEvents?.length) {
+            return cmsEvents
+                .filter((e) => e.event_type !== 'india')
+                .map((e) => mapFestivalEvent(e as unknown as Record<string, unknown>)) as EventItem[];
+        }
+        return staticInternationalEvents;
+    }, [cmsEvents]);
+
+    const indiaEvents = useMemo(() => {
+        if (cmsEvents?.length) {
+            return cmsEvents
+                .filter((e) => e.event_type === 'india')
+                .map((e) => mapFestivalEvent(e as unknown as Record<string, unknown>)) as EventItem[];
+        }
+        return staticIndiaEvents;
+    }, [cmsEvents]);
+
     const [activeTab, setActiveTab] = useState<TabType>('international');
     const [activeMonth, setActiveMonth] = useState<number>(0);
     const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);

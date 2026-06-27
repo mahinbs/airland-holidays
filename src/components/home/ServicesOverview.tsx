@@ -1,54 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
     Sparkles, Award, ShieldCheck, Headphones, Globe, ArrowRight, ArrowLeft, Grid, Phone
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
-
-const mainServices = [
-    {
-        title: 'Flight Booking',
-        desc: 'Expert route planning with the best fares and ultimate comfort.',
-        path: '/services/flight-booking',
-        badge: 'Most Booked',
-        visuals: [
-            'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80', // Airplane wing
-            'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=800&q=80', // Luxury terminal
-            'https://images.unsplash.com/photo-1542296332-2e4473faf563?w=800&q=80', // Aircraft interior
-        ]
-    },
-    {
-        title: 'Visa Assistance',
-        desc: 'High-success visa processing with complete expert guidance.',
-        path: '/visa',
-        badge: '99% Success Rate',
-        visuals: [
-            'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80', // Passports
-            'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80', // Travel context
-        ]
-    },
-    {
-        title: 'Forex & Currency',
-        desc: 'Secure and best-rate currency exchange for all your destinations.',
-        path: '/services/forex',
-        badge: 'Best Rates',
-        visuals: [
-            'https://images.unsplash.com/photo-1580519542036-c47de6196ba5?w=800&q=80', // Currency exchange
-            'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800&q=80', // Money lifestyle
-        ]
-    },
-    {
-        title: 'Travel Insurance',
-        desc: 'Complete protection for safe, secure, and worry-free journeys.',
-        path: '/services/travel-insurance',
-        badge: 'Full Coverage',
-        visuals: [
-            'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80', // Protection/umbrella/family
-            'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=800&q=80', // Safe travel lifestyle
-        ]
-    }
-];
+import { useServices } from '../../hooks/useContent';
+import { buildServiceOverviewItems } from '../../lib/servicesCms';
 
 const trustItems = [
     { icon: Award, text: 'Globally Accredited Travel Experts' },
@@ -88,6 +46,8 @@ function CardVisuals({ visuals }: { visuals: string[] }) {
 }
 
 export default function ServicesOverview() {
+    const { data: cmsServices } = useServices();
+    const mainServices = useMemo(() => buildServiceOverviewItems(cmsServices), [cmsServices]);
     const [loaded, setLoaded] = useState(false);
 
     const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
@@ -155,7 +115,7 @@ export default function ServicesOverview() {
                 >
                     <div ref={sliderRef} className="keen-slider -mx-4 px-4 pb-8 md:mx-0 md:px-0">
                         {mainServices.map((srv) => (
-                            <div key={srv.title} className="keen-slider__slide">
+                            <div key={srv.path} className="keen-slider__slide">
                                 <a
                                     href={srv.path}
                                     className="group rounded-[2.5rem] overflow-hidden bg-white transition-all duration-700 border border-slate-100 flex flex-col relative h-[500px] md:h-[540px]"

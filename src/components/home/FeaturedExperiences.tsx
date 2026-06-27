@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
+import { useFeaturedExperiences } from '../../hooks/useContent';
+import { mapFeaturedExperience } from '../../lib/mapContent';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -19,7 +21,7 @@ type Package = {
   href: string;
 };
 
-const packages: Package[] = [
+const staticPackages: Package[] = [
   {
     id: 1,
     title: 'Bali Romantic Getaway',
@@ -156,6 +158,14 @@ const continentsList = ['All', 'Asia', 'Europe', 'Africa', 'Middle East', 'Austr
 const experiencesList = ['All', 'Honeymoon', 'Luxury', 'Family', 'Boys Only Trip', 'Adventure', 'Spiritual'];
 
 export default function FeaturedExperiences() {
+  const { data: cmsExperiences } = useFeaturedExperiences();
+  const packages = useMemo(() => {
+    if (cmsExperiences?.length) {
+      return cmsExperiences.map((e, i) => mapFeaturedExperience(e as unknown as Record<string, unknown>, i)) as Package[];
+    }
+    return staticPackages;
+  }, [cmsExperiences]);
+
   const [activeContinent, setActiveContinent] = useState('All');
   const [activeExperience, setActiveExperience] = useState('All');
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
@@ -163,10 +173,13 @@ export default function FeaturedExperiences() {
   const filteredPackages = useMemo(() => {
     return packages.filter((pkg) => {
       const matchContinent = activeContinent === 'All' || pkg.continent === activeContinent;
-      const matchExperience = activeExperience === 'All' || pkg.experiences.includes(activeExperience);
+      const matchExperience =
+        activeExperience === 'All' ||
+        pkg.experiences.length === 0 ||
+        pkg.experiences.includes(activeExperience);
       return matchContinent && matchExperience;
     });
-  }, [activeContinent, activeExperience]);
+  }, [activeContinent, activeExperience, packages]);
 
   return (
     <section className="section-padding bg-slate-50 relative overflow-hidden">

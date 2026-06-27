@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useServices, useServicesPageConfig } from '../hooks/useContent';
+import { defaultServicesPageConfig } from '../data/defaultCmsContent';
+import type { ServicesPageConfig } from '../types/cms';
+import { mapServiceToCard, type ServiceCardItem } from '../lib/mapContent';
+import { submitContact } from '../services/submissions';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
@@ -29,7 +35,7 @@ import {
     type LucideIcon,
 } from 'lucide-react';
 
-const heroContent = {
+const staticHeroContent = {
     heading: 'Complete Travel Solutions Worldwide',
     subtext:
         'From flights to luxury experiences, we deliver personalised travel services backed by global partnerships and expert guidance.',
@@ -39,7 +45,7 @@ const heroContent = {
     secondaryCta: { label: 'Plan Your Trip', href: '/contact' },
 };
 
-const trustItems: {
+const staticTrustItems: {
     icon: LucideIcon;
     value: string;
     label: string;
@@ -53,7 +59,7 @@ const trustItems: {
         { icon: Handshake, value: 'Global', label: 'Airline & Hotel Partnerships', numeric: false },
     ];
 
-const services = [
+const staticServices: ServiceCardItem[] = [
     {
         id: 'flight-booking',
         icon: 'Plane' as const,
@@ -266,7 +272,7 @@ const premiumExperiences = [
     },
 ];
 
-const serviceIcons: Record<(typeof services)[number]['icon'], LucideIcon> = {
+const serviceIcons: Record<string, LucideIcon> = {
     Plane,
     Banknote,
     Shield,
@@ -281,8 +287,13 @@ const serviceIcons: Record<(typeof services)[number]['icon'], LucideIcon> = {
     Palette,
 };
 
-const priorityServices = services.filter((s) => s.priority);
-const secondaryServices = services.filter((s) => !s.priority);
+function buildServicesList(cmsRows: ReturnType<typeof useServices>['data']): ServiceCardItem[] {
+    if (!cmsRows?.length) return staticServices;
+    const cmsMapped = cmsRows.map(mapServiceToCard);
+    const cmsSlugs = new Set(cmsMapped.map((s) => s.id));
+    const extras = staticServices.filter((s) => !cmsSlugs.has(s.id));
+    return [...cmsMapped, ...extras];
+}
 
 function formatCountDisplay(count: number, target: number): string {
     if (target >= 1000) {
@@ -334,7 +345,7 @@ function TrustValue({
     item,
     active,
 }: {
-    item: (typeof trustItems)[number];
+    item: (typeof staticTrustItems)[number];
     active: boolean;
 }) {
     if (!item.numeric || item.target === undefined) {
@@ -434,17 +445,20 @@ const promoSlides = [
   },
 ];
 
-function PromoCarousel() {
+function PromoCarousel({ slides }: { slides: typeof promoSlides }) {
   const [current, setCurrent] = useState(0);
   const [isShared, setIsShared] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    if (!slides.length) return;
     const timer = setInterval(() => {
-      setCurrent(prev => (prev + 1) % promoSlides.length);
+      setCurrent(prev => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
+
+  if (!slides.length) return null;
 
   const handleShare = async (slide: typeof promoSlides[0]) => {
     try {
@@ -540,22 +554,52 @@ function PromoCarousel() {
   );
 }
 
-function SideLeadForm() {
+function SideLeadForm({ serviceOptions }: { serviceOptions: ServiceCardItem[] }) {
   const [captcha] = useState(() => {
     const n1 = Math.floor(Math.random() * 10) + 1;
     const n2 = Math.floor(Math.random() * 10) + 1;
     return { n1, n2, sum: n1 + n2 };
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    if (parseInt(fd.get('captcha') as string) !== captcha.sum) {
+    if (parseInt(fd.get('captcha') as string, 10) !== captcha.sum) {
       alert('Incorrect answer. Please try again.');
       return;
     }
-    setSubmitted(true);
+
+    const fullName = (fd.get('name') as string)?.trim() ?? '';
+    const nameParts = fullName.split(/\s+/);
+    const firstName = nameParts[0] ?? 'Guest';
+    const lastName = nameParts.slice(1).join(' ') || '-';
+    const email = fd.get('email') as string;
+    const phone = fd.get('phone') as string;
+    const service = fd.get('service') as string;
+    const message = (fd.get('message') as string)?.trim() || 'Services page quick enquiry';
+
+    setLoading(true);
+    setError('');
+    try {
+      if (isSupabaseConfigured) {
+        await submitContact({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone,
+          interested_in: service || 'services',
+          message,
+        });
+      }
+      setSubmitted(true);
+    } catch {
+      setError('Could not send enquiry. Please try again or contact us directly.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -585,14 +629,14 @@ function SideLeadForm() {
               <div>
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Name *</label>
                 <input
-                  required type="text" placeholder="Your name"
+                  required type="text" name="name" placeholder="Your name"
                   className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400"
                 />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Phone *</label>
                 <input
-                  required type="tel" placeholder="+91..."
+                  required type="tel" name="phone" placeholder="+91..."
                   className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400"
                 />
               </div>
@@ -601,16 +645,16 @@ function SideLeadForm() {
             <div>
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Email *</label>
               <input
-                required type="email" placeholder="your@email.com"
+                required type="email" name="email" placeholder="your@email.com"
                 className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400"
               />
             </div>
 
             <div>
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Service of Interest</label>
-              <select className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm text-slate-700">
+              <select name="service" className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm text-slate-700">
                 <option value="">Select a service</option>
-                {services.map(s => (
+                {serviceOptions.map(s => (
                   <option key={s.id} value={s.id}>{s.title}</option>
                 ))}
               </select>
@@ -628,10 +672,12 @@ function SideLeadForm() {
 
             <button
               type="submit"
-              className="w-full bg-secondary text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm hover:bg-secondary/90 transition-colors shadow-md shadow-secondary/20 mt-1 min-h-[44px]"
+              disabled={loading}
+              className="w-full bg-secondary text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm hover:bg-secondary/90 transition-colors shadow-md shadow-secondary/20 mt-1 min-h-[44px] disabled:opacity-60"
             >
-              <Send className="w-4 h-4" /> Send Enquiry
+              <Send className="w-4 h-4" /> {loading ? 'Sending…' : 'Send Enquiry'}
             </button>
+            {error && <p className="text-xs text-red-600 text-center">{error}</p>}
             <p className="text-[10px] text-center text-slate-400">🔒 Encrypted. No spam.</p>
           </form>
         )}
@@ -641,6 +687,54 @@ function SideLeadForm() {
 }
 
 export default function Services() {
+    const { data: cmsServices } = useServices();
+    const { data: cmsPage } = useServicesPageConfig<ServicesPageConfig>();
+    const servicesList = useMemo(() => buildServicesList(cmsServices), [cmsServices]);
+    const priorityServices = useMemo(() => servicesList.filter((s) => s.priority), [servicesList]);
+    const secondaryServices = useMemo(() => servicesList.filter((s) => !s.priority), [servicesList]);
+
+    const heroContent = cmsPage?.hero ?? staticHeroContent;
+    const trustIconMap: Record<string, LucideIcon> = { Award, Clock, Users, Globe, Handshake };
+    const trustItems = useMemo(() => {
+        const stats = cmsPage?.trustStats ?? defaultServicesPageConfig.trustStats;
+        if (!cmsPage?.trustStats?.length) return staticTrustItems;
+        return stats.map((s) => ({
+            icon: trustIconMap[s.icon] ?? Award,
+            value: s.value,
+            label: s.label,
+            numeric: s.numeric,
+            target: s.target,
+        }));
+    }, [cmsPage]);
+
+    const promoSlidesResolved = useMemo(() => {
+        const banners = cmsPage?.promoBanners?.filter((b) => b.enabled && b.title) ?? [];
+        if (!banners.length) return promoSlides;
+        return banners.map((b, i) => ({
+            id: i + 1,
+            type: 'image' as const,
+            title: b.title,
+            subtitle: b.description,
+            badge: 'Promotion',
+            badgeColor: 'bg-primary',
+            cta: b.ctaLabel || 'Enquire Now',
+            ctaHref: b.ctaHref || '/contact',
+            image: b.image,
+            shareUrl: b.ctaHref || '/contact',
+        }));
+    }, [cmsPage]);
+
+    const partnerLogos = useMemo(() => {
+        const logos = cmsPage?.partnerLogos?.filter((p) => p.enabled && p.image) ?? [];
+        if (!logos.length) return partners;
+        const airlines = logos.filter((p) => p.category === 'airline').map((p) => ({ name: p.name, logo: p.image }));
+        const hotels = logos.filter((p) => ['hotel', 'resort'].includes(p.category)).map((p) => ({ name: p.name, logo: p.image }));
+        return {
+            airlines: airlines.length ? airlines : partners.airlines,
+            hotels: hotels.length ? hotels : partners.hotels,
+        };
+    }, [cmsPage]);
+
     const trustRef = useRef(null);
     const trustInView = useInView(trustRef, { once: true, margin: '-80px' });
 
@@ -842,7 +936,7 @@ export default function Services() {
                                 viewport={{ once: true, margin: '-60px' }}
                             >
                                 {priorityServices.map((srv) => {
-                                    const Icon = serviceIcons[srv.icon];
+                                    const Icon = serviceIcons[srv.icon] ?? Briefcase;
                                     return (
                                         <motion.div key={srv.id} variants={priorityChild}>
                                             <a
@@ -890,7 +984,7 @@ export default function Services() {
                         viewport={{ once: true, margin: '-40px' }}
                     >
                         {secondaryServices.map((srv) => {
-                            const Icon = serviceIcons[srv.icon];
+                            const Icon = serviceIcons[srv.icon] ?? Briefcase;
                             return (
                                 <motion.div key={srv.id} variants={secondaryChild}>
                                     <a
@@ -934,8 +1028,8 @@ export default function Services() {
 
                         {/* RIGHT COLUMN — new promo carousel + lead form */}
                         <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0 flex flex-col gap-6 lg:sticky lg:top-[7rem] self-start">
-                            <PromoCarousel />
-                            <SideLeadForm />
+                            <PromoCarousel slides={promoSlidesResolved} />
+                            <SideLeadForm serviceOptions={servicesList} />
                         </div>
                     </div>
                 </div>
@@ -962,7 +1056,7 @@ export default function Services() {
                     </p>
                     <div className="overflow-hidden">
                         <div ref={airlinesRef} className="keen-slider">
-                            {[...partners.airlines, ...partners.airlines].map((p, i) => (
+                            {[...partnerLogos.airlines, ...partnerLogos.airlines].map((p, i) => (
                                 <div key={`${p.name}-${i}`} className="keen-slider__slide">
                                     <div className="flex items-center justify-center h-16 px-4" style={{ minWidth: 160, maxWidth: 180 }}>
                                         <img
@@ -985,7 +1079,7 @@ export default function Services() {
                     </p>
                     <div className="overflow-hidden">
                         <div ref={hotelsRef} className="keen-slider">
-                            {[...partners.hotels, ...partners.hotels].map((p, i) => (
+                            {[...partnerLogos.hotels, ...partnerLogos.hotels].map((p, i) => (
                                 <div key={`${p.name}-${i}`} className="keen-slider__slide">
                                     <div className="flex items-center justify-center h-16 px-4" style={{ minWidth: 160, maxWidth: 180 }}>
                                         <img

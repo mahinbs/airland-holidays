@@ -34,6 +34,8 @@ import {
 } from "lucide-react";
 import Dropdown from "../components/common/Dropdown";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePackages } from "../hooks/useContent";
+import { mapPackageToListRow } from "../lib/mapContent";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -61,6 +63,7 @@ const swiperCustomStyles = `
 
 type PackageRow = {
   id: number;
+  slug?: string;
   title: string;
   destination: string;
   country: string;
@@ -77,7 +80,7 @@ type PackageRow = {
   styleTags: string[];
 };
 
-const packagesData: PackageRow[] = [
+const staticPackagesData: PackageRow[] = [
   {
     id: 1,
     title: "Bali Bliss & Temples",
@@ -618,14 +621,6 @@ function matchesTravelStyle(pkg: PackageRow, styleId: string): boolean {
   return pkg.styleTags.includes(styleId);
 }
 
-const uniqueCountries = [...new Set(packagesData.map((p) => p.country))].sort();
-const uniqueCategories = [
-  ...new Set(packagesData.map((p) => p.category)),
-].sort();
-const uniqueDestinations = [
-  ...new Set(packagesData.map((p) => p.destination.split(",")[0].trim())),
-].sort();
-
 // ─── Package Card ─────────────────────────────────────────────────────────────
 function PackageCard({ pkg }: { pkg: PackageRow }) {
   const images = pkg.images ?? [pkg.image];
@@ -651,7 +646,7 @@ function PackageCard({ pkg }: { pkg: PackageRow }) {
         >
           {images.map((img, i) => (
             <SwiperSlide key={i}>
-              <a href={`/packages/${pkg.id}`} className="block w-full h-full">
+              <a href={`/packages/${pkg.slug ?? pkg.id}`} className="block w-full h-full">
                 <img
                   src={img}
                   alt={`${pkg.title} ${i + 1}`}
@@ -686,7 +681,7 @@ function PackageCard({ pkg }: { pkg: PackageRow }) {
       </div>
 
       {/* Card body */}
-      <a href={`/packages/${pkg.id}`} className="p-5 flex flex-col flex-1">
+      <a href={`/packages/${pkg.slug ?? pkg.id}`} className="p-5 flex flex-col flex-1">
         <div className="flex items-center gap-1.5 text-secondary text-xs font-bold uppercase tracking-wider mb-2">
           <MapPin className="w-3 h-3 shrink-0" /> {pkg.destination}
         </div>
@@ -998,8 +993,27 @@ function useHorizontalScrollStrip(variant: "continent" | "style" = "style") {
   };
 }
 
+function deriveFilterOptions(packages: PackageRow[]) {
+  return {
+    countries: [...new Set(packages.map((p) => p.country))].sort(),
+    categories: [...new Set(packages.map((p) => p.category))].sort(),
+    destinations: [...new Set(packages.map((p) => p.destination.split(",")[0].trim()))].sort(),
+  };
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function Packages() {
+  const { data: cmsPackages } = usePackages();
+  const packagesData = useMemo(() => {
+    if (cmsPackages?.length) return cmsPackages.map((p, i) => mapPackageToListRow(p, i));
+    return staticPackagesData;
+  }, [cmsPackages]);
+
+  const { countries: uniqueCountries, categories: uniqueCategories, destinations: uniqueDestinations } = useMemo(
+    () => deriveFilterOptions(packagesData),
+    [packagesData]
+  );
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [heroImgLoaded, setHeroImgLoaded] = useState(false);

@@ -2,7 +2,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
+import { useHomepageConfig } from '../../hooks/useContent';
+import { defaultHomepageConfig } from '../../data/defaultCmsContent';
+import type { HomepageConfig } from '../../types/cms';
 import {
     Clock,
     Users,
@@ -15,7 +18,7 @@ import {
     CheckCircle2
 } from 'lucide-react';
 
-const content = {
+const staticContent = {
     badge: 'Why Choose Airland',
     headline: "We Don't Just Plan Travel. We Take Responsibility For Your Journey.",
     brandStory: "Since 2005, Airland Tours & Holidays has been delivering thoughtfully curated travel experiences with a strong focus on trust, quality, and personal care. With over 20,000+ satisfied travellers, the brand has built a reputation for reliability, long-term relationships, and consistently delivering journeys that exceed expectations.",
@@ -27,7 +30,7 @@ const content = {
     ],
 };
 
-const founderBlock = {
+const staticFounderBlock = {
     sectionLabel: 'Leadership That Builds Trust',
     name: 'Mr. C.K. Raja',
     title: 'Founder & CEO – Airland Group of Companies',
@@ -48,7 +51,7 @@ type FounderMediaItem = {
     poster?: string;
 };
 
-const founderMedia: FounderMediaItem[] = [
+const staticFounderMedia: FounderMediaItem[] = [
     {
         type: 'image',
         src: '/founder.png',
@@ -86,7 +89,7 @@ const founderMedia: FounderMediaItem[] = [
     // },
 ];
 
-const trustPoints = [
+const staticTrustPoints = [
     { icon: Clock, text: '21+ Years of proven expertise' },
     { icon: Users, text: '20,000+ happy travellers worldwide' },
     { icon: Award, text: 'IATA accredited travel company' },
@@ -96,7 +99,7 @@ const trustPoints = [
 ];
 
 // Gallery images — local files, developer will import actual paths
-const galleryImages = [
+const staticGalleryImages = [
     { src: '/whychooseus/1.jpeg', alt: 'Airland in The Hindu – 3.75 Lakh Indians Visited Sri Lanka', aspect: 'portrait', event: 'The Hindu Coverage', location: 'India', year: '2024' },
     { src: '/whychooseus/2.jpeg', alt: 'Industry event – national tourism board', aspect: 'landscape', event: 'Tourism Board Event', location: 'Chennai', year: '2024' },
     { src: '/whychooseus/3.jpeg', alt: 'Sri Lanka National Day event', aspect: 'landscape', event: 'National Day Networking', location: 'Chennai', year: '2025' },
@@ -108,6 +111,59 @@ const galleryImages = [
 const animation = { duration: 20000, easing: (t: number) => t };
 
 export default function WhyUs() {
+    const { data: cmsHomepage } = useHomepageConfig<HomepageConfig>();
+    const homepage = cmsHomepage ?? defaultHomepageConfig;
+
+    const content = useMemo(() => ({
+        badge: homepage.whyUs.badge || staticContent.badge,
+        headline: homepage.whyUs.headline || staticContent.headline,
+        brandStory: homepage.whyUs.brandStory || staticContent.brandStory,
+        brandStorySub: homepage.whyUs.brandStorySub || staticContent.brandStorySub,
+        emotionalLine: homepage.whyUs.emotionalLine || staticContent.emotionalLine,
+        ctas: homepage.whyUs.ctas?.length ? homepage.whyUs.ctas : staticContent.ctas,
+    }), [homepage]);
+
+    const founderBlock = useMemo(() => ({
+        sectionLabel: 'Leadership That Builds Trust',
+        name: homepage.founder.name || staticFounderBlock.name,
+        title: homepage.founder.designation || staticFounderBlock.title,
+        roles: homepage.founder.roles?.length ? homepage.founder.roles : staticFounderBlock.roles,
+        impactStatement: homepage.founder.impactStatement || staticFounderBlock.impactStatement,
+    }), [homepage]);
+
+    const founderMedia = useMemo(() => {
+        const cmsMedia = homepage.founderMilestones?.filter((m) => m.active && m.image).map((m) => ({
+            type: 'image' as const,
+            src: m.image,
+            alt: m.title,
+            label: m.eventName || m.title,
+            location: m.location,
+            year: m.year,
+        }));
+        return cmsMedia?.length ? cmsMedia : staticFounderMedia;
+    }, [homepage]);
+
+    const trustPoints = useMemo(() => {
+        if (!homepage.whyUs.trustPoints?.length) return staticTrustPoints;
+        const iconMap: Record<string, typeof Clock> = { Clock, Users, Award, Globe, Handshake, Heart };
+        return homepage.whyUs.trustPoints.map((p) => ({
+            icon: iconMap[p.icon] ?? Clock,
+            text: p.text,
+        }));
+    }, [homepage]);
+
+    const galleryImages = useMemo(() => {
+        const cmsGallery = homepage.industryAuthority?.filter((m) => m.active && m.image).map((m) => ({
+            src: m.image,
+            alt: m.title,
+            aspect: 'landscape' as const,
+            event: m.eventName || m.title,
+            location: m.location,
+            year: m.year,
+        }));
+        return cmsGallery?.length ? cmsGallery : staticGalleryImages;
+    }, [homepage]);
+
     const mouseOver = useRef(false);
     const [founderSliderRef, founderSliderInstanceRef] = useKeenSlider<HTMLDivElement>({
         loop: true,

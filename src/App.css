@@ -23,3 +23,6 @@
 .utility-marquee:hover {
   animation-play-state: paused;
 }
+.utility-marquee.no-pause:hover {
+  animation-play-state: running;
+}

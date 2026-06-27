@@ -5,11 +5,46 @@ import {
   Building2, ExternalLink, Upload, Send,
   CheckCircle2, Share2, AlertTriangle
 } from 'lucide-react';
-import { headerConfig, paymentConfig } from '../data/paymentConfig';
+import { paymentConfig as staticPaymentConfig } from '../data/paymentConfig';
+import { defaultPaymentPageConfig } from '../data/defaultCmsContent';
+import type { PaymentPageConfig } from '../types/cms';
+import { submitPayment } from '../services/submissions';
+import { uploadPaymentProof } from '../services/storage';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { useSiteSetting } from '../hooks/useContent';
+import { useHeaderConfig } from '../hooks/useHeaderConfig';
+
+const defaultFormState = {
+  name: '', mobile: '', amount: '', service: '', transactionId: '', notes: '', screenshot: null as File | null,
+};
+
+function mergePaymentConfig(cms: unknown) {
+  const base = { ...staticPaymentConfig, ...defaultPaymentPageConfig };
+  if (!cms || typeof cms !== 'object') return base;
+  const c = cms as Partial<PaymentPageConfig & typeof staticPaymentConfig>;
+  return {
+    ...base,
+    ...c,
+    pageTitle: c.pageTitle ?? base.pageTitle,
+    pageDescription: c.pageDescription ?? base.pageDescription,
+    bankTransfer: { ...base.bankTransfer, ...c.bankTransfer },
+    upi: { ...base.upi, ...c.upi },
+    razorpay: { ...base.razorpay, ...c.razorpay },
+    shortHaulPolicy: { ...base.shortHaulPolicy, ...c.shortHaulPolicy },
+    longHaulPolicy: { ...base.longHaulPolicy, ...c.longHaulPolicy },
+    services: c.services ?? base.services,
+    importantNotes: c.importantNotes ?? base.importantNotes,
+  };
+}
 
 export default function Payment() {
-  const [formData, setFormData] = useState(paymentConfig.formFields);
+  const { config: header } = useHeaderConfig();
+  const { data: cmsPaymentConfig } = useSiteSetting('payment_config');
+  const paymentConfig = mergePaymentConfig(cmsPaymentConfig);
+
+  const [formData, setFormData] = useState(defaultFormState);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -40,9 +75,34 @@ export default function Payment() {
     } catch { }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    const form = e.currentTarget;
+    const inputs = form.querySelectorAll('input, select, textarea');
+    const name = (inputs[0] as HTMLInputElement).value;
+    const mobile = (inputs[1] as HTMLInputElement).value;
+    const amount = (inputs[2] as HTMLInputElement).value;
+    const service = (inputs[3] as HTMLSelectElement).value;
+    const transactionId = (inputs[4] as HTMLInputElement).value;
+    const notes = (form.querySelector('textarea') as HTMLTextAreaElement)?.value ?? '';
+
+    setSubmitting(true);
+    try {
+      let screenshotUrl: string | undefined;
+      if (formData.screenshot) {
+        if (isSupabaseConfigured) {
+          screenshotUrl = await uploadPaymentProof(formData.screenshot as File);
+        }
+      }
+      if (isSupabaseConfigured) {
+        await submitPayment({ name, mobile, amount, service, transaction_id: transactionId, notes, screenshot_url: screenshotUrl });
+      }
+      setIsSubmitted(true);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Submission failed');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,10 +122,10 @@ export default function Payment() {
             </div>
             <div>
               <h1 className="font-sans text-3xl md:text-4xl text-slate-900 font-serif" style={{ fontFamily: 'Marcellus, serif' }}>
-                Pay us at
+                {paymentConfig.pageTitle ?? 'Pay us at'}
               </h1>
               <p className="text-slate-600 text-sm mt-1">
-                All payments are manually verified by our team within 2 business hours
+                {paymentConfig.pageDescription ?? 'All payments are manually verified by our team within 2 business hours'}
               </p>
             </div>
           </div>
@@ -372,10 +432,11 @@ export default function Payment() {
 
                     <button
                       type="submit"
-                      className="w-full bg-primary hover:bg-primary/90 text-white text-lg py-4 rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 mt-2 font-serif"
+                      disabled={submitting}
+                      className="w-full bg-primary hover:bg-primary/90 text-white text-lg py-4 rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 mt-2 font-serif disabled:opacity-50"
                       style={{ fontFamily: 'Marcellus, serif' }}
                     >
-                      <Send className="w-5 h-5" /> Submit Payment Details
+                      <Send className="w-5 h-5" /> {submitting ? 'Submitting...' : 'Submit Payment Details'}
                     </button>
                   </form>
                 )}
@@ -427,10 +488,10 @@ export default function Payment() {
 
       {/* MOBILE BOTTOM STICKY ACTIONS */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-700 p-4 flex gap-3 md:hidden shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-        <a href={`tel:${headerConfig.phone}`} className="flex-1 flex items-center justify-center gap-2 border border-slate-300 text-slate-700 font-bold py-3 rounded-xl text-sm hover:bg-slate-50 transition-colors">
+        <a href={`tel:${header.phone}`} className="flex-1 flex items-center justify-center gap-2 border border-slate-300 text-slate-700 font-bold py-3 rounded-xl text-sm hover:bg-slate-50 transition-colors">
           <Phone className="w-4 h-4" /> Call Us
         </a>
-        <a href={`https://wa.me/${headerConfig.whatsapp}`} target="_blank" rel="noreferrer" className="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm hover:bg-green-600 transition-colors">
+        <a href={`https://wa.me/${header.whatsapp}`} target="_blank" rel="noreferrer" className="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm hover:bg-green-600 transition-colors">
           <MessageCircle className="w-4 h-4" /> WhatsApp
         </a>
       </div>

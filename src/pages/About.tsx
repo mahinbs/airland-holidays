@@ -15,7 +15,11 @@ import {
   Map
 } from 'lucide-react';
 
-const pageContent = {
+import { useAboutPage } from '../hooks/useContent';
+import { deepMerge } from '../lib/deepMerge';
+import type { AboutPageContent } from '../types/cms';
+
+const staticPageContent = {
   hero: {
     heading: 'Building a Global Travel Brand With Trust, Experience and Vision',
     subtext: 'Since 2005, Airland Holidays has been committed to delivering world-class travel experiences with precision, care and consistency.',
@@ -138,6 +142,11 @@ const getIcon = (name: string, props: any = {}) => {
 };
 
 export default function About() {
+  const { data: cmsAbout } = useAboutPage();
+  const pageContent = cmsAbout?.content
+    ? deepMerge(staticPageContent, cmsAbout.content as Partial<AboutPageContent>)
+    : staticPageContent;
+
   return (
     <div className="bg-white min-h-screen">
       {/* 1. HERO SECTION */}

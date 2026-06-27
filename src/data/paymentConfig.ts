@@ -14,6 +14,10 @@ export const headerConfig = {
     '🎯 IATA Certified Travel Agency',
     '📞 Expert Consultation — Call Us Now',
   ],
+  enquireLabel: 'Enquire Now',
+  enquireHref: '/contact',
+  payNowLabel: 'Pay Now',
+  payNowHref: '/payment',
 };
 
 export const paymentConfig = {

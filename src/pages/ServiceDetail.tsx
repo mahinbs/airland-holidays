@@ -1,10 +1,12 @@
 import { useParams, Link } from 'react-router-dom';
 import { Send, CheckCircle2, Shield, Clock, Award, Star, ChevronDown, ArrowRight, HelpCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useService } from '../hooks/useContent';
+import { mapServiceToDetail, type ServiceDetailView } from '../lib/mapContent';
 
-// Mock data representing standard service variations
-const serviceData: Record<string, any> = {
+// Legacy mock data for services not yet in CMS
+const serviceData: Record<string, ServiceDetailView> = {
     'flight-booking': {
         title: 'Flight Booking & Reservations',
         badge: 'Top Rated',
@@ -35,7 +37,7 @@ const serviceData: Record<string, any> = {
         badge: 'Best Rates',
         heroImage: 'https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&q=80&w=2000',
         heroDesc: 'Secure, competitive currency exchange and multi-currency cards for all your global travel needs.',
-        overview: 'Don\'t lose money on poor exchange rates. We provide bank-beating forex rates, instant cash availability for major currencies, and secure travel cards that make spending abroad safe and effortless.',
+        overview: "Don't lose money on poor exchange rates. We provide bank-beating forex rates, instant cash availability for major currencies, and secure travel cards that make spending abroad safe and effortless.",
         features: [
             { title: 'Zero Hidden Fees', desc: 'Completely transparent pricing with no surprise commission charges.' },
             { title: 'Multi-Currency Cards', desc: 'Load up to 15 different currencies on a single globally accepted card.' },
@@ -66,10 +68,7 @@ const serviceData: Record<string, any> = {
     }
 };
 
-const getService = (slug: string) => {
-    if (serviceData[slug]) return serviceData[slug];
-    
-    // Generic fallback for any other service slug
+function getFallbackService(slug: string): ServiceDetailView {
     return {
         title: slug.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' '),
         badge: 'Premium Service',
@@ -87,7 +86,7 @@ const getService = (slug: string) => {
             { q: 'What is the processing time?', a: 'Processing times vary depending on the service, but we always strive for expedited delivery.' }
         ]
     };
-};
+}
 
 function FAQItem({ question, answer }: { question: string, answer: string }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -120,7 +119,21 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
 
 export default function ServiceDetail() {
     const { slug } = useParams();
-    const service = getService(slug || 'default');
+    const { data: cmsRow, isLoading } = useService(slug ?? '');
+
+    const service = useMemo(() => {
+        if (cmsRow) return mapServiceToDetail(cmsRow);
+        if (slug && serviceData[slug]) return serviceData[slug];
+        return getFallbackService(slug || 'service');
+    }, [cmsRow, slug]);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+        );
+    }
 
     return (
         <div className="bg-slate-50 min-h-screen">
@@ -163,7 +176,6 @@ export default function ServiceDetail() {
                 </div>
 
                 <div className="content-container relative z-10 w-full mt-16 md:mt-24">
-                    {/* Trust Badges at bottom */}
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }} className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-6 border-t border-white/20">
                         <div className="flex items-center gap-2 text-white">
                             <Shield className="w-5 h-5 text-secondary drop-shadow" />
@@ -185,10 +197,8 @@ export default function ServiceDetail() {
             <div className="content-container mt-12 md:mt-16">
                 <div className="flex flex-col lg:flex-row gap-12 items-start">
                     
-                    {/* Left Column - Content */}
                     <div className="flex-1 min-w-0 w-full">
                         
-                        {/* Overview Section */}
                         <div className="mb-16">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -199,11 +209,10 @@ export default function ServiceDetail() {
                             <p className="text-slate-600 text-lg leading-relaxed">{service.overview}</p>
                         </div>
 
-                        {/* Why Choose Airland (Features) */}
                         <div className="mb-16">
                             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 font-['Marcellus'] mb-8">Why Choose Airland</h2>
                             <div className="grid sm:grid-cols-2 gap-6">
-                                {service.features.map((f: any, i: number) => (
+                                {service.features.map((f, i) => (
                                     <div key={i} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
                                         <div className="w-14 h-14 bg-slate-50 text-primary rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors border border-slate-100">
                                             <CheckCircle2 className="w-7 h-7" />
@@ -215,12 +224,11 @@ export default function ServiceDetail() {
                             </div>
                         </div>
 
-                        {/* Dynamic Brand/Media Banners */}
                         {service.brands && service.brands.length > 0 && (
                             <div className="mb-16 bg-white p-10 rounded-3xl border border-slate-200 text-center shadow-sm">
                                 <h2 className="text-2xl font-bold text-slate-900 font-['Marcellus'] mb-10">{service.brandsTitle}</h2>
                                 <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-16 opacity-70">
-                                    {service.brands.map((brand: string, i: number) => (
+                                    {service.brands.map((brand, i) => (
                                         <img 
                                             key={i} 
                                             src={brand} 
@@ -232,105 +240,75 @@ export default function ServiceDetail() {
                             </div>
                         )}
 
-                        {/* Customer Reviews Component */}
                         <div className="mb-16">
                             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 font-['Marcellus'] mb-8">What Our Clients Say</h2>
-                            <div className="bg-primary-dark p-10 md:p-12 rounded-3xl text-white shadow-2xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+                            <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                                 <div className="relative z-10">
-                                    <div className="flex gap-1.5 text-secondary-light mb-6">
-                                        {[1, 2, 3, 4, 5].map(star => <Star key={star} className="w-6 h-6 fill-current" />)}
+                                    <div className="flex gap-1 mb-4">
+                                        {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 fill-secondary text-secondary" />)}
                                     </div>
-                                    <p className="text-xl md:text-2xl font-light italic mb-8 leading-relaxed text-slate-200">
-                                        "Airland Holidays handled our entire booking with exceptional professionalism. Their service was completely hassle-free, and the 24/7 support team was incredibly helpful when we needed them."
+                                    <p className="text-xl md:text-2xl font-light text-slate-700 italic mb-6 leading-relaxed">
+                                        "Exceptional service from start to finish. The team handled every detail with professionalism and care."
                                     </p>
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center font-bold text-xl border border-white/20">
-                                            R
+                                        <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
+                                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200" alt="" className="w-full h-full object-cover" />
                                         </div>
                                         <div>
-                                            <div className="font-bold text-lg">Rajesh Kumar</div>
-                                            <div className="text-sm text-slate-400">Verified Traveler</div>
+                                            <p className="font-bold text-slate-900">Verified Client</p>
+                                            <p className="text-sm text-slate-500">Airland Holidays Customer</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* FAQ Section */}
-                        {service.faqs && service.faqs.length > 0 && (
-                            <div className="mb-16">
-                                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 font-['Marcellus'] mb-8">Frequently Asked Questions</h2>
-                                <div className="space-y-4">
-                                    {service.faqs.map((faq: any, i: number) => (
-                                        <FAQItem key={i} question={faq.q} answer={faq.a} />
-                                    ))}
-                                </div>
+                        <div className="mb-16">
+                            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 font-['Marcellus'] mb-8">Frequently Asked Questions</h2>
+                            <div className="space-y-4">
+                                {service.faqs.map((faq, i) => (
+                                    <FAQItem key={i} question={faq.q} answer={faq.a} />
+                                ))}
                             </div>
-                        )}
-                        
+                        </div>
                     </div>
 
-                    {/* Right Column - Sticky Lead Form */}
-                    <div className="w-full lg:w-[400px] shrink-0 lg:sticky lg:top-[7rem]">
-                        <div id="enquire" className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
-                            <div className="bg-primary px-8 py-8 relative overflow-hidden">
+                    <div className="w-full lg:w-[380px] shrink-0 sticky top-28" id="enquire">
+                        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+                            <div className="bg-primary px-6 py-8 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4" />
-                                <h3 className="font-['Marcellus'] text-2xl text-white relative z-10 mb-2">Request Service</h3>
-                                <p className="text-white/80 text-sm relative z-10 font-light leading-relaxed">
-                                    Fill out the form below and our {service.title.toLowerCase()} experts will contact you shortly.
+                                <h3 className="font-['Marcellus'] text-2xl text-white relative z-10">Request a Quote</h3>
+                                <p className="text-white/70 text-sm mt-2 relative z-10 font-light">
+                                    Get expert assistance for {service.title}
                                 </p>
                             </div>
-
-                            <div className="p-8">
-                                <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); alert('Enquiry Sent Successfully!'); }}>
-                                    <div>
-                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Full Name *</label>
-                                        <input required type="text" placeholder="Your name" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400" />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Email Address *</label>
-                                        <input required type="email" placeholder="your@email.com" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400" />
-                                    </div>
-
-                                    <div>
-                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Phone Number *</label>
-                                        <input required type="tel" placeholder="+91..." className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400" />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Additional Requirements</label>
-                                        <textarea rows={3} placeholder="Tell us more about your needs..." className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm placeholder:text-slate-400 resize-none" />
-                                    </div>
-
-                                    <button type="submit" className="w-full bg-secondary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-sm hover:bg-secondary/90 transition-colors shadow-md shadow-secondary/20 mt-2">
-                                        <Send className="w-4 h-4" /> Send Enquiry
-                                    </button>
-                                    <p className="text-[11px] text-center text-slate-500 mt-4">We respect your privacy. No spam guaranteed.</p>
-                                </form>
-                            </div>
+                            <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); alert('Thank you! Our team will contact you shortly.'); }}>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Full Name *</label>
+                                    <input required type="text" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="Your name" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Email *</label>
+                                    <input required type="email" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="your@email.com" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Phone *</label>
+                                    <input required type="tel" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="+91..." />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Message</label>
+                                    <textarea rows={3} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm resize-none" placeholder="Tell us about your requirements..." />
+                                </div>
+                                <button type="submit" className="w-full btn-primary flex items-center justify-center gap-2 py-4 text-base shadow-lg shadow-primary/20">
+                                    <Send className="w-4 h-4" /> Send Enquiry
+                                </button>
+                                <p className="text-[10px] text-center text-slate-400">Our team typically responds within 24 hours.</p>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-
-            {/* Start Planning Today (Reusable CTA) */}
-            <section className="relative mt-24 flex min-h-[40vh] items-center justify-center overflow-hidden">
-                <img
-                    src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=2000&q=80"
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-slate-900/80" />
-                <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 font-['Marcellus']">Ready to start your journey?</h2>
-                    <p className="text-lg text-slate-300 mb-8 font-light">Get in touch with our experts today and let us craft the perfect travel experience for you.</p>
-                    <Link to="/contact" className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg">
-                        Contact Us Today <ArrowRight className="w-5 h-5" />
-                    </Link>
-                </div>
-            </section>
         </div>
     );
 }
