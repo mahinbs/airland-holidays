@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import Achievements from '../components/home/Achievements';
 import { Star, PlayCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTestimonials } from '../hooks/useContent';
@@ -131,6 +132,7 @@ export default function Testimonials() {
           </section>
         )}
       </div>
+      <Achievements />
     </div>
   );
 }

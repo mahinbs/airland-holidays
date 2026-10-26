@@ -72,7 +72,24 @@ export const defaultServicesPageConfig: ServicesPageConfig = {
   partnerLogos: [],
 };
 
+export const defaultAchievements: NonNullable<HomepageConfig['achievements']> = [
+  { icon: 'Award', value: '20+', label: 'Years of Experience', featured: true, enabled: true },
+  { icon: 'Users', value: '50,000+', label: 'Happy Travellers', enabled: true },
+  { icon: 'Globe', value: '120+', label: 'Destinations', enabled: true },
+  { icon: 'Star', value: '4.9', label: 'Google Rating', enabled: true },
+];
+
+export const defaultGoogleReviews: NonNullable<HomepageConfig['googleReviews']> = {
+  heading: 'Google Reviews',
+  subheading: 'See what our customers say about us on Google.',
+  rating: '',
+  totalReviews: '',
+  profileUrl: 'https://g.page/r/airlandholidays/review',
+};
+
 export const defaultHomepageConfig: HomepageConfig = {
+  achievements: defaultAchievements,
+  googleReviews: defaultGoogleReviews,
   whyUs: {
     badge: 'Why Choose Airland',
     headline: "We Don't Just Plan Travel. We Take Responsibility For Your Journey.",
@@ -206,6 +223,7 @@ export const defaultAboutContent: AboutPageContent = {
     ],
   },
   recognition: [],
+  successStories: [],
   brandStatement: { line1: 'We are not just a travel company.', line2: 'We are your trusted partner in creating unforgettable life experiences.' },
   cta: {
     primary: { label: 'Plan Your Journey With Experts', href: '/contact' },

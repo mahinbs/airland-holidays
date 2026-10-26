@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import Achievements from '../components/home/Achievements';
+import type { SuccessStory } from '../types/cms';
 import {
   Building2,
   CheckCircle2,
@@ -145,13 +147,14 @@ const getIcon = (name: string, props: any = {}) => {
 
 export default function About() {
   const { data: cmsAbout } = useAboutPage();
-  const pageContent = cmsAbout?.content
+  const pageContent = (cmsAbout?.content
     ? deepMerge(staticPageContent, cmsAbout.content as Partial<AboutPageContent>)
-    : staticPageContent;
+    : staticPageContent) as typeof staticPageContent & { successStories?: SuccessStory[] };
 
   // Display status: Founder & CEO section, inactive recognition cards and inactive team members are hidden.
   const founderVisible = (pageContent.founder as { active?: boolean }).active !== false;
   const recognition = (pageContent.recognition ?? []).filter((r) => r.active !== false);
+  const successStories = (pageContent.successStories ?? []).filter((s) => s.active !== false && (s.story || s.name));
   const teamMembers = pageContent.team.members.filter((m) => (m as { active?: boolean }).active !== false);
 
   return (
@@ -607,6 +610,45 @@ export default function About() {
         </div>
       </section>
       </>
+      )}
+
+      {/* COMPANY ACHIEVEMENTS (CMS: Homepage → Company Achievements) */}
+      <Achievements />
+
+      {/* CLIENT SUCCESS STORIES (CMS: About → Client Success Stories) */}
+      {successStories.length > 0 && (
+        <section className="section-padding bg-white">
+          <div className="content-container">
+            <div className="text-center mb-12">
+              <h2 className="text-secondary uppercase tracking-widest text-xs font-black mb-3">Client Success Stories</h2>
+              <h3 className="font-['Marcellus'] text-3xl md:text-4xl text-slate-900">Journeys We&apos;re Proud Of</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {successStories.map((story, i) => (
+                <motion.figure
+                  key={story.id || `${story.name}-${i}`}
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  className="bg-slate-50 rounded-3xl border border-slate-100 p-7 flex flex-col"
+                >
+                  <blockquote className="text-slate-700 leading-relaxed italic flex-1">&ldquo;{story.story}&rdquo;</blockquote>
+                  <figcaption className="mt-6 flex items-center gap-3">
+                    {story.image ? (
+                      <img src={story.image} alt={story.name} className="w-12 h-12 rounded-full object-cover" loading="lazy" />
+                    ) : (
+                      <span className="w-12 h-12 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center">{story.name.charAt(0)}</span>
+                    )}
+                    <span>
+                      <span className="block font-bold text-slate-900">{story.name}</span>
+                      <span className="block text-xs text-slate-500">{[story.trip, story.location].filter(Boolean).join(' · ')}</span>
+                    </span>
+                  </figcaption>
+                </motion.figure>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* 8. BRAND STATEMENT & CTA */}

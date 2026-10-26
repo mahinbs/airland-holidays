@@ -3,6 +3,9 @@ import { Star, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTestimonials } from '../../hooks/useContent';
 import { mapTestimonialToCard } from '../../lib/mapContent';
+import { useSiteSetting } from '../../hooks/useContent';
+import { defaultGoogleReviews } from '../../data/defaultCmsContent';
+import type { HomepageConfig } from '../../types/cms';
 
 const staticReviews = [
     { name: 'Raj K.', rating: 5, text: 'Exceptional service! Our Bali trip was perfectly planned.', date: '2 weeks ago' },
@@ -12,6 +15,8 @@ const staticReviews = [
 
 export default function GoogleReviews() {
     const { data: cmsTestimonials } = useTestimonials();
+    const { data: homepage } = useSiteSetting<HomepageConfig>('homepage_config');
+    const gr = { ...defaultGoogleReviews, ...(homepage?.googleReviews ?? {}) };
     const reviews = useMemo(() => {
         if (cmsTestimonials?.length) {
             const written = cmsTestimonials
@@ -30,9 +35,11 @@ export default function GoogleReviews() {
         return staticReviews;
     }, [cmsTestimonials]);
 
-    const avgRating = reviews.length
-        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-        : '4.9';
+    const avgRating = gr.rating.trim()
+        ? gr.rating.trim()
+        : reviews.length
+            ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+            : '4.9';
 
     return (
         <section className="section-padding bg-white">
@@ -45,8 +52,8 @@ export default function GoogleReviews() {
                 >
                     <div>
                         <span className="text-secondary font-bold tracking-wider uppercase text-sm mb-2 block">Trusted by Travelers</span>
-                        <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">Google Reviews</h2>
-                        <p className="text-slate-600 max-w-xl">See what our customers say about us on Google.</p>
+                        <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">{gr.heading}</h2>
+                        <p className="text-slate-600 max-w-xl">{gr.subheading}</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1 text-yellow-500">
@@ -56,7 +63,7 @@ export default function GoogleReviews() {
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900">{avgRating}</p>
-                            <p className="text-slate-600 text-sm">Based on {reviews.length}+ reviews</p>
+                            <p className="text-slate-600 text-sm">Based on {gr.totalReviews.trim() || `${reviews.length}+`} reviews</p>
                         </div>
                     </div>
                 </motion.div>
@@ -87,7 +94,7 @@ export default function GoogleReviews() {
 
                 <div className="text-center mt-10">
                     <a
-                        href="https://g.page/r/airlandholidays/review"
+                        href={gr.profileUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"

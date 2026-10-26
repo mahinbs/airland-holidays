@@ -37,6 +37,24 @@ const serviceData: Record<string, ServiceDetailView> = {
             { q: 'How early should I book to get the best price?', a: 'We recommend booking 3 to 6 weeks in advance for domestic flights, and 2 to 3 months for international travel.' }
         ]
     },
+    'passport-assistance': {
+        title: 'Passport Assistance',
+        badge: 'Fast Track',
+        heroImage: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=2000',
+        heroDesc: 'Fresh passports, renewals, re-issue and tatkal applications — handled end to end by our documentation team.',
+        overview: 'Applying for or renewing a passport should not hold up your travel plans. Our team checks your documents, books appointments, fills in the application correctly and follows up until your passport is delivered.',
+        features: [
+            { title: 'Document Check', desc: 'We verify every document before you apply, so applications are not rejected for avoidable errors.' },
+            { title: 'Appointment Booking', desc: 'Passport Seva Kendra slots booked for you, including tatkal where eligible.' },
+            { title: 'Renewals & Re-issue', desc: 'Expired, damaged, lost or full-page passports replaced with minimum effort on your side.' },
+            { title: 'Status Tracking', desc: 'Regular updates on your application until the passport reaches you.' }
+        ],
+        faqs: [
+            { q: 'How long does a new passport take?', a: 'Timelines depend on the passport office and police verification; normal applications usually take a few weeks and tatkal is faster. Our team will confirm the current timeline.' },
+            { q: 'Can you help if my passport is lost?', a: 'Yes. We guide you through the police report and re-issue process so you can travel again as soon as possible.' },
+            { q: 'Do you help with visa-ready passport validity checks?', a: 'Yes. We check passport validity and blank pages against the requirements of your destination before you book.' }
+        ]
+    },
     'forex': {
         title: 'Forex & Currency Exchange',
         badge: 'Best Rates',

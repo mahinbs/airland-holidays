@@ -77,7 +77,32 @@ export type MilestoneItem = {
   active: boolean;
 };
 
+export type AchievementItem = { icon: string; value: string; label: string; featured?: boolean; enabled?: boolean };
+
+export type GoogleReviewsConfig = {
+  heading: string;
+  subheading: string;
+  /** Overall Google rating shown in the badge, e.g. "4.9" (leave empty to average the displayed reviews) */
+  rating: string;
+  /** Total review count shown in the badge, e.g. "1,200+" */
+  totalReviews: string;
+  /** Link to the Google Business reviews page */
+  profileUrl: string;
+};
+
+export type SuccessStory = {
+  id: string;
+  name: string;
+  location: string;
+  trip: string;
+  story: string;
+  image: string;
+  active: boolean;
+};
+
 export type HomepageConfig = {
+  achievements?: AchievementItem[];
+  googleReviews?: GoogleReviewsConfig;
   whyUs: {
     badge: string;
     headline: string;
@@ -157,6 +182,8 @@ export type AboutPageContent = {
     members: { role: string; desc: string; image: string; active?: boolean }[];
   };
   recognition: MilestoneItem[];
+  /** Client success stories (Design Discovery §14) */
+  successStories?: SuccessStory[];
   brandStatement: { line1: string; line2: string };
   cta: {
     primary: { label: string; href: string };

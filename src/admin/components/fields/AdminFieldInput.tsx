@@ -112,6 +112,9 @@ export function AdminFieldInput({
   if (field.type === 'select') {
     return (
       <select className={inputClass} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)}>
+        {value !== undefined && value !== null && value !== '' && !field.options?.some((o) => o.value === value) && (
+          <option value={value as string}>{String(value)}</option>
+        )}
         {field.options?.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}

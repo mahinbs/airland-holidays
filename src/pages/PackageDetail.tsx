@@ -25,6 +25,7 @@ import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { printItinerary } from '../lib/printItinerary';
+import MapEmbed from '../components/common/MapEmbed';
 
 const staticPackageData = {
     title: 'Bali 5 Nights / 6 Days – Premium Island Escape',
@@ -320,6 +321,7 @@ const detailNavItems = [
     { id: 'itinerary', label: 'Itinerary' },
     { id: 'inclusions', label: 'Inclusions/Exclusions' },
     { id: 'insights', label: 'Travel Information' },
+    { id: 'location', label: 'Map' },
     { id: 'faq', label: 'FAQ' },
     { id: 'reviews', label: 'Guest Reviews' },
     { id: 'experiences', label: 'Guest Experiences' }
@@ -1382,6 +1384,18 @@ export default function PackageDetail() {
                             <DestinationInsights data={packageData} />
                         </section>
                     )}
+
+                    <section id="location" className="scroll-mt-32">
+                        <div className="border-b border-slate-200 pb-4 mb-6">
+                            <h2 className="text-3xl font-marcellus text-primary mb-2">Location Map</h2>
+                            <p className="text-slate-600">Where you&apos;ll be travelling.</p>
+                        </div>
+                        <MapEmbed
+                            src={(packageData.insights as { mapEmbedUrl?: string } | undefined)?.mapEmbedUrl}
+                            query={[(packageData as unknown as { destination?: string }).destination, (packageData as unknown as { country?: string }).country].filter(Boolean).join(', ') || packageData.title}
+                            title={`${packageData.title} map`}
+                        />
+                    </section>
 
                     <section id="faq" className="scroll-mt-32">
                         <FAQSection data={packageData} />

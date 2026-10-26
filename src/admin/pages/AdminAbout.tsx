@@ -10,7 +10,7 @@ import RepeatableField from '../components/fields/RepeatableField';
 import { inputClass, moveItem, ReorderButtons, Toggle, useSortable } from '../components/fields/shared';
 import { uploadMedia } from '../../services/storage';
 
-type Tab = 'hero' | 'story' | 'founder' | 'credentials' | 'network' | 'promise' | 'team' | 'recognition' | 'cta';
+type Tab = 'hero' | 'story' | 'founder' | 'credentials' | 'network' | 'promise' | 'team' | 'recognition' | 'stories' | 'cta';
 
 export default function AdminAbout() {
   const qc = useQueryClient();
@@ -51,6 +51,7 @@ export default function AdminAbout() {
     { id: 'promise', label: 'Our Promise' },
     { id: 'team', label: 'Team' },
     { id: 'recognition', label: 'Recognition' },
+    { id: 'stories', label: 'Client Success Stories' },
     { id: 'cta', label: 'CTA & Brand' },
   ];
 
@@ -176,6 +177,23 @@ export default function AdminAbout() {
             <Field label="Description"><textarea className={inputClass} rows={2} value={content.team.desc} onChange={(e) => setContent({ ...content, team: { ...content.team, desc: e.target.value } })} /></Field>
             <TeamEditor members={content.team.members} onChange={(members) => setContent({ ...content, team: { ...content.team, members } })} />
           </>
+        )}
+
+        {tab === 'stories' && (
+          <RepeatableField
+            label="Client success stories"
+            value={content.successStories ?? []}
+            onChange={(v) => setContent({ ...content, successStories: v as NonNullable<AboutPageContent['successStories']> })}
+            defaultItem={{ id: '', name: '', location: '', trip: '', story: '', image: '', active: true }}
+            columns={[
+              { key: 'image', label: 'Photo', type: 'image' },
+              { key: 'name', label: 'Client Name' },
+              { key: 'location', label: 'City / Location' },
+              { key: 'trip', label: 'Trip (e.g. Bali Honeymoon)' },
+              { key: 'story', label: 'Story / Testimonial', type: 'textarea' },
+              { key: 'active', label: 'Active', type: 'boolean' },
+            ]}
+          />
         )}
 
         {tab === 'recognition' && (

@@ -1,7 +1,7 @@
 # Airland Holidays — CMS Enhancement Delivery Report
 
 **Scope:** `Airland_Holidays_CMS_Enhancement (22-06-2026)` and `Airland_Website_Design_Discovery & Expectations (09-03-2026)`
-**Repository:** `mahinbs/airland-holidays` (branch `main`) · **Commits:** `be9658a`, `6935ec5` (local, not pushed)
+**Repository:** `mahinbs/airland-holidays` (branch `main`) · **Commits:** `be9658a`, `6935ec5`, `afb38e1` and the audit commit that follows (local, not pushed)
 **Stack:** React 19 + Vite + TypeScript, Supabase (Postgres, Auth, Storage), deployed on Vercel
 
 ---
@@ -60,7 +60,14 @@ That document is a design brief rather than a feature list. The items it assigns
 - **CMS-managed:** homepage sections, tour packages, visa pages, destination pages, services pages, blog posts (Guides), testimonials, image galleries, Instagram feeds (new **Instagram Reels** manager), contact details, SEO settings (package, visa, cruise, destination, continent, service, guide).
 - **Public site:** package filters now include travel categories (Domestic, International, Honeymoon, Group, Family, Pilgrimage, Fixed Departure, Luxury).
 - **Already present before this work, unchanged:** the homepage structure, premium design, animations, WhatsApp/contact/enquiry flows.
-- **Not in scope of this delivery:** competitor analysis, sitemap documents, and the future full booking platform (online booking, payment gateway, user accounts). These are strategy or future-phase items, not CMS work.
+- **Closed in a line-by-line audit of the design document:**
+  - Homepage "Company achievements" section was commented out; it is now live and CMS-managed (Homepage → Company Achievements), with the "20+ years" figure the brief specifies. The same trust strip appears on About and Testimonials.
+  - Google Reviews section is CMS-driven (rating, review count, Google profile link; review cards come from published written Testimonials).
+  - Package pages have a Location Map section (Google embed URL in the Travel Information tab, or auto-mapped from the destination); the Contact page shows the office map.
+  - About page has a CMS-managed Client Success Stories section.
+  - Services: Passport Assistance added so all 11 services in the brief exist (static fallback + seed); each has its own detail page with enquiry options.
+  - Blog categories match the five content types in the brief (Destination Guides, Travel Tips, Visa Updates, Budget Travel, Seasonal Travel).
+- **Not in scope:** competitor analysis, sitemap/strategy documents, and the future full booking platform (online booking, payment gateway, user accounts). The brief itself describes these as later phases.
 
 ---
 
@@ -106,6 +113,7 @@ That document is a design brief rather than a feature list. The items it assigns
 - Assigning the Super Admin role from the UI is intentionally blocked.
 - Itinerary download uses the browser print dialog ("Save as PDF"); it is not a server-generated PDF file.
 - Payment form `payment_type` and `email` are stored only after migration 005.
+- Google Reviews are not pulled live from Google (that needs a Google Places API key and billing); the rating, count and link are CMS-managed and the cards come from Testimonials.
 - The Mixkit demo videos used in a few festival/featured placeholders return 403 for some visitors; replace them with your own uploaded videos from the CMS.
 - The spec says field-level details live in a Bug Tracker; that tracker was not available here, so the PDFs were treated as the full specification.
 

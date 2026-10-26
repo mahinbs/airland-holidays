@@ -7,7 +7,7 @@ import FestivalsEvents from '../components/homepage/FestivalsEvents';
 import ServicesOverview from '../components/home/ServicesOverview';
 import VisaHighlight from '../components/home/VisaHighlight';
 import WhyUs from '../components/home/WhyUs';
-// import Achievements from '../components/home/Achievements';
+import Achievements from '../components/home/Achievements';
 import GoogleReviews from '../components/home/GoogleReviews';
 import Testimonials from '../components/home/Testimonials';
 import VideoTestimonials from '../components/home/VideoTestimonials';
@@ -35,7 +35,7 @@ export default function Home() {
             <ServicesOverview />
             <VisaHighlight />
             <WhyUs />
-            {/* <Achievements /> */}
+            <Achievements />
             <GoogleReviews />
             <Testimonials />
             <VideoTestimonials />

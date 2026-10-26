@@ -169,6 +169,17 @@ const staticServices: ServiceCardItem[] = [
         priority: false,
     },
     {
+        id: 'passport-assistance',
+        icon: 'FileCheck' as const,
+        title: 'Passport Assistance',
+        desc: 'Fresh passports, renewals, re-issue and tatkal support handled end to end.',
+        valueStatement: 'Your passport, sorted without the queues.',
+        href: '/services/passport-assistance',
+        image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&q=80',
+        badge: 'Fast Track',
+        priority: false,
+    },
+    {
         id: 'group-travel',
         icon: 'Users' as const,
         title: 'Group Travel Planning',

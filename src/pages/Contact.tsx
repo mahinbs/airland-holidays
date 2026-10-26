@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle, CheckCircle2 } from 'lucide-react';
+import MapEmbed from '../components/common/MapEmbed';
 import Dropdown from '../components/common/Dropdown';
 import { submitContact } from '../services/submissions';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -159,6 +160,12 @@ export default function Contact() {
                         )}
                     </div>
                 </div>
+                <MapEmbed
+                    src={footer.mapEmbedUrl}
+                    query={contact.address}
+                    title="Airland Holidays office location"
+                    className="mt-8"
+                />
             </div>
         </div>
     );

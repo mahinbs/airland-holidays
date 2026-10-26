@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Save, Plus, Trash2 } from 'lucide-react';
 import { fetchSiteSetting, upsertSiteSetting } from '../../services/content';
-import { defaultHomepageConfig } from '../../data/defaultCmsContent';
+import { defaultHomepageConfig, defaultAchievements, defaultGoogleReviews } from '../../data/defaultCmsContent';
 import type { HomepageConfig, MilestoneItem } from '../../types/cms';
 import StringListField from '../components/fields/StringListField';
 import RichTextField from '../components/fields/RichTextField';
+import RepeatableField from '../components/fields/RepeatableField';
 import { inputClass, moveItem, ReorderButtons, Toggle, useSortable } from '../components/fields/shared';
 import { uploadMedia } from '../../services/storage';
 
-type Tab = 'whyus' | 'founder' | 'milestones' | 'authority' | 'visa' | 'contact';
+type Tab = 'whyus' | 'achievements' | 'google' | 'founder' | 'milestones' | 'authority' | 'visa' | 'contact';
+
+const ACHIEVEMENT_ICONS = ['Award', 'Users', 'Globe', 'Star', 'Clock', 'ShieldCheck', 'Plane', 'Heart', 'MapPin'].map((v) => ({ value: v, label: v }));
 
 export default function AdminHomepage() {
   const qc = useQueryClient();
@@ -46,6 +49,8 @@ export default function AdminHomepage() {
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'whyus', label: 'Why Choose Us' },
+    { id: 'achievements', label: 'Company Achievements' },
+    { id: 'google', label: 'Google Reviews' },
     { id: 'founder', label: 'Founder Profile' },
     { id: 'milestones', label: 'Founder Milestones' },
     { id: 'authority', label: 'Industry Authority' },
@@ -77,6 +82,34 @@ export default function AdminHomepage() {
             <RichTextField label="Brand Story" value={config.whyUs.brandStory} onChange={(v) => setConfig({ ...config, whyUs: { ...config.whyUs, brandStory: v } })} />
             <Field label="Emotional Line"><textarea className={inputClass} rows={2} value={config.whyUs.emotionalLine} onChange={(e) => setConfig({ ...config, whyUs: { ...config.whyUs, emotionalLine: e.target.value } })} /></Field>
             <StringListField label="Trust Points" value={config.whyUs.trustPoints.map((p) => p.text)} onChange={(texts) => setConfig({ ...config, whyUs: { ...config.whyUs, trustPoints: texts.map((text, i) => ({ icon: config.whyUs.trustPoints[i]?.icon ?? 'Check', text })) } })} />
+          </>
+        )}
+
+        {tab === 'achievements' && (
+          <RepeatableField
+            label="Company achievements / trust statistics (shown on the homepage track-record strip)"
+            value={config.achievements ?? defaultAchievements}
+            onChange={(v) => setConfig({ ...config, achievements: v as NonNullable<HomepageConfig['achievements']> })}
+            withEnabled
+            columns={[
+              { key: 'icon', label: 'Icon', type: 'select', options: ACHIEVEMENT_ICONS },
+              { key: 'value', label: 'Value (e.g. 20+)' },
+              { key: 'label', label: 'Label' },
+              { key: 'featured', label: 'Highlight (larger card)', type: 'boolean' },
+            ]}
+          />
+        )}
+
+        {tab === 'google' && (
+          <>
+            <Field label="Section Heading"><input className={inputClass} value={(config.googleReviews ?? defaultGoogleReviews).heading} onChange={(e) => setConfig({ ...config, googleReviews: { ...(config.googleReviews ?? defaultGoogleReviews), heading: e.target.value } })} /></Field>
+            <Field label="Sub-heading"><input className={inputClass} value={(config.googleReviews ?? defaultGoogleReviews).subheading} onChange={(e) => setConfig({ ...config, googleReviews: { ...(config.googleReviews ?? defaultGoogleReviews), subheading: e.target.value } })} /></Field>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Field label="Overall Google Rating (e.g. 4.9)"><input className={inputClass} value={(config.googleReviews ?? defaultGoogleReviews).rating} onChange={(e) => setConfig({ ...config, googleReviews: { ...(config.googleReviews ?? defaultGoogleReviews), rating: e.target.value } })} /></Field>
+              <Field label="Total Reviews (e.g. 1,200+)"><input className={inputClass} value={(config.googleReviews ?? defaultGoogleReviews).totalReviews} onChange={(e) => setConfig({ ...config, googleReviews: { ...(config.googleReviews ?? defaultGoogleReviews), totalReviews: e.target.value } })} /></Field>
+            </div>
+            <Field label="Google Reviews Profile Link"><input className={inputClass} value={(config.googleReviews ?? defaultGoogleReviews).profileUrl} onChange={(e) => setConfig({ ...config, googleReviews: { ...(config.googleReviews ?? defaultGoogleReviews), profileUrl: e.target.value } })} /></Field>
+            <p className="text-xs text-slate-500">The review cards come from published written Testimonials. Paste real Google reviews there (Testimonials admin) to show them in this section.</p>
           </>
         )}
 

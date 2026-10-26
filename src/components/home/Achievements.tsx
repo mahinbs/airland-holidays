@@ -1,17 +1,21 @@
-import { Award, Users, Globe, Star } from 'lucide-react';
+import { Award, Users, Globe, Star, Clock, ShieldCheck, Plane, Heart, MapPin, type LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useSiteSetting } from '../../hooks/useContent';
+import { defaultAchievements } from '../../data/defaultCmsContent';
+import type { HomepageConfig } from '../../types/cms';
 
-const achievements = [
-    { icon: Award, value: '25+', label: 'Years', featured: true },
-    { icon: Users, value: '50k+', label: 'Travelers' },
-    { icon: Globe, value: '120+', label: 'Destinations' },
-    { icon: Star, value: '4.9', label: 'Rating' },
-];
+const ICONS: Record<string, LucideIcon> = { Award, Users, Globe, Star, Clock, ShieldCheck, Plane, Heart, MapPin };
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 
 export default function Achievements() {
+    const { data: homepage } = useSiteSetting<HomepageConfig>('homepage_config');
+    const achievements = (homepage?.achievements?.length ? homepage.achievements : defaultAchievements)
+        .filter((a) => a.enabled !== false)
+        .map((a) => ({ ...a, icon: ICONS[a.icon] ?? Award }));
+    if (!achievements.length) return null;
+
     return (
         <section className="section-padding relative overflow-hidden">
             {/* Background */}
