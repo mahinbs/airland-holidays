@@ -14,19 +14,24 @@ Two things need to be done on your side before everything is live (section 2).
 
 ---
 
-## 2. Actions required from you (cannot be done from this environment)
+## 2. Deployment status (as of 26 Oct 2026)
 
-| # | Action | Why |
-|---|--------|-----|
-| 1 | Run `supabase/migrations/004_cms_enhancements.sql` in the Supabase SQL editor | Adds fixed-departure fields (destination, featured/banner image, availability status), FAQ `enabled` flag, festival `detail` column. Until run, saves still work and the admin shows a warning listing the fields that could not be stored. |
-| 2 | Run `supabase/migrations/005_admin_roles_and_proofs.sql` | Adds user name/mobile/role/permissions/active columns, user-management functions, private `payment-proofs` bucket + policies, and the email / payment type / destination submission columns. Until run, roles fall back to `site_settings`. |
-| 3 | Review the commented-out RLS policies at the end of migration 005, then enable them | Role permissions are enforced in the admin interface (menus, routes, buttons). Database-level enforcement requires RLS. They are commented out deliberately so they cannot lock existing admins out. |
-| 4 | Smoke-test the admin with a real login after the migrations | The admin could not be exercised end-to-end here (no Supabase credentials in this environment). Suggested script is in section 7. |
-| 5 | Push the commits and let Vercel deploy | Commits are local only. |
+| Item | Status |
+|---|---|
+| Code pushed to `main` and deployed on Vercel | Done (`2368ad8`) |
+| Supabase project | `kzqcfdvmpczszankdhty` (resumed from paused). The site now points at it; the old project `nkxkfssuexwklwjjjzmw` is no longer used and was not touched |
+| Database | Base schema, row-level security, buckets, admin-access functions and starter content applied (`001`–`006` in `supabase/migrations/`) |
+| Vercel variables | `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` point at the new project (public values, set as Config) |
+| Auth settings | Site URL `https://airland-holidays.vercel.app`, redirect `https://airland-holidays.vercel.app/**`, "Confirm email" on |
+| Super admin | the owner account (the only primary admin; the others were removed) |
 
-Note: the `VITE_API_BASE_URL` / `VITE_BACKEND_API_KEY` values provided are saved in a gitignored `.env`, but the app reads Supabase (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`), not that API. They are unused by the current code.
+**Content:** the live site currently shows the starter content (7 packages, 32 featured destinations, 11 visas, 3 cruises, 7 services, 3 guides, 6 hero slides, FAQs, payment/header/contact settings). Your real content is entered through the CMS; nothing was copied from the old project.
 
----
+**Still worth doing**
+1. In Vercel, set `VITE_PRIMARY_ADMIN_EMAIL` to the super admin address, or delete it (cosmetic: the database decides access).
+2. Review the commented-out per-role database rules at the end of migration `005` and enable them one table at a time. Until then, role permissions are enforced in the CMS interface only.
+3. Supabase's built-in email sender is rate limited. Add your own SMTP (Authentication → SMTP) before inviting several staff.
+4. Run the acceptance checklist in section 7 with a non-super-admin account.
 
 ## 3. Requirement coverage — CMS Enhancement document
 
