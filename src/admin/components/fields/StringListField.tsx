@@ -1,4 +1,4 @@
-import { AddButton, DeleteButton, FieldLabel, ReorderButtons, inputClass, moveItem, parseArray } from './shared';
+import { AddButton, DeleteButton, FieldLabel, ReorderButtons, inputClass, moveItem, parseArray, useSortable } from './shared';
 
 export default function StringListField({
   label,
@@ -12,6 +12,7 @@ export default function StringListField({
   placeholder?: string;
 }) {
   const items = parseArray<string>(value, ['']);
+  const sortable = useSortable(items, onChange);
 
   const update = (index: number, text: string) => {
     const next = [...items];
@@ -25,11 +26,11 @@ export default function StringListField({
 
   return (
     <div>
-      <FieldLabel label={label} />
+      <FieldLabel label={label} hint="Drag the handle or use the arrows to reorder." />
       <div className="space-y-2">
         {items.map((item, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <ReorderButtons index={i} total={items.length} onMove={reorder} />
+          <div key={i} {...sortable.rowProps(i)} className={`flex items-center gap-2 rounded-xl transition-opacity ${sortable.rowClass(i)}`}>
+            <ReorderButtons index={i} total={items.length} onMove={reorder} handleProps={sortable.handleProps(i)} />
             <input
               className={inputClass}
               value={item}

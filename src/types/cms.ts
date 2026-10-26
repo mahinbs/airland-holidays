@@ -34,6 +34,7 @@ export type ServicesPageConfig = {
     label: string;
     numeric: boolean;
     target?: number;
+    enabled?: boolean;
   }[];
   promoBanners: {
     title: string;
@@ -42,6 +43,8 @@ export type ServicesPageConfig = {
     ctaLabel: string;
     ctaHref: string;
     enabled: boolean;
+    /** Promotion type shown as the badge — Airline / Resort / Hotel / Insurance */
+    category?: 'airline' | 'resort' | 'hotel' | 'insurance';
   }[];
   partnerLogos: {
     name: string;
@@ -126,6 +129,8 @@ export type AboutPageContent = {
     vision: string;
     portraitSrc: string;
     supportingImages: { src: string; alt: string; aspect: string }[];
+    /** Display Status — false hides the Founder & CEO section on the About page */
+    active?: boolean;
   };
   credentials: {
     sectionLabel: string;
@@ -166,6 +171,8 @@ export type PaymentPageConfig = {
     accountNumber: string;
     accountName: string;
     ifscCode: string;
+    bankName?: string;
+    branch?: string;
   };
   upi: {
     id: string;
@@ -194,5 +201,31 @@ export type PaymentPageConfig = {
   formFields: {
     allowedFileTypes: string;
     maxUploadSizeMb: number;
+    /** Form configuration */
+    requireScreenshot?: boolean;
+    paymentTypes?: string[];
+    submitLabel?: string;
+    successTitle?: string;
+    successMessage?: string;
   };
+};
+
+export type InstagramReelItem = {
+  id: string;
+  /** Thumbnail / poster image */
+  image: string;
+  /** Optional uploaded or hosted video (mp4) that plays inline */
+  video?: string;
+  /** Instagram reel / post link */
+  href: string;
+  caption: string;
+  enabled: boolean;
+};
+
+export type InstagramReelsConfig = {
+  title: string;
+  subtitle: string;
+  ctaLabel: string;
+  ctaHref: string;
+  reels: InstagramReelItem[];
 };

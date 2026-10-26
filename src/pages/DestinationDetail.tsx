@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, type ComponentType } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useKeenSlider } from 'keen-slider/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -15,10 +15,11 @@ import {
     ChevronLeft, ChevronRight, MessageCircle,
 } from 'lucide-react';
 import VisualExperience, { type VisualItem } from '../components/common/VisualExperience';
+import RichContent from '../components/common/RichContent';
 import LabeledImageCarousel from '../components/common/LabeledImageCarousel';
 import type { PackageLabeledImage } from '../types/packageDetail';
 import { useDestination, usePackages } from '../hooks/useContent';
-import { mergeDestinationPageData } from '../lib/mapContent';
+import { mergeDestinationPageData, stripHtml } from '../lib/mapContent';
 import { isSupabaseConfigured } from '../lib/supabase';
 
 const PACKAGE_SWIPER_STYLES = `
@@ -547,6 +548,45 @@ function DestinationConversionSection({ destinationName }: { destinationName: st
     );
 }
 
+/** Icon names selectable in the CMS "Benefits Section" → lucide components */
+const BENEFIT_ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
+    FileCheck, Wallet, Plane, Star, Heart, Users, Sun, MapPin, Utensils, ShoppingBag,
+};
+
+type CmsDestinationExtras = {
+    heroVideo?: string;
+    benefits: { icon: ComponentType<{ className?: string }>; title: string; desc: string }[];
+    statistics: { value: string; label: string }[];
+    gallery: string[];
+    bestTimeToVisit: string;
+    travelTips: string;
+    visaInfo: string;
+    seo: { title?: string; description?: string };
+};
+
+const enabledOnly = <T extends { enabled?: boolean }>(list: unknown): T[] =>
+    Array.isArray(list) ? (list as T[]).filter((i) => i && i.enabled !== false) : [];
+
+/** CMS-only extras (hidden when empty so static templates keep their original look) */
+function getCmsExtras(row: { detail?: unknown; hero_video?: string | null } | null | undefined): CmsDestinationExtras {
+    const detail =
+        row?.detail && typeof row.detail === 'object' && !Array.isArray(row.detail) ? (row.detail as Record<string, unknown>) : {};
+    return {
+        heroVideo: row?.hero_video || undefined,
+        benefits: enabledOnly<{ icon?: string; title?: string; desc?: string; enabled?: boolean }>(detail.benefits)
+            .filter((b) => b.title)
+            .map((b) => ({ icon: BENEFIT_ICON_MAP[b.icon ?? ''] ?? Star, title: b.title ?? '', desc: b.desc ?? '' })),
+        statistics: enabledOnly<{ value?: string; label?: string; enabled?: boolean }>(detail.statistics)
+            .filter((x) => x.value || x.label)
+            .map((x) => ({ value: x.value ?? '', label: x.label ?? '' })),
+        gallery: Array.isArray(detail.gallery) ? (detail.gallery as unknown[]).filter((g): g is string => typeof g === 'string' && Boolean(g)) : [],
+        bestTimeToVisit: typeof detail.bestTimeToVisit === 'string' ? detail.bestTimeToVisit : '',
+        travelTips: typeof detail.travelTips === 'string' ? detail.travelTips : '',
+        visaInfo: typeof detail.visaInfo === 'string' ? detail.visaInfo : '',
+        seo: (detail.seo ?? {}) as { title?: string; description?: string },
+    };
+}
+
 export default function DestinationDetail() {
     const { country } = useParams();
     const slug = country ?? '';
@@ -557,6 +597,23 @@ export default function DestinationDetail() {
         () => mergeDestinationPageData(cmsDestination, slug, mockCountryData, cmsPackages ?? []),
         [cmsDestination, slug, cmsPackages]
     );
+
+    const extras = useMemo(() => getCmsExtras(cmsDestination), [cmsDestination]);
+    const whyIndians = extras.benefits.length ? extras.benefits : data.whyIndians;
+
+    // SEO settings from the CMS
+    useEffect(() => {
+        if (!extras.seo.title && !extras.seo.description) return;
+        const previousTitle = document.title;
+        if (extras.seo.title) document.title = extras.seo.title;
+        const meta = document.querySelector('meta[name="description"]');
+        const previousDescription = meta?.getAttribute('content') ?? null;
+        if (extras.seo.description && meta) meta.setAttribute('content', extras.seo.description);
+        return () => {
+            document.title = previousTitle;
+            if (meta && previousDescription !== null) meta.setAttribute('content', previousDescription);
+        };
+    }, [extras.seo.title, extras.seo.description]);
 
     const [activeAttractionCat, setActiveAttractionCat] = useState('All');
     const [activePackageCat, setActivePackageCat] = useState('All');
@@ -697,6 +754,17 @@ export default function DestinationDetail() {
                     className="absolute inset-0 w-full h-full object-cover"
                     loading="eager"
                 />
+                {extras.heroVideo && (
+                    <video
+                        src={extras.heroVideo}
+                        poster={data.heroImage}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent z-10" />
 
                 <Link to="/destinations" className="absolute top-8 left-6 md:left-16 z-20 text-white/70 hover:text-white text-sm flex items-center gap-2 font-medium transition-colors">
@@ -722,7 +790,7 @@ export default function DestinationDetail() {
                     </motion.h1>
 
                     <motion.p variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }} className="text-white/75 font-light text-lg md:text-xl max-w-2xl mb-8 drop-shadow-md">
-                        {data.description}
+                        {stripHtml(data.description)}
                     </motion.p>
 
                     <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }} className="flex flex-wrap gap-4 items-center justify-center md:justify-start">
@@ -941,6 +1009,18 @@ export default function DestinationDetail() {
             <div className="content-container mt-8 px-4 lg:px-4">
                 <main className="w-full pb-16">
 
+                    {/* CMS traveller statistics */}
+                    {extras.statistics.length > 0 && (
+                        <section className="mb-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {extras.statistics.map((stat, i) => (
+                                <div key={`${stat.label}-${i}`} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 text-center">
+                                    <p className="font-marcellus text-3xl text-primary mb-1">{stat.value}</p>
+                                    <p className="text-slate-600 text-xs font-medium uppercase tracking-widest">{stat.label}</p>
+                                </div>
+                            ))}
+                        </section>
+                    )}
+
                     {/* 3. TRAVEL INSIGHTS & VISITOR STATISTICS */}
                     <section className="bg-white rounded-[32px] p-6 md:p-10 mb-10 border border-slate-100 shadow-sm overflow-hidden">
                         <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-2">Who Travels to {data.name}?</h2>
@@ -1014,7 +1094,7 @@ export default function DestinationDetail() {
                             <motion.div initial={{ x: -30, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} className="md:w-1/2 lg:w-3/5">
                                 <span className="text-primary text-[10px] uppercase tracking-widest font-bold mb-2 block">Destination Deep Dive</span>
                                 <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-4">About {data.name}</h2>
-                                <p className="text-slate-600 font-light text-sm md:text-base leading-relaxed">{data.about}</p>
+                                <RichContent html={typeof data.about === 'string' ? data.about : ''} className="text-sm md:text-base font-light" />
                             </motion.div>
                             <motion.div initial={{ x: 30, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} className="md:w-1/2 lg:w-2/5 w-full h-[220px] md:h-[280px] rounded-2xl overflow-hidden shadow-xl border border-slate-100 shrink-0">
                                 <img src={data.heroImage} alt="About destination" className="w-full h-full object-cover" loading="lazy" />
@@ -1032,7 +1112,7 @@ export default function DestinationDetail() {
                             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
                             className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                         >
-                            {data.whyIndians.map((reason, i) => (
+                            {whyIndians.map((reason, i) => (
                                 <motion.div key={i} variants={{ hidden: { y: 20, scale: 0.97, opacity: 0 }, visible: { y: 0, scale: 1, opacity: 1 } }} className="bg-white border border-slate-100 rounded-2xl p-5 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                                     <div className="flex items-center gap-4 mb-3">
                                         <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
@@ -1045,6 +1125,29 @@ export default function DestinationDetail() {
                             ))}
                         </motion.div>
                     </section>
+
+                    {/* CMS travel information: best time, tips, visa */}
+                    {(extras.bestTimeToVisit || extras.travelTips || extras.visaInfo) && (
+                        <section className="mb-10 grid grid-cols-1 lg:grid-cols-3 gap-5">
+                            {[
+                                { title: 'Best Time to Visit', icon: Sun, html: extras.bestTimeToVisit },
+                                { title: 'Travel Tips', icon: Info, html: extras.travelTips },
+                                { title: 'Visa Information', icon: FileCheck, html: extras.visaInfo },
+                            ]
+                                .filter((b) => b.html)
+                                .map((block) => (
+                                    <div key={block.title} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-7">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
+                                                <block.icon className="w-5 h-5" />
+                                            </div>
+                                            <h2 className="font-marcellus text-xl text-slate-900">{block.title}</h2>
+                                        </div>
+                                        <RichContent html={block.html} className="text-sm" />
+                                    </div>
+                                ))}
+                        </section>
+                    )}
 
                     {/* 6. AIRPORT & CONNECTIVITY INFORMATION */}
                     <section className="mb-10 bg-primary-dark rounded-[32px] p-8 md:p-12 text-white relative overflow-hidden">
@@ -1128,6 +1231,21 @@ export default function DestinationDetail() {
                         </div>
                         <DestinationCulturalPanel cultural={data.cultural} />
                     </section>
+
+                    {/* CMS destination gallery */}
+                    {extras.gallery.length > 0 && (
+                        <section className="mb-10 bg-white p-5 md:p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                            <h2 className="font-marcellus text-2xl md:text-3xl text-slate-900 mb-1">{data.name} Gallery</h2>
+                            <p className="text-slate-500 font-light text-sm mb-6">Moments and landscapes from the destination</p>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                {extras.gallery.map((src, i) => (
+                                    <div key={`${src}-${i}`} className={`overflow-hidden rounded-2xl ${i % 5 === 0 ? 'col-span-2 row-span-2' : ''}`}>
+                                        <img src={src} alt={`${data.name} ${i + 1}`} className="w-full h-full min-h-[140px] object-cover hover:scale-105 transition-transform duration-700" loading="lazy" />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
                     {/* 9. INSTAGRAM SPOTS */}
                     <section className="mb-10 overflow-hidden bg-white p-5 md:p-8 rounded-[32px] border border-slate-100 shadow-sm">

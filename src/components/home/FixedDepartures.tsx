@@ -24,6 +24,9 @@ type Trip = {
   microInfo: string[];
   seatsLeft: number;
   href: string;
+  /** CMS-managed (optional) */
+  destination?: string;
+  availabilityStatus?: 'available' | 'limited' | 'sold-out';
 };
 
 const staticTrips: Trip[] = [
@@ -219,10 +222,16 @@ const TripCard = ({ trip }: { trip: Trip }) => {
             {trip.badge}
           </span>
 
-          {/* Seats left — top right */}
-          <span className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm border border-white/20 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
-            <span className={seatColor}>{trip.seatsLeft}</span> seats left
-          </span>
+          {/* Availability — top right */}
+          {trip.availabilityStatus === 'sold-out' ? (
+            <span className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full">
+              Sold out
+            </span>
+          ) : (
+            <span className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm border border-white/20 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
+              <span className={trip.availabilityStatus === 'limited' ? 'text-orange-400' : seatColor}>{trip.seatsLeft}</span> seats left
+            </span>
+          )}
 
           {/* Date chip — bottom left, always visible */}
           <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm border border-white/15 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full">
@@ -241,9 +250,11 @@ const TripCard = ({ trip }: { trip: Trip }) => {
           </div>
 
           {/* Trip name */}
-          <h3 className="Marcellus text-lg text-slate-900 group-hover:text-primary transition-colors leading-snug mb-3">
+          <h3 className="Marcellus text-lg text-slate-900 group-hover:text-primary transition-colors leading-snug mb-1">
             {trip.title}
           </h3>
+          {trip.destination && <p className="text-xs text-slate-500 mb-3">{trip.destination}</p>}
+          {!trip.destination && <div className="mb-2" />}
 
           {/* Micro info tags */}
           <div className="flex flex-wrap gap-1.5 mb-4">
@@ -264,7 +275,7 @@ const TripCard = ({ trip }: { trip: Trip }) => {
               </p>
             </div>
             <span className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300">
-              View Trip <ArrowRight className="w-3.5 h-3.5" />
+              {trip.availabilityStatus === 'sold-out' ? 'Join Waitlist' : 'View Trip'} <ArrowRight className="w-3.5 h-3.5" />
             </span>
           </div>
         </div>

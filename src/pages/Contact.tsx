@@ -88,7 +88,7 @@ export default function Contact() {
                                 <Phone className="w-6 h-6 text-secondary shrink-0 mt-1" />
                                 <div>
                                     <h3 className="font-bold text-white text-lg mb-1">Phone Number</h3>
-                                    {contact.phones.map((p) => <p key={p} className="text-white/70">{p}</p>)}
+                                    {contact.phones.map((p, i) => <p key={`${p}-${i}`} className="text-white/70">{p}</p>)}
                                 </div>
                             </div>
                             <div className="flex items-start gap-4">

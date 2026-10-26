@@ -94,9 +94,8 @@ export const featuredDestinations: FeaturedDestination[] = [
         name: 'Maldives',
         startsFrom: 'INR 1,45,000/-',
         media: {
-            type: 'video',
-            src: 'https://videos.pexels.com/video-files/2491284/2491284-hd_1920_1080_25fps.mp4',
-            poster: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&q=85&w=1200',
+            type: 'image',
+            src: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&q=85&w=1200',
         },
         type: 'international',
         href: '/packages?destination=maldives',

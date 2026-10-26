@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useFaq } from '../hooks/useContent';
+import RichContent from '../components/common/RichContent';
 
 const staticFaqs: { category: string; questions: { q: string; a: string }[] }[] = [
     { category: 'Booking & Payment', questions: [
@@ -61,7 +62,7 @@ export default function FAQ() {
                                         <ChevronDown className={`w-5 h-5 text-slate-700 transition-transform duration-300 ${openQ === item.q ? 'rotate-180 text-primary' : ''}`} />
                                     </button>
                                     <div className={`px-6 pb-6 ${openQ === item.q ? 'block' : 'hidden'}`}>
-                                        <p className="text-slate-600 leading-relaxed pt-2 border-t border-slate-100">{item.a}</p>
+                                        <RichContent html={item.a} className="pt-2 border-t border-slate-100" />
                                     </div>
                                 </div>
                             ))}

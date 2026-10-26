@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import FloatingLeadGen from "../components/common/FloatingLeadGen";
+import { exitPreviewMode, isPreviewMode } from "../lib/previewMode";
 
 const PageTransition = ({
   children,
@@ -64,6 +65,14 @@ export default function RootLayout() {
         </svg>
       </div>
 
+      {isPreviewMode() && (
+        <div className="relative z-50 bg-amber-400 text-slate-900 text-xs font-semibold text-center py-1.5 px-3">
+          Preview mode — draft content is visible to you.{" "}
+          <button type="button" onClick={exitPreviewMode} className="underline ml-1">
+            Exit preview
+          </button>
+        </div>
+      )}
       <Navbar />
 
       <main className="flex-grow z-10 relative">

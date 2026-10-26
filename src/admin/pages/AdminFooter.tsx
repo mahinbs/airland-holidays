@@ -1,21 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Save, Plus, Trash2 } from 'lucide-react';
+import { SOCIAL_PLATFORMS, SocialIcon, normalizePlatform } from '../../components/common/SocialIcon';
 import { fetchSiteSetting, upsertSiteSetting } from '../../services/content';
 import { defaultFooterConfig } from '../../data/defaultCmsContent';
 import type { FooterConfig } from '../../types/cms';
 import RichTextField from '../components/fields/RichTextField';
-import { inputClass, moveItem, ReorderButtons } from '../components/fields/shared';
+import { inputClass, moveItem, ReorderButtons, Toggle, useSortable } from '../components/fields/shared';
 
 export default function AdminFooter() {
   const qc = useQueryClient();
   const [config, setConfig] = useState<FooterConfig>(defaultFooterConfig);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const socialSort = useSortable(config.socials, (socials) => setConfig((c) => ({ ...c, socials })));
+  const linkSort = useSortable(config.quickLinks, (quickLinks) => setConfig((c) => ({ ...c, quickLinks })));
 
   useEffect(() => {
     fetchSiteSetting<FooterConfig>('footer_config').then((data) => {
-      if (data) setConfig({ ...defaultFooterConfig, ...data });
+      if (data) setConfig({ ...defaultFooterConfig, ...data, businessHours: { ...defaultFooterConfig.businessHours, ...data.businessHours } });
       setLoading(false);
     });
   }, []);
@@ -89,55 +92,51 @@ export default function AdminFooter() {
         </Panel>
 
         <Panel title="Social Media">
-          {config.socials.map((social, i) => (
-            <div key={i} className="flex gap-2 items-center mb-2">
-              <input className={inputClass} value={social.platform} placeholder="Platform" onChange={(e) => {
-                const socials = [...config.socials];
-                socials[i] = { ...socials[i], platform: e.target.value };
-                setConfig({ ...config, socials });
-              }} />
-              <input className={inputClass} value={social.href} placeholder="URL" onChange={(e) => {
-                const socials = [...config.socials];
-                socials[i] = { ...socials[i], href: e.target.value };
-                setConfig({ ...config, socials });
-              }} />
-              <label className="flex items-center gap-1 text-sm shrink-0">
-                <input type="checkbox" checked={social.enabled} onChange={(e) => {
-                  const socials = [...config.socials];
-                  socials[i] = { ...socials[i], enabled: e.target.checked };
-                  setConfig({ ...config, socials });
-                }} /> On
-              </label>
-              <button type="button" onClick={() => setConfig({ ...config, socials: config.socials.filter((_, idx) => idx !== i) })} className="text-red-500"><Trash2 className="w-4 h-4" /></button>
-            </div>
-          ))}
-          <button type="button" onClick={() => setConfig({ ...config, socials: [...config.socials, { platform: '', href: '', enabled: true }] })} className="text-sm text-primary flex items-center gap-1"><Plus className="w-4 h-4" /> Add Social</button>
+          <p className="text-xs text-slate-400 mb-3">Drag to reorder. Enabled platforms appear in the footer and in the top utility bar.</p>
+          {config.socials.map((social, i) => {
+            const patch = (p: Partial<FooterConfig['socials'][number]>) => {
+              const socials = [...config.socials];
+              socials[i] = { ...socials[i], ...p };
+              setConfig({ ...config, socials });
+            };
+            const known = SOCIAL_PLATFORMS.find((p) => normalizePlatform(p) === normalizePlatform(social.platform));
+            return (
+              <div key={i} {...socialSort.rowProps(i)} className={`flex flex-wrap md:flex-nowrap gap-2 items-center mb-2 p-2 rounded-xl border border-slate-100 ${social.enabled ? '' : 'opacity-60'} ${socialSort.rowClass(i)}`}>
+                <ReorderButtons index={i} total={config.socials.length} onMove={(f, t) => setConfig({ ...config, socials: moveItem(config.socials, f, t) })} handleProps={socialSort.handleProps(i)} />
+                <span className="w-9 h-9 rounded-lg bg-primary text-white flex items-center justify-center shrink-0"><SocialIcon platform={social.platform} className="w-4 h-4" /></span>
+                <select className={`${inputClass} md:max-w-[11rem]`} value={known ?? social.platform} onChange={(e) => patch({ platform: e.target.value })}>
+                  {!known && social.platform && <option value={social.platform}>{social.platform}</option>}
+                  {SOCIAL_PLATFORMS.map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+                <input className={inputClass} value={social.href} placeholder="https://…" onChange={(e) => patch({ href: e.target.value })} />
+                <Toggle checked={social.enabled} onChange={(v) => patch({ enabled: v })} label={social.enabled ? 'On' : 'Off'} />
+                <button type="button" onClick={() => setConfig({ ...config, socials: config.socials.filter((_, idx) => idx !== i) })} className="text-red-500 p-2" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>
+              </div>
+            );
+          })}
+          <button type="button" onClick={() => setConfig({ ...config, socials: [...config.socials, { platform: SOCIAL_PLATFORMS.find((p) => !config.socials.some((s) => normalizePlatform(s.platform) === normalizePlatform(p))) ?? 'Facebook', href: '', enabled: true }] })} className="text-sm text-primary flex items-center gap-1"><Plus className="w-4 h-4" /> Add Social</button>
         </Panel>
 
         <Panel title="Quick Links">
-          {config.quickLinks.map((link, i) => (
-            <div key={i} className="flex gap-2 items-center mb-2">
-              <ReorderButtons index={i} total={config.quickLinks.length} onMove={(f, t) => setConfig({ ...config, quickLinks: moveItem(config.quickLinks, f, t) })} />
-              <input className={inputClass} value={link.label} placeholder="Label" onChange={(e) => {
-                const quickLinks = [...config.quickLinks];
-                quickLinks[i] = { ...quickLinks[i], label: e.target.value };
-                setConfig({ ...config, quickLinks });
-              }} />
-              <input className={inputClass} value={link.href} placeholder="URL" onChange={(e) => {
-                const quickLinks = [...config.quickLinks];
-                quickLinks[i] = { ...quickLinks[i], href: e.target.value };
-                setConfig({ ...config, quickLinks });
-              }} />
-              <label className="flex items-center gap-1 text-sm shrink-0">
-                <input type="checkbox" checked={link.enabled} onChange={(e) => {
-                  const quickLinks = [...config.quickLinks];
-                  quickLinks[i] = { ...quickLinks[i], enabled: e.target.checked };
-                  setConfig({ ...config, quickLinks });
-                }} /> On
-              </label>
-              <button type="button" onClick={() => setConfig({ ...config, quickLinks: config.quickLinks.filter((_, idx) => idx !== i) })} className="text-red-500"><Trash2 className="w-4 h-4" /></button>
-            </div>
-          ))}
+          <p className="text-xs text-slate-400 mb-3">Drag to reorder. Disabled links are hidden from the footer.</p>
+          {config.quickLinks.map((link, i) => {
+            const patch = (p: Partial<FooterConfig['quickLinks'][number]>) => {
+              const quickLinks = [...config.quickLinks];
+              quickLinks[i] = { ...quickLinks[i], ...p };
+              setConfig({ ...config, quickLinks });
+            };
+            return (
+              <div key={i} {...linkSort.rowProps(i)} className={`flex flex-wrap md:flex-nowrap gap-2 items-center mb-2 p-2 rounded-xl border border-slate-100 ${link.enabled ? '' : 'opacity-60'} ${linkSort.rowClass(i)}`}>
+                <ReorderButtons index={i} total={config.quickLinks.length} onMove={(f, t) => setConfig({ ...config, quickLinks: moveItem(config.quickLinks, f, t) })} handleProps={linkSort.handleProps(i)} />
+                <input className={inputClass} value={link.label} placeholder="Label" onChange={(e) => patch({ label: e.target.value })} />
+                <input className={inputClass} value={link.href} placeholder="URL" onChange={(e) => patch({ href: e.target.value })} />
+                <Toggle checked={link.enabled} onChange={(v) => patch({ enabled: v })} label={link.enabled ? 'On' : 'Off'} />
+                <button type="button" onClick={() => setConfig({ ...config, quickLinks: config.quickLinks.filter((_, idx) => idx !== i) })} className="text-red-500 p-2" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>
+              </div>
+            );
+          })}
           <button type="button" onClick={() => setConfig({ ...config, quickLinks: [...config.quickLinks, { label: '', href: '', enabled: true }] })} className="text-sm text-primary flex items-center gap-1"><Plus className="w-4 h-4" /> Add Link</button>
         </Panel>
 

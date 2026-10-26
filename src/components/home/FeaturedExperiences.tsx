@@ -284,7 +284,7 @@ export default function FeaturedExperiences() {
               className="pb-10 pt-4 px-2"
             >
               {filteredPackages.concat(filteredPackages).map((pkg, index) => (
-                <SwiperSlide key={pkg.id}>
+                <SwiperSlide key={`${pkg.id}-${index}`}>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}

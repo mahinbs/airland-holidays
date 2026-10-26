@@ -76,9 +76,13 @@ type PackageRow = {
   tags: string[];
   badge?: string;
   category: string;
+  /** Extra travel categories assigned in the CMS (multi-select) */
+  categories?: string[];
   continent: string;
   styleTags: string[];
 };
+
+const allCategoriesOf = (p: PackageRow) => [p.category, ...(p.categories ?? [])].filter(Boolean);
 
 const staticPackagesData: PackageRow[] = [
   {
@@ -996,7 +1000,7 @@ function useHorizontalScrollStrip(variant: "continent" | "style" = "style") {
 function deriveFilterOptions(packages: PackageRow[]) {
   return {
     countries: [...new Set(packages.map((p) => p.country))].sort(),
-    categories: [...new Set(packages.map((p) => p.category))].sort(),
+    categories: [...new Set(packages.flatMap((p) => allCategoriesOf(p)))].sort(),
     destinations: [...new Set(packages.map((p) => p.destination.split(",")[0].trim()))].sort(),
   };
 }
@@ -1143,7 +1147,7 @@ export default function Packages() {
           p.title.toLowerCase().includes(q) ||
           p.destination.toLowerCase().includes(q) ||
           p.country.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
+          allCategoriesOf(p).some((c) => c.toLowerCase().includes(q)) ||
           p.tags.some((t) => t.toLowerCase().includes(q)),
       );
     }
@@ -1173,8 +1177,8 @@ export default function Packages() {
       );
     if (selectedCategories.length > 0)
       list = list.filter((p) =>
-        selectedCategories.some(
-          (c) => p.category.toLowerCase() === c.toLowerCase(),
+        selectedCategories.some((c) =>
+          allCategoriesOf(p).some((pc) => pc.toLowerCase() === c.toLowerCase()),
         ),
       );
     if (selectedDestinations.length > 0)

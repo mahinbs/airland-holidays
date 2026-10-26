@@ -1,5 +1,17 @@
 import type { PackageRow as DbPackage, ServiceRow, DestinationRow, ContinentRow, VisaCountryRow } from '../types/database';
 
+/** Plain-text version of CMS rich text (for cards, hero blurbs and meta descriptions) */
+export function stripHtml(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value
+    .replace(/<(br|\/p|\/div|\/li|\/h[1-6])\s*\/?>/gi, ' ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export type ServiceCardItem = {
   id: string;
   icon: string;
@@ -22,6 +34,7 @@ export type ServiceDetailView = {
   brandsTitle?: string;
   brands?: string[];
   faqs: { q: string; a: string }[];
+  seo?: { title?: string; description?: string };
 };
 
 const defaultFeatures = [
@@ -38,10 +51,12 @@ const defaultFaqs = [
 
 function normalizeFaqs(raw: unknown): { q: string; a: string }[] | undefined {
   if (!Array.isArray(raw) || raw.length === 0) return undefined;
-  return raw.map((f: { q?: string; a?: string; question?: string; answer?: string }) => ({
-    q: f.q ?? f.question ?? '',
-    a: f.a ?? f.answer ?? '',
-  }));
+  return raw
+    .filter((f: { enabled?: boolean }) => f.enabled !== false)
+    .map((f: { q?: string; a?: string; question?: string; answer?: string }) => ({
+      q: f.q ?? f.question ?? '',
+      a: f.a ?? f.answer ?? '',
+    }));
 }
 
 export function mapServiceToCard(row: ServiceRow): ServiceCardItem {
@@ -73,15 +88,23 @@ export function mapServiceToDetail(row: ServiceRow): ServiceDetailView {
       'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2000',
     heroDesc: row.summary ?? (detail.heroDesc as string) ?? '',
     overview: (detail.overview as string) ?? row.summary ?? '',
-    features: (detail.features as ServiceDetailView['features']) ?? defaultFeatures,
+    features: ((detail.features as (ServiceDetailView['features'][number] & { enabled?: boolean })[] | undefined)?.filter((f) => f.enabled !== false)) ?? defaultFeatures,
     brandsTitle: detail.brandsTitle as string | undefined,
     brands: detail.brands as string[] | undefined,
     faqs: normalizeFaqs(detail.faqs) ?? defaultFaqs,
+    seo: (detail.seo ?? {}) as { title?: string; description?: string },
   };
 }
 
 /** Map Supabase package row to Packages page list shape */
 export function mapPackageToListRow(p: DbPackage, index: number) {
+  const insights =
+    p.insights && typeof p.insights === 'object' && !Array.isArray(p.insights)
+      ? (p.insights as Record<string, unknown>)
+      : {};
+  const categories = Array.isArray(insights.categories)
+    ? (insights.categories as unknown[]).filter((c): c is string => typeof c === 'string' && Boolean(c))
+    : [];
   return {
     id: index + 1,
     slug: p.slug,
@@ -97,6 +120,7 @@ export function mapPackageToListRow(p: DbPackage, index: number) {
     tags: (p.tags as string[]) ?? [],
     badge: p.badge ?? undefined,
     category: p.category ?? 'International',
+    categories,
     continent: p.continent ?? '',
     styleTags: (p.style_tags as string[]) ?? [],
   };
@@ -133,10 +157,12 @@ const defaultPackageFaqs = [
 
 function normalizePackageFaqs(raw: unknown): { question: string; answer: string }[] {
   if (!Array.isArray(raw) || raw.length === 0) return defaultPackageFaqs;
-  return raw.map((f: { q?: string; a?: string; question?: string; answer?: string }) => ({
-    question: f.question ?? f.q ?? '',
-    answer: f.answer ?? f.a ?? '',
-  }));
+  return raw
+    .filter((f: { enabled?: boolean }) => f.enabled !== false)
+    .map((f: { q?: string; a?: string; question?: string; answer?: string }) => ({
+      question: f.question ?? f.q ?? '',
+      answer: f.answer ?? f.a ?? '',
+    }));
 }
 
 function resolveRelatedPackages(slugs: string[], allPackages: DbPackage[]) {
@@ -164,7 +190,7 @@ export function buildPackageDetailView(p: DbPackage, allPackages: DbPackage[] = 
       ? (p.insights as Record<string, unknown>)
       : {};
 
-  const { faqs, accommodation, socialGallery, socialGalleryUrls, related, relatedSlugs, ...destinationInsights } = raw;
+  const { faqs, accommodation, socialGallery, socialGalleryUrls, related, relatedSlugs, categories, seo, gallery, ...destinationInsights } = raw;
 
   let resolvedSocial = (socialGallery as { type: string; src: string; user: string; text: string }[]) ?? [];
   const galleryUrls = (socialGalleryUrls as string[]) ?? [];
@@ -180,6 +206,18 @@ export function buildPackageDetailView(p: DbPackage, allPackages: DbPackage[] = 
 
   const acc = accommodation as { title?: string; desc?: string; options?: unknown[] } | undefined;
 
+  // Optional CMS extras (typed optional so existing PackageDetail casts keep compiling)
+  const extras: {
+    /** Distinct "Package Gallery" images (separate from the hero slider images) */
+    gallery?: string[];
+    categories?: string[];
+    seo?: { title?: string; description?: string };
+  } = {
+    gallery: Array.isArray(gallery) ? (gallery as unknown[]).filter((g): g is string => typeof g === 'string' && Boolean(g)) : [],
+    categories: Array.isArray(categories) ? (categories as string[]) : [],
+    seo: (seo ?? {}) as { title?: string; description?: string },
+  };
+
   return {
     ...mapped,
     insights: destinationInsights,
@@ -187,10 +225,11 @@ export function buildPackageDetailView(p: DbPackage, allPackages: DbPackage[] = 
     accommodation: {
       title: acc?.title ?? 'Accommodation',
       desc: acc?.desc ?? '',
-      options: (acc?.options as { name: string; desc: string; image: string }[]) ?? [],
+      options: ((acc?.options as { name: string; desc: string; image: string; enabled?: boolean }[]) ?? []).filter((o) => o.enabled !== false),
     },
     socialGallery: resolvedSocial,
     related: resolvedRelated,
+    ...extras,
   };
 }
 
@@ -210,7 +249,7 @@ export function mapDestinationToCard(row: DestinationRow): DestinationCardItem {
     image:
       row.hero_image ??
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800',
-    description: row.overview ?? '',
+    description: stripHtml(row.overview),
     region: row.region ?? undefined,
     continent: row.continent ?? undefined,
   };
@@ -236,11 +275,16 @@ export function mapContinentToCard(row: ContinentRow, packageCount = 0): Contine
     image:
       row.featured_image ??
       'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&q=80&w=600',
-    description: row.description ?? '',
+    description: stripHtml(row.description),
     tours: packageCount || (detail.tours as number) || 0,
     tag: detail.tag as string | undefined,
   };
 }
+
+
+const isEnabled = (item: unknown) => !(item && typeof item === 'object' && (item as { enabled?: boolean }).enabled === false);
+const enabledList = <T>(raw: unknown): T[] => (Array.isArray(raw) ? (raw as T[]).filter(isEnabled) : []);
+const formatInr = (n: number) => Number(n).toLocaleString('en-IN');
 
 /** Merge CMS destination row with static page template and linked packages */
 export function mergeDestinationPageData<T extends Record<string, unknown>>(
@@ -319,7 +363,8 @@ export function mergeDestinationPageData<T extends Record<string, unknown>>(
     name: cmsRow.name,
     slug: cmsRow.slug,
     heroImage: cmsRow.hero_image ?? base.heroImage,
-    description: cmsRow.overview ?? base.description,
+    heroVideo: cmsRow.hero_video ?? undefined,
+    description: stripHtml(cmsRow.overview) || base.description,
     about: detail.about ?? cmsRow.overview ?? base.about ?? base.description,
     overview: {
       ...(base.overview as Record<string, unknown>),
@@ -328,8 +373,14 @@ export function mergeDestinationPageData<T extends Record<string, unknown>>(
     },
     gallery: detail.gallery ?? base.gallery,
     statistics: detail.statistics ?? base.statistics,
-    attractions: detail.attractions ?? base.attractions,
-    airports: detail.airports ?? base.airports,
+    attractions: Array.isArray(detail.attractions) ? enabledList(detail.attractions) : base.attractions,
+    airports: Array.isArray(detail.airports) && enabledList(detail.airports).length
+      ? enabledList<{ name?: string; code?: string; city?: string; distance?: string }>(detail.airports).map((a) => ({
+          name: `${a.name ?? ''}${a.code ? ` (${a.code})` : ''}`.trim(),
+          city: a.city ?? '',
+          connectivity: a.distance ?? '',
+        }))
+      : base.airports,
     ...(cmsPackages ? { packages: cmsPackages } : {}),
   } as T;
 }
@@ -358,19 +409,38 @@ export function mergeContinentPageData<T extends Record<string, unknown>>(
   const countries = Array.isArray(cmsRow.countries) ? (cmsRow.countries as string[]) : undefined;
   const base = staticTemplate.slug === slug ? staticTemplate : { ...staticTemplate, slug, name: cmsRow.name };
 
+  const toPageFormat = (p: DbPackage) => ({
+    id: p.slug,
+    title: p.title,
+    duration: p.duration ?? '',
+    price: formatInr(Number(p.price)),
+    image: p.image ?? (Array.isArray(p.images) ? (p.images as string[])[0] : '') ?? '',
+    category: p.category ?? 'International',
+  });
+
   const trendingSlugs = detail.trendingSlugs as string[] | undefined;
   let trendingPackages = detail.trendingPackages ?? base.trendingPackages;
   if (trendingSlugs?.length && allPackages.length) {
-    trendingPackages = resolveRelatedPackages(trendingSlugs, allPackages);
+    trendingPackages = trendingSlugs
+      .map((slug) => allPackages.find((p) => p.slug === slug))
+      .filter((p): p is DbPackage => Boolean(p))
+      .map(toPageFormat);
   }
+
+  // Holiday Packages list: CMS packages tagged with this continent, else the template's list
+  const continentPackages = allPackages.filter((p) => (p.continent ?? '').toLowerCase() === cmsRow.name.toLowerCase());
+  const mappedAllPackages = continentPackages.length ? continentPackages.map(toPageFormat) : undefined;
 
   const seo = (detail.seo ?? {}) as { title?: string; description?: string };
   const seoTitle = seo.title ?? (detail.seoTitle as string | undefined);
   const seoDescription = seo.description ?? (detail.seoDescription as string | undefined);
-  let seoText = detail.seoText ?? base.seoText;
-  if ((seoTitle || seoDescription) && !detail.seoText) {
-    seoText = [seoTitle, seoDescription].filter(Boolean);
-  }
+  // SEO title/description are applied to <title>/<meta> by the page, not rendered as overview blocks
+  const seoText = detail.seoText ?? base.seoText;
+
+  const airportsCms = enabledList<{ name?: string; code?: string; city?: string; notes?: string }>(detail.majorAirports);
+  const visualCms = enabledList<{ title?: string; desc?: string; image?: string; video?: string }>(detail.visualExperiences);
+  const statCards = enabledList<{ value?: string; label?: string }>(detail.statistics).filter((x) => x.value || x.label);
+  const insightCards = enabledList<{ title?: string; desc?: string }>(detail.insights).filter((x) => x.title);
 
   return {
     ...base,
@@ -378,16 +448,39 @@ export function mergeContinentPageData<T extends Record<string, unknown>>(
     name: cmsRow.name,
     slug: cmsRow.slug,
     heroImage: cmsRow.featured_image ?? base.heroImage,
-    overview: detail.overview ?? base.overview,
+    heroVideo: (detail.heroVideo as string | undefined) || undefined,
+    /** Rich-text "Overview Content" from the CMS (shown above the SEO blocks) */
+    overviewHtml: cmsRow.description ?? '',
+    overview: base.overview,
     ...(countries?.length ? { highlights: countries } : {}),
     seoText,
+    seo: { title: seoTitle, description: seoDescription },
     topDestinations: detail.topDestinations ?? base.topDestinations,
     trendingPackages,
-    allPackages: detail.allPackages ?? base.allPackages,
-    visualExperiences: detail.visualExperiences ?? base.visualExperiences,
-    statistics: detail.statistics ?? base.statistics,
-    insights: detail.insights ?? base.insights,
-    highlights: detail.highlights ?? base.highlights,
+    allPackages: (detail.allPackages as unknown) ?? mappedAllPackages ?? base.allPackages,
+    airports: airportsCms.length
+      ? airportsCms.map((a) => ({
+          name: `${a.name ?? ''}${a.code ? ` (${a.code})` : ''}`.trim(),
+          city: a.city ?? '',
+          connectivity: a.notes ?? '',
+        }))
+      : base.airports,
+    visualExperiences: visualCms.length
+      ? visualCms.map((v, i) => ({
+          id: i + 1,
+          type: v.video ? 'video' : 'image',
+          url: v.video || v.image || '',
+          thumbnail: v.image || '',
+          title: v.title ?? '',
+          packageId: '',
+          packageName: v.desc ?? '',
+        }))
+      : base.visualExperiences,
+    // CMS statistics / insights are card lists; the template keeps its structured visitor-statistics object
+    statistics: base.statistics,
+    statCards,
+    insightCards,
+    highlights: (Array.isArray(detail.highlights) && detail.highlights.length ? detail.highlights : countries?.length ? countries : base.highlights) as string[],
   } as T;
 }
 
@@ -427,21 +520,59 @@ export function mapCruiseToDetail(c: Record<string, unknown>) {
     gallery,
     faqs,
     relatedSlugs: (detail.relatedSlugs as string[]) ?? [],
+    seo: (detail.seo ?? {}) as { title?: string; description?: string },
   };
 }
 
-export function mapGuideToArticle(a: Record<string, unknown>) {
+export type GuideArticleView = {
+  id: string;
+  title: string;
+  category: string;
+  img: string;
+  date: string;
+  author: string;
+  excerpt: string;
+  body: string;
+  tags: string[];
+  faqs: { question: string; answer: string }[];
+  seoTitle: string;
+  seoDescription: string;
+};
+
+export function mapGuideToArticle(a: Record<string, unknown>): GuideArticleView {
   const rawBody = String(a.body ?? '');
   const body = rawBody.replace(/<!--CMS-META:[\s\S]*?-->/, '').trim();
+
+  let meta: { seoTitle?: string; seoDescription?: string; tags?: unknown; faqs?: unknown } = {};
+  const metaMatch = rawBody.match(/<!--CMS-META:([\s\S]*?)-->/);
+  if (metaMatch) {
+    try {
+      meta = JSON.parse(metaMatch[1]);
+    } catch {
+      meta = {};
+    }
+  }
+  const tags = Array.isArray(meta.tags) ? (meta.tags as unknown[]).map((t) => String(t).trim()).filter(Boolean) : [];
+  const faqs = Array.isArray(meta.faqs)
+    ? (meta.faqs as { question?: string; answer?: string; q?: string; a?: string; enabled?: boolean }[])
+        .filter((f) => f.enabled !== false)
+        .map((f) => ({ question: f.question ?? f.q ?? '', answer: f.answer ?? f.a ?? '' }))
+        .filter((f) => f.question)
+    : [];
+
   return {
     id: a.slug as string,
     title: a.title as string,
-    category: a.category as string,
-    img: a.cover_image as string,
+    category: (a.category as string) ?? '',
+    img: (a.cover_image as string) ?? '',
     date: a.published_at ? new Date(a.published_at as string).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
-    author: a.author as string,
-    excerpt: a.excerpt as string,
+    author: (a.author as string) ?? '',
+    excerpt: (a.excerpt as string) ?? '',
     body,
+    tags,
+    faqs,
+    seoTitle: meta.seoTitle ?? '',
+    seoDescription: meta.seoDescription ?? '',
   };
 }
 
@@ -648,10 +779,14 @@ export function mapFixedDeparture(d: Record<string, unknown>) {
   const imagesRaw = d.images;
   let images: string[] = [];
   if (Array.isArray(imagesRaw)) {
-    images = imagesRaw.filter((x): x is string => typeof x === 'string');
+    images = imagesRaw.filter((x): x is string => typeof x === 'string' && Boolean(x));
   } else if (typeof imagesRaw === 'string' && imagesRaw) {
     images = [imagesRaw];
   }
+  // Dedicated Featured / Banner image columns win over the legacy images[] list
+  const featured = typeof d.featured_image === 'string' && d.featured_image ? d.featured_image : '';
+  const banner = typeof d.banner_image === 'string' && d.banner_image ? d.banner_image : '';
+  if (featured || banner) images = [featured || banner, banner || featured, ...images.filter((i) => i !== featured && i !== banner)];
   if (images.length === 0) images = [fallbackImage];
   if (images.length === 1) images = [images[0], images[0]];
 
@@ -664,9 +799,14 @@ export function mapFixedDeparture(d: Record<string, unknown>) {
   const badgeType = ['limited', 'trending', 'festival'].includes(d.badge_type as string)
     ? (d.badge_type as 'limited' | 'trending' | 'festival')
     : 'limited';
+  const availabilityStatus = ['available', 'limited', 'sold-out'].includes(d.availability_status as string)
+    ? (d.availability_status as 'available' | 'limited' | 'sold-out')
+    : undefined;
 
   return {
     id: String(d.external_id ?? d.id),
+    destination: (d.destination as string) ?? '',
+    availabilityStatus,
     category,
     badge: (d.badge as string) ?? 'Group Tour',
     badgeType,
@@ -719,14 +859,34 @@ function normalizeEventMedia(mediaRaw: unknown): { type: 'image'; src: string } 
   return { type: 'image', src: fallbackImage };
 }
 
+const MONTH_LABELS = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 export function mapFestivalEvent(e: Record<string, unknown>) {
-  const monthNum = parseMonthNum(e.month as string, e.month_num as number | null);
+  const detail =
+    e.detail && typeof e.detail === 'object' && !Array.isArray(e.detail) ? (e.detail as Record<string, unknown>) : {};
+  const eventDate = typeof detail.eventDate === 'string' ? detail.eventDate : '';
+  const parsed = eventDate ? new Date(`${eventDate}T00:00:00`) : null;
+  const dateValid = parsed && !Number.isNaN(parsed.getTime());
+  // An explicit month wins; otherwise derive month / month number from the Event Date
+  const monthLabel = (e.month as string) || (dateValid ? MONTH_LABELS[parsed.getMonth() + 1] : '');
+  const monthNum = parseMonthNum(monthLabel, (e.month_num as number | null) ?? (dateValid ? parsed.getMonth() + 1 : null));
+  const gallery = Array.isArray(detail.gallery) ? (detail.gallery as unknown[]).filter((g): g is string => typeof g === 'string' && Boolean(g)) : [];
+  const videoSource = Array.isArray(detail.eventVideos) ? detail.eventVideos : Array.isArray(detail.videos) ? detail.videos : [];
+  const videos = (videoSource as unknown[])
+    .filter((v) => (v as { enabled?: boolean })?.enabled !== false)
+    .map((v) => (typeof v === 'string' ? v : (v as { url?: string })?.url ?? ''))
+    .filter(Boolean);
   return {
+    eventDate: dateValid
+      ? parsed.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      : '',
+    gallery,
+    videos,
     id: String(e.external_id ?? e.id),
     tag: (e.tag as string) ?? 'Festival',
     name: e.name as string,
     location: (e.location as string) ?? '',
-    month: (e.month as string) ?? '',
+    month: monthLabel,
     monthNum,
     hookLine: (e.hook_line as string) ?? '',
     media: normalizeEventMedia(e.media),

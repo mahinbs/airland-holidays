@@ -1,24 +1,21 @@
-import { MapPin, Phone, Mail, Instagram, Facebook, Twitter, Youtube, Plane, Linkedin } from 'lucide-react';
+import { MapPin, Phone, Mail, Plane, Clock, MessageCircle } from 'lucide-react';
 import { useServices, useFooterConfig } from '../../hooks/useContent';
 import { buildServiceNavItems } from '../../lib/servicesCms';
 import { defaultFooterConfig } from '../../data/defaultCmsContent';
 import type { FooterConfig } from '../../types/cms';
-
-const socialIcons: Record<string, typeof Instagram> = {
-  Instagram,
-  Facebook,
-  Twitter,
-  Youtube,
-  LinkedIn: Linkedin,
-  X: Twitter,
-  Pinterest: Instagram,
-};
+import { SocialIcon, normalizePlatform } from '../common/SocialIcon';
+import RichContent from '../common/RichContent';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
     const { data: cmsServices } = useServices();
     const { data: cmsFooter } = useFooterConfig<FooterConfig>();
-    const footer = cmsFooter ?? defaultFooterConfig;
+    const footer: FooterConfig = {
+        ...defaultFooterConfig,
+        ...(cmsFooter ?? {}),
+        businessHours: { ...defaultFooterConfig.businessHours, ...(cmsFooter?.businessHours ?? {}) },
+    };
+    const hours = [footer.businessHours.weekdays, footer.businessHours.weekend, footer.businessHours.holidays].filter(Boolean);
     const serviceLinks = buildServiceNavItems(cmsServices).filter((link) => link.href !== '/services');
     const footerServices = [
         ...serviceLinks.slice(0, 5),
@@ -45,19 +42,18 @@ export default function Footer() {
                             {footer.tagline}
                         </p>
                         <div className="flex gap-3">
-                            {footer.socials.filter((s) => s.enabled && s.href).map(({ platform, href }) => {
-                                const Icon = socialIcons[platform] ?? Instagram;
-                                return (
+                            {footer.socials.filter((s) => s.enabled && s.href).map(({ platform, href }) => (
                                 <a
-                                    key={platform}
+                                    key={normalizePlatform(platform)}
                                     href={href}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    aria-label={platform}
                                     className="w-10 h-10 rounded-xl bg-slate-800/80 flex items-center justify-center text-slate-200 hover:bg-primary hover:text-white hover:scale-105 transition-all duration-200"
                                 >
-                                    <Icon className="w-5 h-5" />
+                                    <SocialIcon platform={platform} className="w-5 h-5" />
                                 </a>
-                            );})}
+                            ))}
                         </div>
                         {/* Small map - desktop only */}
                         <div className="hidden lg:block mt-6 rounded-xl overflow-hidden border border-slate-700/50 h-32 max-w-sm">
@@ -131,15 +127,48 @@ export default function Footer() {
                                 </div>
                                 <span className="text-slate-200 group-hover:text-slate-300">{footer.phone}</span>
                             </a>
+                            {footer.mobile && footer.mobile !== footer.phone && (
+                                <a href={`tel:${footer.mobile.replace(/\s/g, '')}`} className="flex gap-4 items-center group p-3 rounded-xl hover:bg-slate-800/50 transition-colors -m-3">
+                                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
+                                        <Phone className="w-5 h-5 text-secondary" />
+                                    </div>
+                                    <span className="text-slate-200 group-hover:text-slate-300">{footer.mobile}</span>
+                                </a>
+                            )}
+                            {footer.whatsapp && (
+                                <a href={`https://wa.me/${footer.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex gap-4 items-center group p-3 rounded-xl hover:bg-slate-800/50 transition-colors -m-3">
+                                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
+                                        <MessageCircle className="w-5 h-5 text-secondary" />
+                                    </div>
+                                    <span className="text-slate-200 group-hover:text-slate-300">WhatsApp: +{footer.whatsapp.replace(/\D/g, '')}</span>
+                                </a>
+                            )}
                             <a href={`mailto:${footer.email}`} className="flex gap-4 items-center group p-3 rounded-xl hover:bg-slate-800/50 transition-colors -m-3">
                                 <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
                                     <Mail className="w-5 h-5 text-secondary" />
                                 </div>
                                 <span className="text-slate-200 group-hover:text-slate-300">{footer.email}</span>
                             </a>
+                            {hours.length > 0 && (
+                                <div className="flex gap-4 items-start p-3 -m-3">
+                                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                                        <Clock className="w-5 h-5 text-secondary" />
+                                    </div>
+                                    <div className="text-slate-200 text-sm space-y-0.5">
+                                        {hours.map((h) => <p key={h}>{h}</p>)}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
+
+                {footer.registeredAddress && (
+                    <p className="text-slate-400 text-xs mb-4 text-center md:text-left">Registered office: {footer.registeredAddress}</p>
+                )}
+                {footer.seoContent && (
+                    <RichContent html={footer.seoContent} className="!text-slate-400 !text-xs !leading-relaxed mb-6 [&_*]:!text-slate-400 [&_a]:!text-secondary" />
+                )}
 
                 {/* Bottom bar */}
                 <div className="pt-8 border-t border-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-4">

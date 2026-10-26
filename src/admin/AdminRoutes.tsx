@@ -16,6 +16,7 @@ import AdminAbout from './pages/AdminAbout';
 import AdminHomepage from './pages/AdminHomepage';
 import AdminServicesPage from './pages/AdminServicesPage';
 import AdminUsers from './pages/AdminUsers';
+import AdminInstagram from './pages/AdminInstagram';
 import { SuperAdminRoute } from './components/SuperAdminRoute';
 
 export default function AdminRoutes() {
@@ -36,6 +37,7 @@ export default function AdminRoutes() {
         <Route path="about" element={<AdminAbout />} />
         <Route path="homepage" element={<AdminHomepage />} />
         <Route path="services-page" element={<AdminServicesPage />} />
+        <Route path="instagram" element={<AdminInstagram />} />
         <Route path="users" element={<SuperAdminRoute><AdminUsers /></SuperAdminRoute>} />
         <Route path="settings" element={<AdminSettings />} />
         {entityConfigs.map((entity) => (

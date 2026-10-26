@@ -4,18 +4,34 @@ import { AnimatePresence } from 'framer-motion';
 import { CountryCard } from './CountryCard';
 import type { CountryVisa } from '../../data/visaData';
 
+export type VisaCountryWithTime = CountryVisa & { processingTime?: string };
+
 interface VisaDirectoryProps {
-    countries: CountryVisa[];
+    countries: VisaCountryWithTime[];
+}
+
+/** Buckets free-text processing times ("3 to 5 Working Days") by their longest number of days. */
+function timeBucket(text?: string): 'fast' | 'standard' | 'extended' | null {
+    if (!text) return null;
+    const nums = (text.match(/\d+/g) ?? []).map(Number);
+    if (!nums.length) return null;
+    const days = Math.max(...nums) * (/week/i.test(text) ? 7 : 1);
+    if (days <= 3) return 'fast';
+    if (days <= 7) return 'standard';
+    return 'extended';
 }
 
 export const VisaDirectory = ({ countries }: VisaDirectoryProps) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [filterTime, setFilterTime] = useState('all');
+    const hasTimes = countries.some((c) => timeBucket(c.processingTime));
 
     const filtered = countries.filter((vc) => {
         const matchSearch = !searchTerm || vc.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchStatus = filterStatus === 'all' || vc.visaStatus === filterStatus;
-        return matchSearch && matchStatus;
+        const matchTime = filterTime === 'all' || timeBucket(vc.processingTime) === filterTime;
+        return matchSearch && matchStatus && matchTime;
     });
 
     return (
@@ -50,6 +66,19 @@ export const VisaDirectory = ({ countries }: VisaDirectoryProps) => {
                             <option value="on-arrival">Visa on Arrival</option>
                             <option value="free">Visa Free</option>
                         </select>
+                        {hasTimes && (
+                            <select
+                                className="py-3.5 px-4 rounded-xl border border-slate-700 bg-slate-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none min-w-[180px]"
+                                value={filterTime}
+                                onChange={(e) => setFilterTime(e.target.value)}
+                                aria-label="Processing time"
+                            >
+                                <option value="all">Any Processing Time</option>
+                                <option value="fast">Up to 3 days</option>
+                                <option value="standard">4 – 7 days</option>
+                                <option value="extended">8+ days</option>
+                            </select>
+                        )}
                     </div>
                 </div>
 

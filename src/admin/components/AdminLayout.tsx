@@ -1,10 +1,11 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ExternalLink, LogOut, ChevronDown } from 'lucide-react';
+import { ExternalLink, LogOut, ChevronDown, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { adminNavItems } from '../config/entities';
 import { countPendingAdminRequests } from '../../lib/adminAccess';
+import { canAccessPath } from '../config/permissions';
 
 // Define grouped navigation structure
 const NAV_GROUPS = [
@@ -37,6 +38,7 @@ const NAV_GROUPS = [
     label: 'Page Sections',
     items: [
       '/admin/homepage',
+      '/admin/instagram',
       '/admin/about',
       '/admin/services-page',
       '/admin/header',
@@ -79,21 +81,18 @@ function NavGroup({
   label,
   items,
   pendingAccess,
-  isSuperAdmin,
+  allowed,
 }: {
   label: string;
   items: string[];
   pendingAccess: number;
-  isSuperAdmin: boolean;
+  allowed: (path: string) => boolean;
 }) {
   const [open, setOpen] = useState(true);
   const navItemsInGroup = adminNavItems.filter((i) => items.includes(i.to));
 
-  // Filter out super-admin-only items if not super admin
-  const visibleItems = navItemsInGroup.filter((i) => {
-    if (i.to === '/admin/access-requests' || i.to === '/admin/users') return isSuperAdmin;
-    return true;
-  });
+  // Hide anything the signed-in role / permission set cannot open (super-admin-only pages included)
+  const visibleItems = navItemsInGroup.filter((i) => allowed(i.to));
 
   if (visibleItems.length === 0) return null;
 
@@ -119,8 +118,10 @@ function NavGroup({
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { signOut, user, isSuperAdmin } = useAuth();
+  const { signOut, user, isSuperAdmin, role, permissions } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const allowed = (path: string) => canAccessPath(path, { isSuperAdmin, permissions });
 
   const { data: pendingAccess = 0 } = useQuery({
     queryKey: ['admin', 'access-requests-count'],
@@ -141,6 +142,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <img src="/logo-white.png" alt="Airland Holidays" className="h-8 w-auto mb-2.5" />
           <p className="text-white/40 text-[9px] uppercase tracking-[0.2em] font-semibold">Content Management</p>
           <p className="text-white/70 text-[10px] mt-1.5 truncate">{user?.email}</p>
+          {role && <p className="text-secondary-light text-[10px] font-semibold mt-0.5">{role}</p>}
         </div>
         <nav className="flex-1 p-2.5 py-3 space-y-2">
           {NAV_GROUPS.map((group) => (
@@ -149,7 +151,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               label={group.label}
               items={group.items}
               pendingAccess={pendingAccess}
-              isSuperAdmin={isSuperAdmin}
+              allowed={allowed}
             />
           ))}
         </nav>
@@ -171,8 +173,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
       <main className="flex-1 ml-60 min-h-screen">
-        <div className="p-8">{children}</div>
+        <div className="p-8">
+          {allowed(location.pathname) ? children : <AccessRestricted role={role} />}
+        </div>
       </main>
+    </div>
+  );
+}
+
+function AccessRestricted({ role }: { role: string | null }) {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-10 text-center max-w-lg mx-auto mt-10">
+      <ShieldAlert className="w-10 h-10 text-amber-500 mx-auto mb-4" />
+      <h2 className="text-lg font-bold text-slate-900 mb-2">Access restricted</h2>
+      <p className="text-slate-600 text-sm">
+        {role ? `Your role (${role}) does not include access to this section.` : 'You do not have access to this section.'} Ask a
+        super admin to update your permissions in User Management.
+      </p>
     </div>
   );
 }

@@ -3,6 +3,16 @@ import { Star, PlayCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTestimonials } from '../hooks/useContent';
 import { mapTestimonialToCard, type TestimonialCardItem } from '../lib/mapContent';
+import { useSeo } from '../hooks/useSeo';
+
+/** YouTube / Vimeo links become embeddable players; direct files stay <video>. */
+function embedUrl(url: string): string | null {
+  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
+  const vm = url.match(/vimeo\.com\/(\d+)/);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+  return null;
+}
 
 const staticWritten: TestimonialCardItem[] = [
   { id: '1', name: 'Sarah Mitchell', location: 'Bali', text: 'Airland Holidays managed everything flawlessly. From the seamless airport transfers to the stunning cliffside villa, it was the perfect honeymoon experience.', rating: 5, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200', type: 'written' },
@@ -17,6 +27,7 @@ const staticVideo: TestimonialCardItem[] = [
 
 export default function Testimonials() {
   const { data: cmsTestimonials } = useTestimonials();
+  useSeo({ title: 'Testimonials & Reviews | Airland Holidays' });
 
   const { writtenReviews, videoTestimonials } = useMemo(() => {
     if (cmsTestimonials?.length) {
@@ -48,6 +59,7 @@ export default function Testimonials() {
       </div>
 
       <div className="content-container mt-16">
+        {writtenReviews.length > 0 && (
         <section className="mb-20">
           <h2 className="text-2xl font-bold text-slate-900 mb-8">Google Reviews</h2>
           <div className="flex items-center gap-4 mb-8">
@@ -83,6 +95,7 @@ export default function Testimonials() {
             ))}
           </div>
         </section>
+        )}
 
         {videoTestimonials.length > 0 && (
           <section>
@@ -96,7 +109,9 @@ export default function Testimonials() {
                   viewport={{ once: true }}
                   className="group relative rounded-2xl overflow-hidden aspect-video bg-slate-700 cursor-pointer"
                 >
-                  {v.videoUrl ? (
+                  {v.videoUrl && embedUrl(v.videoUrl) ? (
+                    <iframe src={embedUrl(v.videoUrl)!} title={v.name} className="w-full h-full" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowFullScreen loading="lazy" />
+                  ) : v.videoUrl ? (
                     <video src={v.videoUrl} poster={v.avatar} className="w-full h-full object-cover" controls playsInline />
                   ) : (
                     <>

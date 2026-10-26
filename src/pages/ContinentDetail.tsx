@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useKeenSlider } from 'keen-slider/react';
@@ -8,6 +8,7 @@ import {
     Search, Star, Phone, MessageCircle, Plane, ArrowRight
 } from 'lucide-react';
 import VisualExperience from '../components/common/VisualExperience';
+import RichContent from '../components/common/RichContent';
 import { useContinent, usePackages } from '../hooks/useContent';
 import { mergeContinentPageData } from '../lib/mapContent';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -15,6 +16,12 @@ import { isSupabaseConfigured } from '../lib/supabase';
 const mockEuropeData = {
     name: 'Europe',
     slug: 'europe',
+    // CMS-driven extras (empty for the static template)
+    heroVideo: undefined as string | undefined,
+    overviewHtml: '',
+    statCards: [] as { value?: string; label?: string }[],
+    insightCards: [] as { title?: string; desc?: string }[],
+    seo: {} as { title?: string; description?: string },
     heroImage: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=2000&q=80',
     carouselImages: [
         'https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=1200&q=80',
@@ -111,6 +118,19 @@ export default function ContinentDetail() {
         [cmsContinent, slug, allPackages]
     );
 
+    useEffect(() => {
+        if (!data.seo?.title && !data.seo?.description) return;
+        const previousTitle = document.title;
+        if (data.seo.title) document.title = data.seo.title;
+        const meta = document.querySelector('meta[name="description"]');
+        const previousDescription = meta?.getAttribute('content') ?? null;
+        if (data.seo.description && meta) meta.setAttribute('content', data.seo.description);
+        return () => {
+            document.title = previousTitle;
+            if (meta && previousDescription !== null) meta.setAttribute('content', previousDescription);
+        };
+    }, [data.seo?.title, data.seo?.description]);
+
     const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
     const [packageFilter, setPackageFilter] = useState('All');
     const [visiblePackages, setVisiblePackages] = useState(4);
@@ -180,6 +200,17 @@ export default function ContinentDetail() {
                     alt={data.name}
                     className="absolute inset-0 w-full h-full object-cover opacity-60"
                 />
+                {data.heroVideo && (
+                    <video
+                        src={data.heroVideo}
+                        poster={data.heroImage}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="absolute inset-0 w-full h-full object-cover opacity-60"
+                    />
+                )}
                 <div className="absolute inset-0 bg-black/40" />
 
                 <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
@@ -220,6 +251,26 @@ export default function ContinentDetail() {
             {/* 3. NEW: STATISTICS SECTION (SAME AS COUNTRY PAGE) */}
             <div className="bg-slate-50 py-12 border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    {data.statCards.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                            {data.statCards.map((stat, i) => (
+                                <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-sm">
+                                    <p className="font-marcellus text-3xl text-primary mb-1">{stat.value}</p>
+                                    <p className="text-xs font-medium uppercase tracking-widest text-slate-600">{stat.label}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {data.insightCards.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            {data.insightCards.map((card, i) => (
+                                <div key={i} className="bg-primary/5 border border-primary/15 rounded-2xl p-6">
+                                    <h4 className="font-marcellus text-lg text-slate-900 mb-2">{card.title}</h4>
+                                    {card.desc && <p className="text-sm text-slate-600 leading-relaxed">{card.desc}</p>}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Key Metrics */}
                         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-white rounded-2xl p-8 border border-slate-700 shadow-sm flex flex-col justify-center">
@@ -331,6 +382,7 @@ export default function ContinentDetail() {
                             <div className="prose prose-slate max-w-none">
                                 <h2 className="text-3xl font-bold text-slate-900 border-l-8 border-primary pl-4 mb-8">Overview of {data.name}</h2>
                                 <div className={`relative ${!isOverviewExpanded ? 'max-h-[400px] overflow-hidden' : ''}`}>
+                                    {data.overviewHtml && <RichContent html={data.overviewHtml} className="mb-8 text-lg" />}
                                     {data.seoText.map((block, i) => (
                                         <div key={i} className="mb-8">
                                             <h3 className="text-2xl font-bold text-slate-800 mb-4">{block.heading}</h3>

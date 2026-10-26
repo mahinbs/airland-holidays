@@ -19,6 +19,7 @@ import {
   CreditCard,
   LayoutTemplate,
   Users,
+  Instagram,
 } from 'lucide-react';
 
 export type FieldType =
@@ -40,12 +41,15 @@ export type FieldType =
   | 'package-select'
   | 'cruise-select'
   | 'policy-table'
-  | 'repeatable';
+  | 'repeatable'
+  | 'multi-select'
+  | 'date';
 
 export type RepeatableColumnDef = {
   key: string;
   label: string;
-  type?: 'text' | 'textarea' | 'image' | 'number';
+  type?: 'text' | 'textarea' | 'image' | 'number' | 'boolean' | 'select';
+  options?: { value: string; label: string }[];
 };
 
 export type FieldConfig = {
@@ -59,6 +63,10 @@ export type FieldConfig = {
   storageKey?: string;
   /** For repeatable field type */
   columns?: RepeatableColumnDef[];
+  /** Repeatable field: show an Enable / Disable switch on each item */
+  withEnabled?: boolean;
+  /** Multi-select field: allow typing values that are not in `options` */
+  allowCustom?: boolean;
 };
 
 export type SectionConfig = {
@@ -78,6 +86,36 @@ export type EntityConfig = {
   sections?: SectionConfig[];
 };
 
+/** Shared SEO title / description fields, stored under `seo.*` in the entity's JSON blob. */
+const SEO_FIELDS: FieldConfig[] = [
+  { name: '_seo_title', label: 'SEO Title', type: 'text', storageKey: 'seo.title' },
+  { name: '_seo_description', label: 'SEO Description', type: 'textarea', storageKey: 'seo.description' },
+];
+
+const BENEFIT_ICONS = [
+  { value: 'FileCheck', label: 'Visa / Documents' },
+  { value: 'Wallet', label: 'Budget / Money' },
+  { value: 'Plane', label: 'Flights' },
+  { value: 'Star', label: 'Attractions / Rating' },
+  { value: 'Heart', label: 'Romance / Honeymoon' },
+  { value: 'Users', label: 'Family / Groups' },
+  { value: 'Sun', label: 'Weather' },
+  { value: 'MapPin', label: 'Location' },
+  { value: 'Utensils', label: 'Food' },
+  { value: 'ShoppingBag', label: 'Shopping' },
+];
+
+export const TRAVEL_CATEGORY_OPTIONS = [
+  'Domestic',
+  'International',
+  'Honeymoon',
+  'Group',
+  'Family',
+  'Pilgrimage',
+  'Fixed Departure',
+  'Luxury',
+].map((c) => ({ value: c, label: c }));
+
 export const entityConfigs: EntityConfig[] = [
   {
     key: 'packages',
@@ -87,7 +125,7 @@ export const entityConfigs: EntityConfig[] = [
     icon: Package,
     slugField: 'slug',
     sections: [
-      { key: 'basic', label: 'Basic Info', fieldNames: ['slug', 'title', 'subtitle', 'destination', 'country', 'duration', 'price', 'category', 'continent', 'badge', 'status', 'sort_order'] },
+      { key: 'basic', label: 'Basic Info', fieldNames: ['slug', 'title', 'subtitle', 'destination', 'country', 'duration', 'price', 'category', '_categories', 'continent', 'badge', 'status', 'sort_order'] },
       { key: 'hero', label: 'Hero Section', fieldNames: ['image', 'images', 'video_url', 'rating', 'reviews_count'] },
       { key: 'overview', label: 'Package Overview', fieldNames: ['overview', 'tags', 'style_tags'] },
       { key: 'highlights', label: 'Highlights', fieldNames: ['highlights'] },
@@ -98,6 +136,8 @@ export const entityConfigs: EntityConfig[] = [
       { key: 'faqs', label: 'FAQs', fieldNames: ['_faqs'] },
       { key: 'experiences', label: 'Guest Experiences', fieldNames: ['_social_gallery'] },
       { key: 'related', label: 'Related Packages', fieldNames: ['_related_slugs'] },
+      { key: 'gallery', label: 'Package Gallery', fieldNames: ['_gallery'] },
+      { key: 'seo', label: 'SEO Settings', fieldNames: ['_seo_title', '_seo_description'] },
     ],
     fields: [
       { name: 'slug', label: 'Slug', type: 'text', required: true },
@@ -107,13 +147,14 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'country', label: 'Country', type: 'text' },
       { name: 'duration', label: 'Duration', type: 'text' },
       { name: 'price', label: 'Price (INR)', type: 'number' },
-      { name: 'category', label: 'Category', type: 'text' },
+      { name: 'category', label: 'Primary Category', type: 'text' },
+      { name: '_categories', label: 'Travel Categories (multi-select)', type: 'multi-select', options: TRAVEL_CATEGORY_OPTIONS, allowCustom: true, fullWidth: true, storageKey: 'categories' },
       { name: 'continent', label: 'Continent', type: 'text' },
       { name: 'badge', label: 'Badge', type: 'text' },
       { name: 'status', label: 'Status', type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] },
       { name: 'sort_order', label: 'Display Order', type: 'number' },
       { name: 'image', label: 'Cover Image', type: 'image' },
-      { name: 'images', label: 'Gallery Images', type: 'image-gallery', fullWidth: true },
+      { name: 'images', label: 'Hero Slider Images', type: 'image-gallery', fullWidth: true },
       { name: 'video_url', label: 'Hero Video', type: 'video' },
       { name: 'rating', label: 'Rating', type: 'number' },
       { name: 'reviews_count', label: 'Reviews Count', type: 'number' },
@@ -126,7 +167,7 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'highlights', label: 'Highlights', type: 'string-list', fullWidth: true },
       { name: '_accommodation_title', label: 'Accommodation Title', type: 'text', storageKey: 'accommodation.title' },
       { name: '_accommodation_desc', label: 'Accommodation Description', type: 'textarea', storageKey: 'accommodation.desc' },
-      { name: '_accommodation_options', label: 'Accommodation Options', type: 'repeatable', fullWidth: true, storageKey: 'accommodation.options', columns: [
+      { name: '_accommodation_options', label: 'Accommodation Options', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'accommodation.options', columns: [
         { key: 'name', label: 'Name' },
         { key: 'desc', label: 'Description', type: 'textarea' },
         { key: 'image', label: 'Image', type: 'image' },
@@ -138,6 +179,8 @@ export const entityConfigs: EntityConfig[] = [
       { name: '_faqs', label: 'Package FAQs', type: 'faq-list', fullWidth: true, storageKey: 'faqs' },
       { name: '_related_slugs', label: 'Related Package Slugs', type: 'package-select', fullWidth: true, storageKey: 'relatedSlugs' },
       { name: '_social_gallery', label: 'Guest Experiences Gallery', type: 'image-gallery', fullWidth: true, storageKey: 'socialGalleryUrls' },
+      { name: '_gallery', label: 'Package Gallery Images', type: 'image-gallery', fullWidth: true, storageKey: 'gallery' },
+      ...SEO_FIELDS,
     ],
   },
   {
@@ -151,7 +194,13 @@ export const entityConfigs: EntityConfig[] = [
       { key: 'basic', label: 'Basic Info', fieldNames: ['slug', 'name', 'region', 'continent', 'status', 'sort_order'] },
       { key: 'hero', label: 'Hero Section', fieldNames: ['hero_image', 'hero_video', 'overview'] },
       { key: 'content', label: 'Destination Content', fieldNames: ['highlights', 'linked_package_slugs'] },
-      { key: 'detail', label: 'Extended Content', fieldNames: ['_about', '_statistics', '_attractions', '_airports', '_gallery'] },
+      { key: 'detail', label: 'About & Statistics', fieldNames: ['_about', '_statistics'] },
+      { key: 'benefits', label: 'Benefits Section', fieldNames: ['_benefits'] },
+      { key: 'attractions', label: 'Attractions', fieldNames: ['_attractions'] },
+      { key: 'airports', label: 'Airport & Connectivity', fieldNames: ['_airports'] },
+      { key: 'travelinfo', label: 'Travel Information', fieldNames: ['_best_time', '_travel_tips', '_visa_info'] },
+      { key: 'gallery', label: 'Gallery', fieldNames: ['_gallery'] },
+      { key: 'seo', label: 'SEO Settings', fieldNames: ['_seo_title', '_seo_description'] },
     ],
     fields: [
       { name: 'slug', label: 'Slug', type: 'text', required: true },
@@ -166,19 +215,30 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'highlights', label: 'Key Highlights', type: 'string-list', fullWidth: true },
       { name: 'linked_package_slugs', label: 'Featured Packages', type: 'package-select', fullWidth: true },
       { name: '_about', label: 'About Destination', type: 'richtext', fullWidth: true, storageKey: 'about' },
-      { name: '_statistics', label: 'Traveller Statistics', type: 'repeatable', fullWidth: true, storageKey: 'statistics', columns: [
+      { name: '_statistics', label: 'Traveller Statistics', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'statistics', columns: [
         { key: 'value', label: 'Value' },
         { key: 'label', label: 'Label' },
       ] },
-      { name: '_attractions', label: 'Attractions', type: 'repeatable', fullWidth: true, storageKey: 'attractions', columns: [
+      { name: '_benefits', label: 'Benefits Section ("Why travellers love this destination")', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'benefits', columns: [
+        { key: 'title', label: 'Title' },
+        { key: 'icon', label: 'Icon', type: 'select', options: BENEFIT_ICONS },
+        { key: 'desc', label: 'Description', type: 'textarea' },
+      ] },
+      { name: '_attractions', label: 'Attractions', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'attractions', columns: [
         { key: 'name', label: 'Name' },
+        { key: 'category', label: 'Category', type: 'select', options: ['Nature', 'Cultural', 'Adventure', 'City', 'Beach', 'Food'].map((c) => ({ value: c, label: c })) },
         { key: 'desc', label: 'Description', type: 'textarea' },
         { key: 'image', label: 'Image', type: 'image' },
       ] },
-      { name: '_airports', label: 'Airport & Connectivity', type: 'repeatable', fullWidth: true, storageKey: 'airports', columns: [
+      { name: '_best_time', label: 'Best Time to Visit', type: 'richtext', fullWidth: true, storageKey: 'bestTimeToVisit' },
+      { name: '_travel_tips', label: 'Travel Tips', type: 'richtext', fullWidth: true, storageKey: 'travelTips' },
+      { name: '_visa_info', label: 'Visa Information', type: 'richtext', fullWidth: true, storageKey: 'visaInfo' },
+      ...SEO_FIELDS,
+      { name: '_airports', label: 'Airport & Connectivity', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'airports', columns: [
         { key: 'name', label: 'Airport Name' },
         { key: 'code', label: 'Code' },
-        { key: 'distance', label: 'Distance / Notes' },
+        { key: 'city', label: 'City' },
+        { key: 'distance', label: 'Connectivity / Distance Notes' },
       ] },
       { name: '_gallery', label: 'Gallery Images', type: 'image-gallery', fullWidth: true, storageKey: 'gallery' },
     ],
@@ -191,7 +251,7 @@ export const entityConfigs: EntityConfig[] = [
     icon: Globe,
     slugField: 'slug',
     sections: [
-      { key: 'basic', label: 'Basic Info', fieldNames: ['slug', 'name', 'description', 'featured_image', 'status', 'sort_order'] },
+      { key: 'basic', label: 'Hero & Basic Info', fieldNames: ['slug', 'name', 'description', 'featured_image', '_hero_video', 'status', 'sort_order'] },
       { key: 'content', label: 'Overview & Stats', fieldNames: ['countries', '_statistics', '_insights'] },
       { key: 'packages', label: 'Trending Packages', fieldNames: ['_trending_slugs'] },
       { key: 'airports', label: 'Major Airports', fieldNames: ['_major_airports'] },
@@ -203,25 +263,26 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'name', label: 'Name', type: 'text', required: true },
       { name: 'description', label: 'Overview Content', type: 'richtext', fullWidth: true },
       { name: 'featured_image', label: 'Hero Image', type: 'image' },
+      { name: '_hero_video', label: 'Hero Video (optional)', type: 'video', storageKey: 'heroVideo' },
       { name: 'status', label: 'Status', type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] },
       { name: 'sort_order', label: 'Display Order', type: 'number' },
       { name: 'countries', label: 'Countries', type: 'string-list', fullWidth: true },
-      { name: '_statistics', label: 'Traveller Statistics', type: 'repeatable', fullWidth: true, storageKey: 'statistics', columns: [
+      { name: '_statistics', label: 'Traveller Statistics', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'statistics', columns: [
         { key: 'value', label: 'Value' },
         { key: 'label', label: 'Label' },
       ] },
-      { name: '_insights', label: 'Traveller Insights', type: 'repeatable', fullWidth: true, storageKey: 'insights', columns: [
+      { name: '_insights', label: 'Traveller Insights', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'insights', columns: [
         { key: 'title', label: 'Title' },
         { key: 'desc', label: 'Description', type: 'textarea' },
       ] },
       { name: '_trending_slugs', label: 'Trending Package Mapping', type: 'package-select', fullWidth: true, storageKey: 'trendingSlugs' },
-      { name: '_major_airports', label: 'Major Airports', type: 'repeatable', fullWidth: true, storageKey: 'majorAirports', columns: [
+      { name: '_major_airports', label: 'Major Airports', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'majorAirports', columns: [
         { key: 'name', label: 'Airport Name' },
         { key: 'code', label: 'IATA Code' },
         { key: 'city', label: 'City' },
         { key: 'notes', label: 'Notes' },
       ] },
-      { name: '_visual_experiences', label: 'Visual Experiences', type: 'repeatable', fullWidth: true, storageKey: 'visualExperiences', columns: [
+      { name: '_visual_experiences', label: 'Visual Experiences', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'visualExperiences', columns: [
         { key: 'title', label: 'Title' },
         { key: 'desc', label: 'Description', type: 'textarea' },
         { key: 'image', label: 'Image', type: 'image' },
@@ -258,12 +319,13 @@ export const entityConfigs: EntityConfig[] = [
     sections: [
       { key: 'basic', label: 'Basic Info', fieldNames: ['slug', 'name', 'flag', 'price', 'highlight_text', 'visa_status', 'featured', 'status', 'sort_order'] },
       { key: 'hero', label: 'Hero Section', fieldNames: ['image'] },
-      { key: 'overview', label: 'Visa Overview', fieldNames: ['_intro'] },
+      { key: 'overview', label: 'Visa Overview', fieldNames: ['_intro', '_fees', '_processing_time'] },
       { key: 'types', label: 'Visa Types', fieldNames: ['_visa_types'] },
       { key: 'documents', label: 'Documentation Guide', fieldNames: ['_documents'] },
       { key: 'embassy', label: 'Embassy Information', fieldNames: ['_embassy'] },
       { key: 'terms', label: 'Terms & Conditions', fieldNames: ['_terms'] },
       { key: 'faqs', label: 'FAQs', fieldNames: ['_faqs'] },
+      { key: 'seo', label: 'SEO Settings', fieldNames: ['_seo_title', '_seo_description'] },
     ],
     fields: [
       { name: 'slug', label: 'Slug', type: 'text', required: true },
@@ -277,13 +339,16 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'status', label: 'Status', type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] },
       { name: 'sort_order', label: 'Display Order', type: 'number' },
       { name: '_intro', label: 'Visa Overview', type: 'richtext', fullWidth: true, storageKey: 'intro' },
-      { name: '_visa_types', label: 'Visa Types', type: 'repeatable', fullWidth: true, storageKey: 'visaTypes', columns: [
+      { name: '_fees', label: 'Visa Fees (summary shown on page)', type: 'text', storageKey: 'fees' },
+      { name: '_processing_time', label: 'Processing Time (summary)', type: 'text', storageKey: 'processingTime' },
+      ...SEO_FIELDS,
+      { name: '_visa_types', label: 'Visa Types', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'visaTypes', columns: [
         { key: 'name', label: 'Type Name' },
         { key: 'duration', label: 'Duration' },
         { key: 'price', label: 'Price' },
         { key: 'desc', label: 'Description', type: 'textarea' },
       ] },
-      { name: '_documents', label: 'Documentation Guide', type: 'repeatable', fullWidth: true, storageKey: 'documents', columns: [
+      { name: '_documents', label: 'Documentation Guide', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'documents', columns: [
         { key: 'name', label: 'Document' },
         { key: 'required', label: 'Required (yes/no)' },
         { key: 'notes', label: 'Notes', type: 'textarea' },
@@ -310,6 +375,7 @@ export const entityConfigs: EntityConfig[] = [
       { key: 'gallery', label: 'Gallery', fieldNames: ['gallery'] },
       { key: 'faqs', label: 'FAQs', fieldNames: ['faqs'] },
       { key: 'related', label: 'Related Cruises', fieldNames: ['_related_slugs'] },
+      { key: 'seo', label: 'SEO Settings', fieldNames: ['_seo_title', '_seo_description'] },
     ],
     fields: [
       { name: 'slug', label: 'Slug', type: 'text', required: true },
@@ -324,7 +390,7 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'starting_price', label: 'Starting Price', type: 'number' },
       { name: 'overview', label: 'Overview', type: 'richtext', fullWidth: true },
       { name: 'highlights', label: 'Highlights', type: 'string-list', fullWidth: true },
-      { name: 'accommodation', label: 'Cabin & Accommodation', type: 'repeatable', fullWidth: true, columns: [
+      { name: 'accommodation', label: 'Cabin & Accommodation', type: 'repeatable', fullWidth: true, withEnabled: true, columns: [
         { key: 'name', label: 'Cabin Type' },
         { key: 'desc', label: 'Description', type: 'textarea' },
         { key: 'image', label: 'Image', type: 'image' },
@@ -336,6 +402,7 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'gallery', label: 'Gallery Images', type: 'image-gallery', fullWidth: true },
       { name: 'faqs', label: 'Cruise FAQs', type: 'faq-list', fullWidth: true },
       { name: '_related_slugs', label: 'Related Cruises', type: 'cruise-select', fullWidth: true, storageKey: 'relatedSlugs' },
+      ...SEO_FIELDS,
       { name: 'status', label: 'Status', type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] },
       { name: 'sort_order', label: 'Display Order', type: 'number' },
     ],
@@ -352,6 +419,7 @@ export const entityConfigs: EntityConfig[] = [
       { key: 'overview', label: 'Service Overview', fieldNames: ['_overview'] },
       { key: 'features', label: 'Features', fieldNames: ['_features'] },
       { key: 'faqs', label: 'FAQs', fieldNames: ['_faqs'] },
+      { key: 'seo', label: 'SEO Settings', fieldNames: ['_seo_title', '_seo_description'] },
     ],
     fields: [
       { name: 'slug', label: 'Slug', type: 'text', required: true },
@@ -365,11 +433,12 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'status', label: 'Status', type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] },
       { name: 'sort_order', label: 'Display Order', type: 'number' },
       { name: '_overview', label: 'Overview Content', type: 'richtext', fullWidth: true, storageKey: 'overview' },
-      { name: '_features', label: 'Features', type: 'repeatable', fullWidth: true, storageKey: 'features', columns: [
+      { name: '_features', label: 'Features', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'features', columns: [
         { key: 'title', label: 'Title' },
         { key: 'desc', label: 'Description', type: 'textarea' },
       ] },
       { name: '_faqs', label: 'Service FAQs', type: 'faq-list', fullWidth: true, storageKey: 'faqs' },
+      ...SEO_FIELDS,
     ],
   },
   {
@@ -501,7 +570,7 @@ export const entityConfigs: EntityConfig[] = [
     plural: 'Festivals & Events',
     icon: Sparkles,
     sections: [
-      { key: 'basic', label: 'Event Info', fieldNames: ['name', 'external_id', 'tag', 'location', 'event_type', 'month', 'month_num', 'status', 'sort_order'] },
+      { key: 'basic', label: 'Event Info', fieldNames: ['name', 'external_id', 'tag', 'location', 'event_type', '_event_date', 'month', 'month_num', 'status', 'sort_order'] },
       { key: 'content', label: 'Description & Pricing', fieldNames: ['hook_line', 'price', 'duration', 'cta_label', 'cta_href', 'trending'] },
       { key: 'media', label: 'Media', fieldNames: ['media', '_gallery', '_event_videos'] },
     ],
@@ -510,8 +579,9 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'external_id', label: 'External ID (slug)', type: 'text' },
       { name: 'tag', label: 'Event Type Tag', type: 'text' },
       { name: 'location', label: 'Destination / Country', type: 'text' },
-      { name: 'month', label: 'Month Label', type: 'text' },
-      { name: 'month_num', label: 'Month Number (1–12)', type: 'number' },
+      { name: '_event_date', label: 'Event Date', type: 'date', storageKey: 'eventDate' },
+      { name: 'month', label: 'Month Label (auto from Event Date if empty)', type: 'text' },
+      { name: 'month_num', label: 'Month Number 1–12 (auto from Event Date if empty)', type: 'number' },
       { name: 'hook_line', label: 'Description', type: 'textarea', fullWidth: true },
       { name: 'price', label: 'Price', type: 'text' },
       { name: 'duration', label: 'Duration', type: 'text' },
@@ -520,7 +590,10 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'trending', label: 'Trending', type: 'boolean' },
       { name: 'media', label: 'Hero Banner (Image/Video)', type: 'media', fullWidth: true },
       { name: '_gallery', label: 'Event Gallery', type: 'image-gallery', fullWidth: true, storageKey: 'gallery' },
-      { name: '_event_videos', label: 'Event Videos', type: 'string-list', fullWidth: true, storageKey: 'videos' },
+      { name: '_event_videos', label: 'Event Videos (paste a YouTube / video URL)', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'eventVideos', columns: [
+        { key: 'title', label: 'Video Title' },
+        { key: 'url', label: 'Video URL' },
+      ] },
       { name: 'event_type', label: 'Category', type: 'select', options: [{ value: 'international', label: 'International' }, { value: 'india', label: 'India' }] },
       { name: 'status', label: 'Status', type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] },
       { name: 'sort_order', label: 'Display Order', type: 'number' },
@@ -533,14 +606,15 @@ export const entityConfigs: EntityConfig[] = [
     plural: 'Fixed Departures',
     icon: Package,
     sections: [
-      { key: 'basic', label: 'Departure Info', fieldNames: ['title', 'external_id', 'category', 'status', 'sort_order'] },
+      { key: 'basic', label: 'Departure Info', fieldNames: ['title', 'destination', 'external_id', 'category', 'status', 'sort_order'] },
       { key: 'schedule', label: 'Travel Dates & Duration', fieldNames: ['duration', 'date_range', 'month_num'] },
-      { key: 'pricing', label: 'Pricing & Availability', fieldNames: ['price', 'price_note', 'seats_left'] },
-      { key: 'media', label: 'Media', fieldNames: ['images'] },
+      { key: 'pricing', label: 'Pricing & Availability', fieldNames: ['price', 'price_note', 'seats_left', 'availability_status'] },
+      { key: 'media', label: 'Media', fieldNames: ['featured_image', 'banner_image', 'images'] },
       { key: 'details', label: 'Additional Info', fieldNames: ['badge', 'badge_type', 'micro_info', 'href'] },
     ],
     fields: [
       { name: 'title', label: 'Departure Name', type: 'text', required: true },
+      { name: 'destination', label: 'Destination', type: 'text' },
       { name: 'external_id', label: 'External ID (slug)', type: 'text' },
       { name: 'category', label: 'Category', type: 'select', options: [{ value: 'international', label: 'International' }, { value: 'india', label: 'India' }] },
       { name: 'badge', label: 'Badge Text', type: 'text' },
@@ -555,7 +629,14 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'price', label: 'Pricing', type: 'text' },
       { name: 'price_note', label: 'Price Note', type: 'text' },
       { name: 'seats_left', label: 'Availability (Seats Left)', type: 'number' },
-      { name: 'images', label: 'Featured & Banner Images', type: 'image-gallery', fullWidth: true },
+      { name: 'availability_status', label: 'Availability Status', type: 'select', options: [
+        { value: 'available', label: 'Available' },
+        { value: 'limited', label: 'Limited Seats' },
+        { value: 'sold-out', label: 'Sold Out' },
+      ] },
+      { name: 'featured_image', label: 'Featured Image (card)', type: 'image' },
+      { name: 'banner_image', label: 'Banner Image (hover / detail)', type: 'image' },
+      { name: 'images', label: 'Additional Images', type: 'image-gallery', fullWidth: true },
       { name: 'micro_info', label: 'Quick Info Tags', type: 'string-list', fullWidth: true },
       { name: 'href', label: 'Link', type: 'text' },
       { name: 'status', label: 'Status', type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] },
@@ -590,6 +671,7 @@ export const adminNavItems = [
   { to: '/admin/about', label: 'About Page', icon: BookOpen },
   { to: '/admin/users', label: 'Users', icon: Users },
   { to: '/admin/homepage', label: 'Homepage Sections', icon: Sparkles },
+  { to: '/admin/instagram', label: 'Instagram Reels', icon: Instagram },
   { to: '/admin/services-page', label: 'Services Page', icon: Briefcase },
   ...entityConfigs.map((e) => ({ to: `/admin/${e.key}`, label: e.plural, icon: e.icon })),
   { to: '/admin/faq', label: 'FAQ', icon: HelpCircle },

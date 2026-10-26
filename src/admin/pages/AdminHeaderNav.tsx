@@ -19,8 +19,13 @@ import {
 } from '../../services/content';
 import { headerConfig as defaultHeaderConfig } from '../../data/paymentConfig';
 import { navStructure as defaultNavStructure } from '../../data/navConfig';
+import { MARQUEE_ICONS, MARQUEE_ICON_NAMES } from '../../components/layout/marqueeIcons';
+import { SOCIAL_PLATFORMS, normalizePlatform } from '../../components/common/SocialIcon';
+import { createMarqueeItem, marqueeToLegacy, resolveMarqueeEntries } from '../../lib/headerMarquee';
+import { ReorderButtons, Toggle, moveItem, useSortable } from '../components/fields/shared';
 import type {
   HeaderConfig,
+  MarqueeItem,
   NavItem,
   NavLink,
   MegaTab,
@@ -32,7 +37,10 @@ type Tab = 'utility' | 'navigation';
 export default function AdminHeaderNav() {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<Tab>('utility');
-  const [header, setHeader] = useState<HeaderConfig>(defaultHeaderConfig);
+  const [header, setHeader] = useState<HeaderConfig>(() => {
+    const base = defaultHeaderConfig as HeaderConfig;
+    return { ...base, marqueeEntries: resolveMarqueeEntries(base) };
+  });
   const [nav, setNav] = useState<NavItem[]>(defaultNavStructure as NavItem[]);
   const [navRowId, setNavRowId] = useState<string>();
   const [loading, setLoading] = useState(true);
@@ -45,7 +53,8 @@ export default function AdminHeaderNav() {
       fetchSiteSetting<HeaderConfig>('header_config'),
       fetchSingleton<{ id: string; structure: unknown }>('nav_config'),
     ]).then(([head, navRow]) => {
-      setHeader({ ...defaultHeaderConfig, ...(head ?? {}) });
+      const merged = { ...(defaultHeaderConfig as HeaderConfig), ...(head ?? {}) };
+      setHeader({ ...merged, marqueeEntries: resolveMarqueeEntries(merged) });
       if (navRow?.structure && Array.isArray(navRow.structure)) {
         setNav(navRow.structure as NavItem[]);
       } else {
@@ -153,14 +162,22 @@ const inputClass =
 
 function UtilityBarEditor({ header, onChange }: { header: HeaderConfig; onChange: (h: HeaderConfig) => void }) {
   const update = (patch: Partial<HeaderConfig>) => onChange({ ...header, ...patch });
-
-  const updateMarquee = (index: number, value: string) => {
-    const items = [...header.marqueeItems];
-    items[index] = value;
-    update({ marqueeItems: items });
+  const entries = header.marqueeEntries ?? [];
+  const settings = {
+    enabled: header.marqueeSettings?.enabled ?? true,
+    autoScroll: header.marqueeSettings?.autoScroll ?? true,
+    scrollSpeed: header.marqueeSettings?.scrollSpeed ?? 30,
+    pauseOnHover: header.marqueeSettings?.pauseOnHover ?? true,
   };
 
-  const updateSocial = (index: number, patch: Partial<{ platform: string; href: string }>) => {
+  /** Keep the legacy plain-text mirror in sync with the structured entries. */
+  const setEntries = (next: MarqueeItem[]) => update({ marqueeEntries: next, marqueeItems: marqueeToLegacy(next) });
+  const updateEntry = (index: number, patch: Partial<MarqueeItem>) =>
+    setEntries(entries.map((e, i) => (i === index ? { ...e, ...patch } : e)));
+  const sortable = useSortable(entries, setEntries);
+  const setSettings = (patch: Partial<typeof settings>) => update({ marqueeSettings: { ...settings, ...patch } });
+
+  const updateSocial = (index: number, patch: Partial<{ platform: string; href: string; enabled: boolean }>) => {
     const socials = header.socials.map((s, i) => (i === index ? { ...s, ...patch } : s));
     update({ socials });
   };
@@ -174,77 +191,86 @@ function UtilityBarEditor({ header, onChange }: { header: HeaderConfig; onChange
             <input className={inputClass} value={header.phone} onChange={(e) => update({ phone: e.target.value })} />
           </Field>
           <Field label="WhatsApp Number (digits only, no +)">
-            <input className={inputClass} value={header.whatsapp} onChange={(e) => update({ whatsapp: e.target.value })} />
+            <input className={inputClass} value={header.whatsapp} onChange={(e) => update({ whatsapp: e.target.value.replace(/[^\d]/g, '') })} />
           </Field>
         </div>
         <div className="mt-4 space-y-3">
-          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Social Links</p>
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+            Social Links <span className="normal-case font-normal text-slate-400">— the icons in the top bar follow the list in Footer Management when it has active links.</span>
+          </p>
           {header.socials.map((social, i) => (
-            <div key={i} className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl">
-              <input
-                className={inputClass}
-                placeholder="Platform"
-                value={social.platform}
-                onChange={(e) => updateSocial(i, { platform: e.target.value })}
-              />
-              <input
-                className={inputClass}
-                placeholder="URL"
-                value={social.href}
-                onChange={(e) => updateSocial(i, { href: e.target.value })}
-              />
+            <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_2fr_auto] gap-3 p-3 bg-slate-50 rounded-xl items-center">
+              <select className={inputClass} value={SOCIAL_PLATFORMS.find((p) => normalizePlatform(p) === normalizePlatform(social.platform)) ?? social.platform} onChange={(e) => updateSocial(i, { platform: e.target.value })}>
+                {SOCIAL_PLATFORMS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+              <input className={inputClass} placeholder="URL" value={social.href} onChange={(e) => updateSocial(i, { href: e.target.value })} />
+              <Toggle checked={social.enabled !== false} onChange={(v) => updateSocial(i, { enabled: v })} label="Show" />
             </div>
           ))}
         </div>
       </section>
 
       <section className="bg-white rounded-xl border border-slate-200 p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-slate-900">Marquee Announcements</h2>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="font-bold text-slate-900">Utility Marquee Items</h2>
           <button
             type="button"
-            onClick={() => update({ marqueeItems: [...header.marqueeItems, ''] })}
+            onClick={() => setEntries([...entries, createMarqueeItem()])}
             className="text-sm text-primary font-medium flex items-center gap-1 hover:underline"
           >
-            <Plus className="w-4 h-4" /> Add line
+            <Plus className="w-4 h-4" /> Add item
           </button>
         </div>
+        <p className="text-xs text-slate-400 mb-4">Drag the handle to reorder. Disabled items stay saved but are hidden in the top bar. Link is optional.</p>
         <div className="space-y-2">
-          {header.marqueeItems.map((item, i) => (
-            <div key={i} className="flex gap-2">
-              <input
-                className={inputClass}
-                value={item}
-                onChange={(e) => updateMarquee(i, e.target.value)}
-                placeholder="e.g. ✈ 10,000+ Visas Processed"
-              />
-              <button
-                type="button"
-                onClick={() => update({ marqueeItems: header.marqueeItems.filter((_, j) => j !== i) })}
-                className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl shrink-0"
-                aria-label="Remove"
+          {entries.map((item, i) => {
+            const Icon = item.icon ? MARQUEE_ICONS[item.icon] : undefined;
+            return (
+              <div
+                key={item.id ?? i}
+                {...sortable.rowProps(i)}
+                className={`flex flex-wrap lg:flex-nowrap items-center gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50 transition-opacity ${item.enabled ? '' : 'opacity-60'} ${sortable.rowClass(i)}`}
               >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
+                <ReorderButtons index={i} total={entries.length} onMove={(f, t) => setEntries(moveItem(entries, f, t))} handleProps={sortable.handleProps(i)} />
+                <div className="flex items-center gap-1.5 w-full sm:w-44 shrink-0">
+                  <span className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center shrink-0">
+                    {Icon ? <Icon className="w-4 h-4" /> : <span className="text-[10px]">—</span>}
+                  </span>
+                  <select className={inputClass} value={item.icon} onChange={(e) => updateEntry(i, { icon: e.target.value })} aria-label="Icon">
+                    <option value="">No icon</option>
+                    {MARQUEE_ICON_NAMES.map((n) => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                </div>
+                <input className={inputClass} value={item.text} onChange={(e) => updateEntry(i, { text: e.target.value })} placeholder="Text, e.g. 10,000+ Visas Processed" />
+                <input className={inputClass} value={item.link ?? ''} onChange={(e) => updateEntry(i, { link: e.target.value })} placeholder="Link (optional)" />
+                <Toggle checked={item.enabled} onChange={(v) => updateEntry(i, { enabled: v })} label={item.enabled ? 'On' : 'Off'} />
+                <button
+                  type="button"
+                  onClick={() => setEntries(entries.filter((_, j) => j !== i))}
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-xl shrink-0"
+                  aria-label="Remove"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            );
+          })}
+          {entries.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No marquee items yet.</p>}
         </div>
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={header.marqueeSettings?.enabled !== false} onChange={(e) => update({ marqueeSettings: { ...header.marqueeSettings, enabled: e.target.checked, autoScroll: header.marqueeSettings?.autoScroll ?? true, scrollSpeed: header.marqueeSettings?.scrollSpeed ?? 30, pauseOnHover: header.marqueeSettings?.pauseOnHover ?? true } })} />
-            Enable Marquee
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={header.marqueeSettings?.autoScroll !== false} onChange={(e) => update({ marqueeSettings: { enabled: header.marqueeSettings?.enabled ?? true, autoScroll: e.target.checked, scrollSpeed: header.marqueeSettings?.scrollSpeed ?? 30, pauseOnHover: header.marqueeSettings?.pauseOnHover ?? true } })} />
-            Auto Scroll
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={header.marqueeSettings?.pauseOnHover !== false} onChange={(e) => update({ marqueeSettings: { enabled: header.marqueeSettings?.enabled ?? true, autoScroll: header.marqueeSettings?.autoScroll ?? true, scrollSpeed: header.marqueeSettings?.scrollSpeed ?? 30, pauseOnHover: e.target.checked } })} />
-            Pause On Hover
-          </label>
-          <Field label="Scroll Speed (seconds)">
-            <input type="number" className={inputClass} value={header.marqueeSettings?.scrollSpeed ?? 30} onChange={(e) => update({ marqueeSettings: { enabled: header.marqueeSettings?.enabled ?? true, autoScroll: header.marqueeSettings?.autoScroll ?? true, scrollSpeed: Number(e.target.value), pauseOnHover: header.marqueeSettings?.pauseOnHover ?? true } })} />
-          </Field>
+        <div className="mt-5 pt-4 border-t border-slate-100">
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">Marquee Settings</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-end">
+            <Toggle checked={settings.enabled} onChange={(v) => setSettings({ enabled: v })} label="Enable Marquee" />
+            <Toggle checked={settings.autoScroll} onChange={(v) => setSettings({ autoScroll: v })} label="Auto Scroll" />
+            <Toggle checked={settings.pauseOnHover} onChange={(v) => setSettings({ pauseOnHover: v })} label="Pause On Hover" />
+            <Field label="Scroll Speed (seconds per loop)">
+              <input type="number" min={5} max={120} className={inputClass} value={settings.scrollSpeed} onChange={(e) => setSettings({ scrollSpeed: Number(e.target.value) })} />
+            </Field>
+          </div>
         </div>
       </section>
 

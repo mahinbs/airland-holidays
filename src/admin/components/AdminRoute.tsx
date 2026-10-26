@@ -86,6 +86,36 @@ function AccessPending() {
   );
 }
 
+function AccountDeactivated() {
+  const { signOut, user } = useAuth();
+  const navigate = useNavigate();
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 p-8 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-5">
+          <ShieldX className="w-7 h-7 text-red-600" />
+        </div>
+        <h1 className="text-2xl font-serif font-bold text-slate-900 mb-2">Account deactivated</h1>
+        <p className="text-slate-600 text-sm mb-6">
+          <span className="font-medium text-slate-800">{user?.email}</span> no longer has CMS access. Contact a super
+          admin ({PRIMARY_ADMIN_EMAIL}) to have it restored.
+        </p>
+        <button
+          type="button"
+          onClick={async () => {
+            await signOut();
+            navigate('/admin/login');
+          }}
+          className="w-full border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign out
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function AccessDenied() {
   const { signOut, user, requestAdminAccess } = useAuth();
   const navigate = useNavigate();
@@ -158,7 +188,7 @@ function AccessDenied() {
 }
 
 export function AdminRoute() {
-  const { session, loading, isAdmin, accessStatus } = useAuth();
+  const { session, loading, isAdmin, isActive, accessStatus } = useAuth();
 
   if (!isSupabaseConfigured) {
     return (
@@ -182,6 +212,7 @@ export function AdminRoute() {
   if (!session) return <Navigate to="/admin/login" replace />;
   if (accessStatus === 'pending' || accessStatus === 'rejected') return <AccessPending />;
   if (!isAdmin) return <AccessDenied />;
+  if (!isActive) return <AccountDeactivated />;
 
   return (
     <AdminLayout>

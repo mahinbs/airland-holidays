@@ -1,5 +1,5 @@
 import { uploadMedia } from '../../../services/storage';
-import { AddButton, DeleteButton, FieldLabel, ReorderButtons, inputClass, moveItem, parseArray } from './shared';
+import { AddButton, DeleteButton, FieldLabel, ReorderButtons, inputClass, moveItem, parseArray, useSortable } from './shared';
 
 type ItineraryDay = {
   day: number;
@@ -8,6 +8,11 @@ type ItineraryDay = {
   image?: string;
   activities?: string[];
 };
+
+/** Re-number days 1..n after a drag/drop or arrow reorder so the sequence always stays consistent. */
+function renumber(days: ItineraryDay[]): ItineraryDay[] {
+  return days.map((d, i) => ({ ...d, day: i + 1 }));
+}
 
 export default function ItineraryField({
   label,
@@ -19,6 +24,7 @@ export default function ItineraryField({
   onChange: (v: ItineraryDay[]) => void;
 }) {
   const items = parseArray<ItineraryDay>(value, []);
+  const sortable = useSortable(items, (next) => onChange(renumber(next)));
 
   const update = (index: number, patch: Partial<ItineraryDay>) => {
     const next = [...items];
@@ -37,11 +43,16 @@ export default function ItineraryField({
 
   return (
     <div>
-      <FieldLabel label={label} hint="Drag days to reorder. Each day can include an image and activities." />
+      <FieldLabel label={label} hint="Drag days to reorder (day numbers update automatically). Each day can include an image and activities." />
       <div className="space-y-4">
         {items.map((day, i) => (
-          <div key={i} className="flex gap-2 p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <ReorderButtons index={i} total={items.length} onMove={(f, t) => onChange(moveItem(items, f, t))} />
+          <div key={i} {...sortable.rowProps(i)} className={`flex gap-2 p-4 bg-slate-50 rounded-xl border border-slate-200 transition-opacity ${sortable.rowClass(i)}`}>
+            <ReorderButtons
+              index={i}
+              total={items.length}
+              onMove={(f, t) => onChange(renumber(moveItem(items, f, t)))}
+              handleProps={sortable.handleProps(i)}
+            />
             <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-slate-500">Day</label>
@@ -81,7 +92,7 @@ export default function ItineraryField({
                 {day.image && <img src={day.image} alt="" className="h-16 rounded-lg object-cover mt-2" />}
               </div>
             </div>
-            <DeleteButton onClick={() => onChange(items.filter((_, idx) => idx !== i))} />
+            <DeleteButton onClick={() => onChange(renumber(items.filter((_, idx) => idx !== i)))} />
           </div>
         ))}
       </div>

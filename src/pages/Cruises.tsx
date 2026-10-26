@@ -3,9 +3,14 @@ import { Ship, Clock, MapPin, Send } from 'lucide-react';
 import { cruisePackages as staticCruises } from '../data/cruiseData';
 import { useCruises } from '../hooks/useContent';
 import { mapCruiseToDetail } from '../lib/mapContent';
+import { useSeo } from '../hooks/useSeo';
+
+/** Cards show a plain-text excerpt of the rich-text overview. */
+const plainText = (html: string) => html.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
 export default function Cruises() {
     const { data: cmsCruises } = useCruises();
+    useSeo({ title: 'Cruise Packages | Airland Holidays' });
     const cruisePackages = cmsCruises?.length
         ? cmsCruises.map((c) => mapCruiseToDetail(c as unknown as Record<string, unknown>))
         : staticCruises;
@@ -33,7 +38,7 @@ export default function Cruises() {
 
             <div className="p-6 flex flex-col flex-1">
                 <h3 className="text-2xl font-bold text-slate-900 mb-2 font-['Marcellus']">{cruise.name}</h3>
-                <p className="text-slate-600 text-sm mb-4 line-clamp-2">{cruise.overview}</p>
+                <p className="text-slate-600 text-sm mb-4 line-clamp-2">{plainText(cruise.overview ?? '')}</p>
 
                 <div className="flex flex-wrap gap-4 text-sm text-slate-500 mb-4">
                     <span className="flex items-center gap-1.5">

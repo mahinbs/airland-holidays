@@ -32,47 +32,55 @@ async function fetchContentCounts() {
 }
 
 export default function AdminDashboard() {
-  const { isSuperAdmin } = useAuth();
-  const { data: counts } = useQuery({ queryKey: ['admin', 'submission-counts'], queryFn: fetchSubmissionCounts });
+  const { isSuperAdmin, can, role } = useAuth();
+  const canLeads = can('view_leads');
+  const canPayments = can('manage_payments');
+  const { data: counts } = useQuery({ queryKey: ['admin', 'submission-counts'], queryFn: fetchSubmissionCounts, enabled: canLeads || canPayments });
   const { data: contentCounts } = useQuery({ queryKey: ['admin', 'content-counts'], queryFn: fetchContentCounts });
-  const { data: recentContact = [] } = useQuery({ queryKey: ['admin', 'recent-contact'], queryFn: () => fetchSubmissions('contact') });
+  const { data: recentContact = [] } = useQuery({ queryKey: ['admin', 'recent-contact'], queryFn: () => fetchSubmissions('contact'), enabled: canLeads });
   const { data: pendingAccess = 0 } = useQuery({
     queryKey: ['admin', 'access-requests-count'],
     queryFn: countPendingAdminRequests,
     enabled: isSuperAdmin,
   });
 
-  const newTotal = (counts?.contact ?? 0) + (counts?.payment ?? 0) + (counts?.package ?? 0);
+  const newTotal = (canLeads ? (counts?.contact ?? 0) + (counts?.package ?? 0) : 0) + (canPayments ? (counts?.payment ?? 0) : 0);
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">Dashboard</h1>
+      {role && <p className="text-sm text-slate-500 mb-6">Signed in as {role}</p>}
 
       {/* Submissions Overview */}
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Submissions</p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Inbox} label="New Submissions" value={newTotal} href="/admin/submissions" color="bg-amber-500" />
-        {isSuperAdmin && (
-          <StatCard icon={UserPlus} label="Access Requests" value={pendingAccess} href="/admin/access-requests" color="bg-rose-500" />
-        )}
-        <StatCard icon={MessageSquare} label="Contact Leads" value={counts?.contact ?? 0} href="/admin/submissions" color="bg-blue-500" />
-        <StatCard icon={CreditCard} label="Payment Proofs" value={counts?.payment ?? 0} href="/admin/submissions" color="bg-emerald-500" />
-        <StatCard icon={Package} label="Package Enquiries" value={counts?.package ?? 0} href="/admin/submissions" color="bg-violet-500" />
-      </div>
+      {(canLeads || canPayments || isSuperAdmin) && (
+        <>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Submissions</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {(canLeads || canPayments) && <StatCard icon={Inbox} label="New Submissions" value={newTotal} href="/admin/submissions" color="bg-amber-500" />}
+            {isSuperAdmin && (
+              <StatCard icon={UserPlus} label="Access Requests" value={pendingAccess} href="/admin/access-requests" color="bg-rose-500" />
+            )}
+            {canLeads && <StatCard icon={MessageSquare} label="Contact Leads" value={counts?.contact ?? 0} href="/admin/submissions" color="bg-blue-500" />}
+            {canPayments && <StatCard icon={CreditCard} label="Payment Proofs" value={counts?.payment ?? 0} href="/admin/submissions" color="bg-emerald-500" />}
+            {canLeads && <StatCard icon={Package} label="Package Enquiries" value={counts?.package ?? 0} href="/admin/submissions" color="bg-violet-500" />}
+          </div>
+        </>
+      )}
 
       {/* Content Counts */}
       <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Content Modules</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Package} label="Packages" value={contentCounts?.packages ?? 0} href="/admin/packages" color="bg-primary" />
-        <StatCard icon={MapPin} label="Destinations" value={contentCounts?.destinations ?? 0} href="/admin/destinations" color="bg-violet-500" />
-        <StatCard icon={Globe} label="Continents" value={contentCounts?.continents ?? 0} href="/admin/continents" color="bg-indigo-500" />
-        <StatCard icon={Globe} label="Visa Countries" value={contentCounts?.visas ?? 0} href="/admin/visas" color="bg-teal-500" />
-        <StatCard icon={Ship} label="Cruises" value={contentCounts?.cruises ?? 0} href="/admin/cruises" color="bg-cyan-500" />
-        <StatCard icon={Sparkles} label="Festivals & Events" value={contentCounts?.festivals ?? 0} href="/admin/festivals" color="bg-pink-500" />
-        <StatCard icon={Calendar} label="Fixed Departures" value={contentCounts?.fixedDepartures ?? 0} href="/admin/fixed-departures" color="bg-orange-500" />
-        <StatCard icon={FileText} label="Guide Articles" value={contentCounts?.guides ?? 0} href="/admin/guides" color="bg-slate-600" />
+        {can('manage_packages') && <StatCard icon={Package} label="Packages" value={contentCounts?.packages ?? 0} href="/admin/packages" color="bg-primary" />}
+        {can('manage_destinations') && <StatCard icon={MapPin} label="Destinations" value={contentCounts?.destinations ?? 0} href="/admin/destinations" color="bg-violet-500" />}
+        {can('manage_destinations') && <StatCard icon={Globe} label="Continents" value={contentCounts?.continents ?? 0} href="/admin/continents" color="bg-indigo-500" />}
+        {can('manage_visas') && <StatCard icon={Globe} label="Visa Countries" value={contentCounts?.visas ?? 0} href="/admin/visas" color="bg-teal-500" />}
+        {can('manage_cruises') && <StatCard icon={Ship} label="Cruises" value={contentCounts?.cruises ?? 0} href="/admin/cruises" color="bg-cyan-500" />}
+        {can('manage_departures') && <StatCard icon={Sparkles} label="Festivals & Events" value={contentCounts?.festivals ?? 0} href="/admin/festivals" color="bg-pink-500" />}
+        {can('manage_departures') && <StatCard icon={Calendar} label="Fixed Departures" value={contentCounts?.fixedDepartures ?? 0} href="/admin/fixed-departures" color="bg-orange-500" />}
+        {can('manage_guides') && <StatCard icon={FileText} label="Guide Articles" value={contentCounts?.guides ?? 0} href="/admin/guides" color="bg-slate-600" />}
       </div>
 
+      {canLeads && (
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-lg font-bold text-slate-900 mb-4">Recent Contact Submissions</h2>
         {recentContact.slice(0, 5).map((s: Record<string, unknown>) => (
@@ -89,6 +97,7 @@ export default function AdminDashboard() {
         {recentContact.length === 0 && <p className="text-slate-500 text-sm">No submissions yet.</p>}
         <Link to="/admin/submissions" className="mt-4 inline-block text-sm text-primary hover:underline">View all submissions →</Link>
       </div>
+      )}
     </div>
   );
 }

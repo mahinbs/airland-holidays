@@ -6,7 +6,7 @@ import { defaultPaymentPageConfig } from '../../data/defaultCmsContent';
 import type { PaymentPageConfig } from '../../types/cms';
 import StringListField from '../components/fields/StringListField';
 import TableField from '../components/fields/TableField';
-import { inputClass } from '../components/fields/shared';
+import { inputClass, Toggle } from '../components/fields/shared';
 import { uploadMedia } from '../../services/storage';
 
 export default function AdminPayment() {
@@ -27,6 +27,7 @@ export default function AdminPayment() {
           razorpay: { ...defaultPaymentPageConfig.razorpay, ...data.razorpay },
           shortHaulPolicy: { ...defaultPaymentPageConfig.shortHaulPolicy, ...data.shortHaulPolicy },
           longHaulPolicy: { ...defaultPaymentPageConfig.longHaulPolicy, ...data.longHaulPolicy },
+          formFields: { ...defaultPaymentPageConfig.formFields, ...data.formFields },
         });
       }
       setLoading(false);
@@ -85,6 +86,12 @@ export default function AdminPayment() {
           <Field label="IFSC Code">
             <input className={inputClass} value={config.bankTransfer.ifscCode} onChange={(e) => patch('bankTransfer', { ...config.bankTransfer, ifscCode: e.target.value })} />
           </Field>
+          <Field label="Bank Name (optional)">
+            <input className={inputClass} value={config.bankTransfer.bankName ?? ''} onChange={(e) => patch('bankTransfer', { ...config.bankTransfer, bankName: e.target.value })} />
+          </Field>
+          <Field label="Branch (optional)">
+            <input className={inputClass} value={config.bankTransfer.branch ?? ''} onChange={(e) => patch('bankTransfer', { ...config.bankTransfer, branch: e.target.value })} />
+          </Field>
         </Section>
 
         <Section title="UPI Payment">
@@ -99,8 +106,12 @@ export default function AdminPayment() {
             <input type="file" accept="image/*" className="text-xs mt-2" onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-              const url = await uploadMedia(file, 'payment');
-              patch('upi', { ...config.upi, qrImage: url });
+              try {
+                const url = await uploadMedia(file, 'payment');
+                patch('upi', { ...config.upi, qrImage: url });
+              } catch (err) {
+                setMessage(err instanceof Error ? err.message : 'QR upload failed');
+              }
             }} />
             {config.upi.qrImage && <img src={config.upi.qrImage} alt="QR" className="h-32 mt-2 rounded-lg" />}
           </Field>
@@ -140,13 +151,28 @@ export default function AdminPayment() {
           <StringListField label="Policy Notes" value={config.longHaulPolicy.notes} onChange={(v) => patch('longHaulPolicy', { ...config.longHaulPolicy, notes: v })} />
         </Section>
 
-        <Section title="Form Settings">
-          <Field label="Allowed File Types">
+        <Section title="Payment Form Settings">
+          <Field label="Allowed File Types (comma separated, e.g. jpg, png, pdf)">
             <input className={inputClass} value={config.formFields.allowedFileTypes} onChange={(e) => patch('formFields', { ...config.formFields, allowedFileTypes: e.target.value })} />
           </Field>
           <Field label="Max Upload Size (MB)">
-            <input type="number" className={inputClass} value={config.formFields.maxUploadSizeMb} onChange={(e) => patch('formFields', { ...config.formFields, maxUploadSizeMb: Number(e.target.value) })} />
+            <input type="number" min={1} max={50} className={inputClass} value={config.formFields.maxUploadSizeMb} onChange={(e) => patch('formFields', { ...config.formFields, maxUploadSizeMb: Number(e.target.value) })} />
           </Field>
+          <Field label="Submit Button Label">
+            <input className={inputClass} value={config.formFields.submitLabel ?? ''} onChange={(e) => patch('formFields', { ...config.formFields, submitLabel: e.target.value })} />
+          </Field>
+          <Field label="Screenshot Upload">
+            <Toggle checked={Boolean(config.formFields.requireScreenshot)} onChange={(v) => patch('formFields', { ...config.formFields, requireScreenshot: v })} label={config.formFields.requireScreenshot ? 'Required' : 'Optional'} />
+          </Field>
+          <Field label="Success Title">
+            <input className={inputClass} value={config.formFields.successTitle ?? ''} onChange={(e) => patch('formFields', { ...config.formFields, successTitle: e.target.value })} />
+          </Field>
+          <Field label="Success Message">
+            <textarea className={inputClass} rows={2} value={config.formFields.successMessage ?? ''} onChange={(e) => patch('formFields', { ...config.formFields, successMessage: e.target.value })} />
+          </Field>
+          <div className="md:col-span-2">
+            <StringListField label="Payment Type Options (shown in the form dropdown)" value={config.formFields.paymentTypes ?? []} onChange={(v) => patch('formFields', { ...config.formFields, paymentTypes: v })} placeholder="e.g. Bank Transfer" />
+          </div>
         </Section>
       </div>
     </div>

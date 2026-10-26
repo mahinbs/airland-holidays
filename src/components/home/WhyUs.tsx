@@ -112,7 +112,15 @@ const animation = { duration: 20000, easing: (t: number) => t };
 
 export default function WhyUs() {
     const { data: cmsHomepage } = useHomepageConfig<HomepageConfig>();
-    const homepage = cmsHomepage ?? defaultHomepageConfig;
+    const homepage: HomepageConfig = {
+        ...defaultHomepageConfig,
+        ...(cmsHomepage ?? {}),
+        whyUs: { ...defaultHomepageConfig.whyUs, ...(cmsHomepage?.whyUs ?? {}) },
+        founder: { ...defaultHomepageConfig.founder, ...(cmsHomepage?.founder ?? {}) },
+    };
+    // Display order comes from the CMS drag & drop (sortOrder); inactive items are hidden.
+    const ordered = <T extends { sortOrder?: number }>(items: T[] | undefined) =>
+        [...(items ?? [])].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
     const content = useMemo(() => ({
         badge: homepage.whyUs.badge || staticContent.badge,
@@ -132,7 +140,7 @@ export default function WhyUs() {
     }), [homepage]);
 
     const founderMedia = useMemo(() => {
-        const cmsMedia = homepage.founderMilestones?.filter((m) => m.active && m.image).map((m) => ({
+        const cmsMedia = ordered(homepage.founderMilestones).filter((m) => m.active && m.image).map((m) => ({
             type: 'image' as const,
             src: m.image,
             alt: m.title,
@@ -140,7 +148,7 @@ export default function WhyUs() {
             location: m.location,
             year: m.year,
         }));
-        return cmsMedia?.length ? cmsMedia : staticFounderMedia;
+        return cmsMedia.length ? cmsMedia : staticFounderMedia;
     }, [homepage]);
 
     const trustPoints = useMemo(() => {
@@ -153,7 +161,7 @@ export default function WhyUs() {
     }, [homepage]);
 
     const galleryImages = useMemo(() => {
-        const cmsGallery = homepage.industryAuthority?.filter((m) => m.active && m.image).map((m) => ({
+        const cmsGallery = ordered(homepage.industryAuthority).filter((m) => m.active && m.image).map((m) => ({
             src: m.image,
             alt: m.title,
             aspect: 'landscape' as const,
@@ -161,7 +169,7 @@ export default function WhyUs() {
             location: m.location,
             year: m.year,
         }));
-        return cmsGallery?.length ? cmsGallery : staticGalleryImages;
+        return cmsGallery.length ? cmsGallery : staticGalleryImages;
     }, [homepage]);
 
     const mouseOver = useRef(false);

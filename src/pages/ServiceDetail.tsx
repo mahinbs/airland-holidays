@@ -1,9 +1,14 @@
 import { useParams, Link } from 'react-router-dom';
-import { Send, CheckCircle2, Shield, Clock, Award, Star, ChevronDown, ArrowRight, HelpCircle } from 'lucide-react';
+import { Send, CheckCircle2, Shield, Clock, Award, Star, ChevronDown, ArrowRight, HelpCircle, Phone, MessageCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useService } from '../hooks/useContent';
-import { mapServiceToDetail, type ServiceDetailView } from '../lib/mapContent';
+import { useModuleFaqs, useService, useTestimonials } from '../hooks/useContent';
+import { mapServiceToDetail, mapTestimonialToCard, type ServiceDetailView } from '../lib/mapContent';
+import RichContent from '../components/common/RichContent';
+import { useSeo, readSeo } from '../hooks/useSeo';
+import { submitContact } from '../services/submissions';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { useHeaderConfig } from '../hooks/useHeaderConfig';
 
 // Legacy mock data for services not yet in CMS
 const serviceData: Record<string, ServiceDetailView> = {
@@ -107,8 +112,8 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                     >
-                        <div className="p-5 pt-0 text-slate-600 leading-relaxed border-t border-slate-100 mt-2">
-                            {answer}
+                        <div className="p-5 pt-3 border-t border-slate-100 mt-2">
+                            <RichContent html={answer} />
                         </div>
                     </motion.div>
                 )}
@@ -121,11 +126,48 @@ export default function ServiceDetail() {
     const { slug } = useParams();
     const { data: cmsRow, isLoading } = useService(slug ?? '');
 
+    const { data: testimonialRows = [] } = useTestimonials();
+    const { config: headerConfig } = useHeaderConfig();
+    const [enquiry, setEnquiry] = useState<'idle' | 'sending' | 'sent'>('idle');
+    const { faqs: moduleFaqs } = useModuleFaqs('service');
+
     const service = useMemo(() => {
         if (cmsRow) return mapServiceToDetail(cmsRow);
         if (slug && serviceData[slug]) return serviceData[slug];
         return getFallbackService(slug || 'service');
     }, [cmsRow, slug]);
+
+    const cmsSeo = readSeo(cmsRow?.detail);
+    useSeo({
+        title: cmsSeo.title || `${service.title} | Airland Holidays`,
+        description: cmsSeo.description || service.heroDesc,
+        image: service.heroImage,
+    });
+
+    const reviews = testimonialRows.slice(0, 2).map(mapTestimonialToCard);
+
+    const handleEnquiry = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        const parts = String(fd.get('name') ?? '').trim().split(/\s+/);
+        setEnquiry('sending');
+        try {
+            if (isSupabaseConfigured) {
+                await submitContact({
+                    first_name: parts[0] || 'Guest',
+                    last_name: parts.slice(1).join(' ') || '-',
+                    email: String(fd.get('email') ?? ''),
+                    phone: String(fd.get('phone') ?? ''),
+                    interested_in: `service-${slug ?? 'general'}`,
+                    message: String(fd.get('message') ?? '') || `Enquiry for ${service.title}`,
+                });
+            }
+            setEnquiry('sent');
+        } catch {
+            setEnquiry('idle');
+            alert('Could not send your enquiry. Please call us directly.');
+        }
+    };
 
     if (isLoading) {
         return (
@@ -206,7 +248,7 @@ export default function ServiceDetail() {
                                 </div>
                                 <h2 className="text-3xl md:text-4xl font-bold text-slate-900 font-['Marcellus']">Overview</h2>
                             </div>
-                            <p className="text-slate-600 text-lg leading-relaxed">{service.overview}</p>
+                            <RichContent html={service.overview} className="text-lg" />
                         </div>
 
                         <div className="mb-16">
@@ -242,32 +284,51 @@ export default function ServiceDetail() {
 
                         <div className="mb-16">
                             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 font-['Marcellus'] mb-8">What Our Clients Say</h2>
-                            <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                                <div className="relative z-10">
-                                    <div className="flex gap-1 mb-4">
-                                        {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 fill-secondary text-secondary" />)}
-                                    </div>
-                                    <p className="text-xl md:text-2xl font-light text-slate-700 italic mb-6 leading-relaxed">
-                                        "Exceptional service from start to finish. The team handled every detail with professionalism and care."
-                                    </p>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
-                                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200" alt="" className="w-full h-full object-cover" />
+                            <div className="space-y-6">
+                                {(reviews.length
+                                    ? reviews
+                                    : [{
+                                        id: 'static',
+                                        name: 'Verified Client',
+                                        location: 'Airland Holidays Customer',
+                                        text: 'Exceptional service from start to finish. The team handled every detail with professionalism and care.',
+                                        rating: 5,
+                                        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200',
+                                        type: 'written' as const,
+                                        videoUrl: undefined,
+                                    }]
+                                ).map((t) => (
+                                    <div key={t.id} className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                                        <div className="relative z-10">
+                                            <div className="flex gap-1 mb-4">
+                                                {Array.from({ length: Math.max(1, Math.round(t.rating)) }, (_, i) => <Star key={i} className="w-5 h-5 fill-secondary text-secondary" />)}
+                                            </div>
+                                            <p className="text-xl md:text-2xl font-light text-slate-700 italic mb-6 leading-relaxed">
+                                                "{t.text}"
+                                            </p>
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
+                                                    <img src={t.avatar} alt="" className="w-full h-full object-cover" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-slate-900">{t.name}</p>
+                                                    <p className="text-sm text-slate-500">{t.location}</p>
+                                                </div>
+                                                {t.type === 'video' && t.videoUrl && (
+                                                    <a href={t.videoUrl} target="_blank" rel="noreferrer" className="ml-auto text-sm font-bold text-primary hover:text-secondary">Watch video →</a>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-bold text-slate-900">Verified Client</p>
-                                            <p className="text-sm text-slate-500">Airland Holidays Customer</p>
-                                        </div>
                                     </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
 
                         <div className="mb-16">
                             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 font-['Marcellus'] mb-8">Frequently Asked Questions</h2>
                             <div className="space-y-4">
-                                {service.faqs.map((faq, i) => (
+                                {[...service.faqs, ...moduleFaqs.filter((m) => !service.faqs.some((f) => f.q.trim() === m.question.trim())).map((m) => ({ q: m.question, a: m.answer }))].map((faq, i) => (
                                     <FAQItem key={i} question={faq.q} answer={faq.a} />
                                 ))}
                             </div>
@@ -283,26 +344,42 @@ export default function ServiceDetail() {
                                     Get expert assistance for {service.title}
                                 </p>
                             </div>
-                            <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); alert('Thank you! Our team will contact you shortly.'); }}>
+                            <form className="p-6 space-y-4" onSubmit={handleEnquiry}>
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Full Name *</label>
-                                    <input required type="text" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="Your name" />
+                                    <input required name="name" type="text" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="Your name" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Email *</label>
-                                    <input required type="email" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="your@email.com" />
+                                    <input required name="email" type="email" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="your@email.com" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Phone *</label>
-                                    <input required type="tel" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="+91..." />
+                                    <input required name="phone" type="tel" className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="+91..." />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Message</label>
-                                    <textarea rows={3} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm resize-none" placeholder="Tell us about your requirements..." />
+                                    <textarea name="message" rows={3} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm resize-none" placeholder="Tell us about your requirements..." />
                                 </div>
-                                <button type="submit" className="w-full btn-primary flex items-center justify-center gap-2 py-4 text-base shadow-lg shadow-primary/20">
-                                    <Send className="w-4 h-4" /> Send Enquiry
+                                {enquiry === 'sent' ? (
+                                    <div className="py-4 text-center">
+                                        <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+                                        <p className="font-bold text-slate-900">Enquiry received!</p>
+                                        <p className="text-sm text-slate-500">Our team will contact you shortly.</p>
+                                    </div>
+                                ) : (
+                                <button type="submit" disabled={enquiry === 'sending'} className="w-full btn-primary flex items-center justify-center gap-2 py-4 text-base shadow-lg shadow-primary/20 disabled:opacity-60">
+                                    <Send className="w-4 h-4" /> {enquiry === 'sending' ? 'Sending…' : 'Send Enquiry'}
                                 </button>
+                                )}
+                                <div className="grid grid-cols-2 gap-3 pt-1">
+                                    <a href={`https://wa.me/${String(headerConfig.whatsapp ?? '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I'd like to know more about ${service.title}`)}`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] text-white text-sm font-bold py-3 hover:bg-[#1da850] transition-colors">
+                                        <MessageCircle className="w-4 h-4" /> WhatsApp
+                                    </a>
+                                    <a href={`tel:${headerConfig.phone}`} className="flex items-center justify-center gap-2 rounded-xl border border-primary text-primary text-sm font-bold py-3 hover:bg-primary/5 transition-colors">
+                                        <Phone className="w-4 h-4" /> Call Us
+                                    </a>
+                                </div>
                                 <p className="text-[10px] text-center text-slate-400">Our team typically responds within 24 hours.</p>
                             </form>
                         </div>

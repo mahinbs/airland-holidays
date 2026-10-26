@@ -25,6 +25,8 @@ type EventMedia =
     | { type: 'video'; src: string; poster: string };
 
 type EventItem = {
+    /** Formatted Event Date from the CMS (optional) */
+    eventDate?: string;
     id: string;
     tag: string;
     name: string;
@@ -486,7 +488,7 @@ export default function FestivalsEvents() {
                                                                 <div className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/75 sm:text-xs">
                                                                     <span>{event.location}</span>
                                                                     <span className="h-1 w-1 rounded-full bg-secondary" />
-                                                                    <span>{event.month}</span>
+                                                                    <span>{event.eventDate || event.month}</span>
                                                                 </div>
 
                                                                 <h3 className="mb-0.5 font-['Marcellus'] text-lg leading-tight text-white drop-shadow-md sm:text-xl md:text-2xl lg:text-3xl">

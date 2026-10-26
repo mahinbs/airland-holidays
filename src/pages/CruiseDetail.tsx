@@ -4,12 +4,14 @@ import { Clock, MapPin, CheckCircle, XCircle, Send, ChevronDown, ChevronUp, Star
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { cruisePackages as staticCruises, type CruisePackage } from '../data/cruiseData';
-import { useCruise } from '../hooks/useContent';
+import { useCruise, useCruises, useModuleFaqs } from '../hooks/useContent';
 import { mapCruiseToDetail } from '../lib/mapContent';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { submitContact } from '../services/submissions';
 import SectionStickyNav from '../components/common/SectionStickyNav';
 import { useSectionScrollSpy } from '../hooks/useSectionScrollSpy';
+import RichContent from '../components/common/RichContent';
+import { useSeo, readSeo } from '../hooks/useSeo';
 
 const cruiseSectionNavItems = [
     { id: 'overview', label: 'Overview' },
@@ -18,20 +20,79 @@ const cruiseSectionNavItems = [
     { id: 'faq', label: 'FAQ' },
 ];
 
+type RawCruiseDay = { day?: number | string; title?: string; desc?: string; description?: string; attractions?: string[]; activities?: string[]; images?: string[]; image?: string };
+type RawCabin = { name?: string; desc?: string; image?: string; price?: string | number };
+type CabinView = { name: string; desc: string; image: string; price?: string };
+
+/** CMS itinerary rows ({ day, title, description, activities, image }) → the page's day shape. Array order = display order. */
+function normalizeCruiseItinerary(raw: unknown): CruisePackage['itinerary'] {
+    if (!Array.isArray(raw)) return [];
+    return (raw as RawCruiseDay[]).map((d, i) => ({
+        day: typeof d.day === 'number' ? `Day ${d.day}` : d.day ? String(d.day) : `Day ${i + 1}`,
+        title: d.title ?? '',
+        desc: d.desc ?? d.description ?? '',
+        attractions: (d.attractions ?? d.activities ?? []).filter(Boolean),
+        images: d.images?.length ? d.images : d.image ? [d.image] : [],
+    }));
+}
+
+/** CMS "Cabin & Accommodation" is a repeatable list; static data is { title, desc, cabins }. */
+function normalizeAccommodation(raw: unknown): { title: string; desc: string; cabins: CabinView[] } | undefined {
+    if (!raw) return undefined;
+    const toCabin = (c: RawCabin): CabinView => ({
+        name: c.name ?? '',
+        desc: c.desc ?? '',
+        image: c.image ?? '',
+        price: c.price ? String(c.price) : undefined,
+    });
+    if (Array.isArray(raw)) {
+        const cabins = (raw as RawCabin[]).filter((c) => (c.name ?? '').trim()).map(toCabin);
+        return cabins.length ? { title: 'Cabin & Accommodation', desc: '', cabins } : undefined;
+    }
+    const acc = raw as { title?: string; desc?: string; cabins?: RawCabin[] };
+    return { title: acc.title ?? 'Cabin & Accommodation', desc: acc.desc ?? '', cabins: (acc.cabins ?? []).map(toCabin) };
+}
+
 export default function CruiseDetail() {
     const { id } = useParams();
     const { data: cmsCruise, isLoading } = useCruise(id ?? '');
-    const cruise: CruisePackage | undefined = cmsCruise
-        ? (mapCruiseToDetail(cmsCruise as unknown as Record<string, unknown>) as CruisePackage)
+    const { data: allCruiseRows = [] } = useCruises();
+    const cruiseBase: (CruisePackage & { relatedSlugs?: string[] }) | undefined = cmsCruise
+        ? (mapCruiseToDetail(cmsCruise as unknown as Record<string, unknown>) as unknown as CruisePackage & { relatedSlugs?: string[] })
         : !isSupabaseConfigured
           ? staticCruises.find(c => c.id === id)
           : undefined;
+    const cruise = cruiseBase
+        ? {
+            ...cruiseBase,
+            itinerary: cmsCruise ? normalizeCruiseItinerary(cruiseBase.itinerary) : cruiseBase.itinerary,
+            accommodation: cmsCruise ? normalizeAccommodation(cruiseBase.accommodation) : (cruiseBase.accommodation as ReturnType<typeof normalizeAccommodation>),
+        }
+        : undefined;
+    const relatedCruises = (cruiseBase?.relatedSlugs ?? [])
+        .map((slug) => allCruiseRows.find((r) => r.slug === slug))
+        .filter((r): r is NonNullable<typeof r> => Boolean(r))
+        .map((r) => mapCruiseToDetail(r as unknown as Record<string, unknown>));
+    const cmsSeo = readSeo(cmsCruise?.detail);
+    useSeo({
+        title: cruise ? cmsSeo.title || `${cruise.name} | Airland Holidays` : undefined,
+        description: cmsSeo.description,
+        image: cruise?.image,
+    });
     const [openDay, setOpenDay] = useState<number | null>(0);
     const [lightbox, setLightbox] = useState<{ isOpen: boolean, index: number }>({ isOpen: false, index: 0 });
     const [enquirySent, setEnquirySent] = useState(false);
+    const { faqs: moduleFaqs } = useModuleFaqs('cruise');
     const [enquiryLoading, setEnquiryLoading] = useState(false);
+    const navItems = cruiseSectionNavItems.filter((item) => {
+        if (!cruise) return true;
+        if (item.id === 'itinerary') return cruise.itinerary.length > 0;
+        if (item.id === 'inclusions') return cruise.inclusions.length > 0 || cruise.exclusions.length > 0;
+        if (item.id === 'faq') return cruise.faqs.length > 0 || moduleFaqs.length > 0;
+        return true;
+    });
     const { activeSection, scrollToSection } = useSectionScrollSpy(
-        cruiseSectionNavItems.map((item) => item.id),
+        navItems.map((item) => item.id),
         { initialSection: 'overview', topOffset: 200 }
     );
 
@@ -144,7 +205,7 @@ export default function CruiseDetail() {
 
             {/* Sticky section nav — full-width, outside the content columns */}
             <SectionStickyNav
-                items={cruiseSectionNavItems}
+                items={navItems}
                 activeSection={activeSection}
                 onNavigate={scrollToSection}
             />
@@ -180,8 +241,10 @@ export default function CruiseDetail() {
                                         <video src={cruise.videoUrl} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500" autoPlay loop muted playsInline />
                                     </div>
                                 )}
-                                <p className="text-slate-700 leading-relaxed text-lg mb-8">{cruise.overview}</p>
+                                <RichContent html={cruise.overview} className="text-lg mb-8" />
                                     
+                                    {cruise.highlights.length > 0 && (
+                                    <>
                                     <h3 className="text-xl font-bold text-slate-900 mb-4 font-['Marcellus']">Package Highlights</h3>
                                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {cruise.highlights.map((h, i) => (
@@ -191,9 +254,12 @@ export default function CruiseDetail() {
                                             </li>
                                         ))}
                                     </ul>
+                                    </>
+                                    )}
                                 </div>
                                 
                                 {/* Cruise Experience */}
+                                {cruise.experience.length > 0 && (
                                 <div className="mt-8 bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                                     <h2 className="text-2xl font-bold text-slate-900 mb-6 font-['Marcellus']">Cruise Experience</h2>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -208,21 +274,23 @@ export default function CruiseDetail() {
                                         ))}
                                     </div>
                                 </div>
+                                )}
                                 
                                 {/* Accommodation Details */}
-                                {cruise.accommodation && (
+                                {cruise.accommodation && cruise.accommodation.cabins.length > 0 && (
                                     <div className="mt-8 bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                                         <h2 className="text-2xl font-bold text-slate-900 mb-2 font-['Marcellus']">{cruise.accommodation.title}</h2>
-                                        <p className="text-slate-600 mb-6">{cruise.accommodation.desc}</p>
+                                        <RichContent html={cruise.accommodation.desc} className="mb-6" />
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {cruise.accommodation.cabins.map((cabin, i) => (
                                                 <div key={i} className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm group bg-slate-50">
                                                     <div className="aspect-[4/3] overflow-hidden relative bg-slate-200">
-                                                        <img src={cabin.image} alt={cabin.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                                        {cabin.image && <img src={cabin.image} alt={cabin.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />}
                                                     </div>
                                                     <div className="p-5">
                                                         <h4 className="font-bold text-slate-900 mb-2 text-lg font-['Marcellus']">{cabin.name}</h4>
-                                                        <p className="text-slate-600 text-sm leading-relaxed">{cabin.desc}</p>
+                                                        <RichContent html={cabin.desc} className="text-sm" />
+                                                        {cabin.price && <p className="mt-3 text-primary font-bold text-sm">From {cabin.price}</p>}
                                                     </div>
                                                 </div>
                                             ))}
@@ -232,6 +300,7 @@ export default function CruiseDetail() {
                             </section>
 
                             {/* Itinerary */}
+                            {cruise.itinerary.length > 0 && (
                             <section id="itinerary" className="scroll-mt-32">
                                 <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                                     <h2 className="text-2xl font-bold text-slate-900 mb-6 font-['Marcellus']">Day-wise Itinerary</h2>
@@ -261,7 +330,7 @@ export default function CruiseDetail() {
                                                             </div>
                                                         )}
                                                         <div className="flex-1 md:pl-2">
-                                                            <p className="text-slate-700 leading-relaxed mb-6">{day.desc}</p>
+                                                            <RichContent html={day.desc} className="mb-6" />
                                                             {day.attractions && day.attractions.length > 0 && (
                                                                 <div className="flex flex-wrap gap-2 mb-2">
                                                                     {day.attractions.map((attr, idx) => (
@@ -279,8 +348,10 @@ export default function CruiseDetail() {
                                     </div>
                                 </div>
                             </section>
+                            )}
 
                             {/* Inclusions & Exclusions */}
+                            {(cruise.inclusions.length > 0 || cruise.exclusions.length > 0) && (
                             <section id="inclusions" className="scroll-mt-32">
                                 <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-8">
                                     <div className="flex-1">
@@ -312,8 +383,10 @@ export default function CruiseDetail() {
                                     </div>
                                 </div>
                             </section>
+                            )}
                             
                             {/* Gallery */}
+                            {cruise.gallery.length > 0 && (
                             <section className="hidden md:block">
                                 <h2 className="text-2xl font-bold text-slate-900 mb-6 font-['Marcellus']">Gallery</h2>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -324,21 +397,43 @@ export default function CruiseDetail() {
                                     ))}
                                 </div>
                             </section>
+                            )}
 
                             {/* FAQ */}
+                            {(cruise.faqs.length > 0 || moduleFaqs.length > 0) && (
                             <section id="faq" className="scroll-mt-32">
                                 <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                                     <h2 className="text-2xl font-bold text-slate-900 mb-6 font-['Marcellus']">Frequently Asked Questions</h2>
                                     <div className="space-y-6">
-                                        {cruise.faqs.map((faq, i) => (
+                                        {[...cruise.faqs, ...moduleFaqs.filter((m) => !cruise.faqs.some((f) => f.question.trim() === m.question.trim()))].map((faq, i) => (
                                             <div key={i}>
                                                 <h4 className="font-bold text-slate-900 mb-2">{faq.question}</h4>
-                                                <p className="text-slate-600">{faq.answer}</p>
+                                                <RichContent html={faq.answer} />
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             </section>
+                            )}
+
+                            {/* Related cruises (CMS "Related Cruises" mapping) */}
+                            {relatedCruises.length > 0 && (
+                            <section id="related">
+                                <h2 className="text-2xl font-bold text-slate-900 mb-6 font-['Marcellus']">Related Cruises</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    {relatedCruises.map((rc) => (
+                                        <Link key={rc.id} to={`/cruises/${rc.id}`} className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all">
+                                            {rc.image && <img src={rc.image} alt={rc.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />}
+                                            <div className="p-5">
+                                                <h3 className="font-bold text-slate-900 font-['Marcellus'] text-lg group-hover:text-primary transition-colors">{rc.name}</h3>
+                                                <p className="text-sm text-slate-500 mt-1">{rc.duration}{rc.departureLocation ? ` · ${rc.departureLocation}` : ''}</p>
+                                                <p className="text-primary font-bold mt-2">From ₹{Number(rc.startingPrice || 0).toLocaleString('en-IN')}</p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </section>
+                            )}
                         </div>
                     </div>
 

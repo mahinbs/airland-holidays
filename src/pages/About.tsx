@@ -115,6 +115,8 @@ const staticPageContent = {
     ],
   },
 
+  recognition: [] as AboutPageContent['recognition'],
+
   brandStatement: {
     line1: 'We are not just a travel company.',
     line2: 'We are your trusted partner in creating unforgettable life experiences.',
@@ -146,6 +148,11 @@ export default function About() {
   const pageContent = cmsAbout?.content
     ? deepMerge(staticPageContent, cmsAbout.content as Partial<AboutPageContent>)
     : staticPageContent;
+
+  // Display status: Founder & CEO section, inactive recognition cards and inactive team members are hidden.
+  const founderVisible = (pageContent.founder as { active?: boolean }).active !== false;
+  const recognition = (pageContent.recognition ?? []).filter((r) => r.active !== false);
+  const teamMembers = pageContent.team.members.filter((m) => (m as { active?: boolean }).active !== false);
 
   return (
     <div className="bg-white min-h-screen">
@@ -271,6 +278,8 @@ export default function About() {
       </section>
 
       {/* 3. FOUNDER POWER BLOCK */}
+      {founderVisible && (
+      <>
       <div className="h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
       <section className="section-padding relative overflow-hidden bg-white">
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-0">
@@ -350,19 +359,46 @@ export default function About() {
             className="mt-12"
           >
             <h5 className="text-slate-400 text-xs uppercase tracking-widest font-bold mb-5">Recognition & Industry Presence</h5>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {pageContent.founder.supportingImages.map((img, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl overflow-hidden border border-[#ede9e3] hover:border-primary/40 transition-colors group aspect-[1.4/1]"
-                >
-                  <img src={img.src} alt={img.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                </div>
-              ))}
-            </div>
+            {recognition.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {recognition.map((item, i) => (
+                  <div
+                    key={item.id ?? i}
+                    className="rounded-2xl overflow-hidden border border-[#ede9e3] bg-white hover:border-primary/40 hover:shadow-lg transition-all group"
+                  >
+                    <div className="aspect-[1.4/1] overflow-hidden bg-slate-100">
+                      {item.image && (
+                        <img src={item.image} alt={item.title || item.eventName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                      )}
+                    </div>
+                    <div className="p-4">
+                      {(item.eventName || item.title) && <p className="font-bold text-slate-900 text-sm leading-snug">{item.title || item.eventName}</p>}
+                      {item.eventName && item.title && item.eventName !== item.title && <p className="text-primary text-xs font-semibold mt-0.5">{item.eventName}</p>}
+                      {(item.location || item.year) && (
+                        <p className="text-slate-500 text-xs mt-1">{[item.location, item.year].filter(Boolean).join(' · ')}</p>
+                      )}
+                      {item.description && <p className="text-slate-600 text-xs mt-2 leading-relaxed">{item.description}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {pageContent.founder.supportingImages.map((img, i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl overflow-hidden border border-[#ede9e3] hover:border-primary/40 transition-colors group aspect-[1.4/1]"
+                  >
+                    <img src={img.src} alt={img.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
+      </>
+      )}
 
       {/* 4. CREDENTIALS */}
       <div className="h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
@@ -524,6 +560,8 @@ export default function About() {
       </section>
 
       {/* 7. TEAM SECTION */}
+      {teamMembers.length > 0 && (
+      <>
       <div className="h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
       <section className="section-padding relative overflow-hidden bg-[#fafaf8]">
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.04] -z-0">
@@ -550,7 +588,7 @@ export default function About() {
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10"
           >
-            {pageContent.team.members.map((member, i) => (
+            {teamMembers.map((member, i) => (
               <motion.div
                 key={i}
                 variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
@@ -568,6 +606,8 @@ export default function About() {
           </motion.div>
         </div>
       </section>
+      </>
+      )}
 
       {/* 8. BRAND STATEMENT & CTA */}
       <div className="h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />

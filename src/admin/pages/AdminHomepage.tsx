@@ -6,7 +6,7 @@ import { defaultHomepageConfig } from '../../data/defaultCmsContent';
 import type { HomepageConfig, MilestoneItem } from '../../types/cms';
 import StringListField from '../components/fields/StringListField';
 import RichTextField from '../components/fields/RichTextField';
-import { inputClass, moveItem, ReorderButtons } from '../components/fields/shared';
+import { inputClass, moveItem, ReorderButtons, Toggle, useSortable } from '../components/fields/shared';
 import { uploadMedia } from '../../services/storage';
 
 type Tab = 'whyus' | 'founder' | 'milestones' | 'authority' | 'visa' | 'contact';
@@ -27,7 +27,13 @@ export default function AdminHomepage() {
 
   const save = async () => {
     setSaving(true);
-    await upsertSiteSetting('homepage_config', config);
+    // Rewrite display order from the current (drag & drop) order.
+    const withOrder = (items: MilestoneItem[]) => items.map((m, i) => ({ ...m, sortOrder: i }));
+    await upsertSiteSetting('homepage_config', {
+      ...config,
+      founderMilestones: withOrder(config.founderMilestones),
+      industryAuthority: withOrder(config.industryAuthority),
+    });
     await qc.invalidateQueries({ queryKey: ['site_setting', 'homepage_config'] });
     setSaving(false);
     alert('Homepage sections saved!');
@@ -125,27 +131,30 @@ export default function AdminHomepage() {
 }
 
 function MilestoneEditor({ items, onChange }: { items: MilestoneItem[]; onChange: (items: MilestoneItem[]) => void }) {
+  const sortable = useSortable(items, onChange);
+  const patch = (i: number, p: Partial<MilestoneItem>) => onChange(items.map((m, idx) => (idx === i ? { ...m, ...p } : m)));
+
   return (
     <>
+      <p className="text-xs text-slate-400">Drag the handle (or use the arrows) to reorder. Inactive items are hidden on the homepage.</p>
       {items.map((item, i) => (
-        <div key={item.id} className="flex gap-2 p-4 border border-slate-200 rounded-xl">
-          <ReorderButtons index={i} total={items.length} onMove={(f, t) => onChange(moveItem(items, f, t))} />
+        <div key={item.id} {...sortable.rowProps(i)} className={`flex gap-2 p-4 border border-slate-200 rounded-xl transition-opacity ${item.active ? '' : 'opacity-60'} ${sortable.rowClass(i)}`}>
+          <ReorderButtons index={i} total={items.length} onMove={(f, t) => onChange(moveItem(items, f, t))} handleProps={sortable.handleProps(i)} />
           <div className="flex-1 grid md:grid-cols-2 gap-2">
-            <input className={inputClass} value={item.title} placeholder="Title" onChange={(e) => { const next = [...items]; next[i] = { ...next[i], title: e.target.value }; onChange(next); }} />
-            <input className={inputClass} value={item.eventName} placeholder="Event / Recognition" onChange={(e) => { const next = [...items]; next[i] = { ...next[i], eventName: e.target.value }; onChange(next); }} />
-            <input className={inputClass} value={item.location} placeholder="Location" onChange={(e) => { const next = [...items]; next[i] = { ...next[i], location: e.target.value }; onChange(next); }} />
-            <input className={inputClass} value={item.year} placeholder="Year" onChange={(e) => { const next = [...items]; next[i] = { ...next[i], year: e.target.value }; onChange(next); }} />
-            <input className={inputClass} value={item.image} placeholder="Image URL" onChange={(e) => { const next = [...items]; next[i] = { ...next[i], image: e.target.value }; onChange(next); }} />
-            <input type="file" accept="image/*" className="text-xs" onChange={async (e) => {
+            <input className={inputClass} value={item.title} placeholder="Title" onChange={(e) => patch(i, { title: e.target.value })} />
+            <input className={inputClass} value={item.eventName} placeholder="Event / Recognition" onChange={(e) => patch(i, { eventName: e.target.value })} />
+            <input className={inputClass} value={item.location} placeholder="Location" onChange={(e) => patch(i, { location: e.target.value })} />
+            <input className={inputClass} value={item.year} placeholder="Year" onChange={(e) => patch(i, { year: e.target.value })} />
+            <input className={inputClass} value={item.image} placeholder="Image URL" onChange={(e) => patch(i, { image: e.target.value })} />
+            <input type="file" accept="image/*" className="text-xs self-center" onChange={async (e) => {
               const f = e.target.files?.[0]; if (!f) return;
-              const url = await uploadMedia(f, 'milestones');
-              const next = [...items]; next[i] = { ...next[i], image: url }; onChange(next);
+              patch(i, { image: await uploadMedia(f, 'milestones') });
             }} />
             {item.image && <img src={item.image} alt="" className="h-16 rounded-lg object-cover mt-1" />}
-            <textarea className={inputClass} value={item.description} placeholder="Description" onChange={(e) => { const next = [...items]; next[i] = { ...next[i], description: e.target.value }; onChange(next); }} />
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={item.active} onChange={(e) => { const next = [...items]; next[i] = { ...next[i], active: e.target.checked }; onChange(next); }} /> Active</label>
+            <textarea className={`${inputClass} md:col-span-2`} value={item.description} placeholder="Description" onChange={(e) => patch(i, { description: e.target.value })} />
+            <Toggle checked={item.active} onChange={(v) => patch(i, { active: v })} label={item.active ? 'Active' : 'Inactive'} />
           </div>
-          <button type="button" onClick={() => onChange(items.filter((_, idx) => idx !== i))} className="text-red-500"><Trash2 className="w-4 h-4" /></button>
+          <button type="button" onClick={() => onChange(items.filter((_, idx) => idx !== i))} className="text-red-500 self-start p-1.5" aria-label="Remove"><Trash2 className="w-4 h-4" /></button>
         </div>
       ))}
       <button type="button" className="text-sm text-primary flex items-center gap-1" onClick={() => onChange([...items, { id: String(Date.now()), image: '', title: '', eventName: '', location: '', year: '', description: '', sortOrder: items.length, active: true }])}><Plus className="w-4 h-4" /> Add Item</button>

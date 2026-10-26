@@ -15,8 +15,15 @@ import { useSiteSetting } from '../hooks/useContent';
 import { useHeaderConfig } from '../hooks/useHeaderConfig';
 
 const defaultFormState = {
-  name: '', mobile: '', amount: '', service: '', transactionId: '', notes: '', screenshot: null as File | null,
+  name: '', mobile: '', amount: '', service: '', paymentType: '', transactionId: '', paymentDate: '', notes: '', screenshot: null as File | null,
 };
+
+const inputCls = 'w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all';
+
+/** "jpg, .PNG ,pdf" → ['jpg','png','pdf'] */
+function parseAllowedTypes(value: string | undefined): string[] {
+  return (value ?? '').split(/[\s,;]+/).map((t) => t.replace(/^\./, '').toLowerCase()).filter(Boolean);
+}
 
 function mergePaymentConfig(cms: unknown) {
   const base = { ...staticPaymentConfig, ...defaultPaymentPageConfig };
@@ -34,6 +41,7 @@ function mergePaymentConfig(cms: unknown) {
     longHaulPolicy: { ...base.longHaulPolicy, ...c.longHaulPolicy },
     services: c.services ?? base.services,
     importantNotes: c.importantNotes ?? base.importantNotes,
+    formFields: { ...defaultPaymentPageConfig.formFields, ...(c.formFields ?? {}) },
   };
 }
 
@@ -75,27 +83,49 @@ export default function Payment() {
     } catch { }
   };
 
+  const formCfg = paymentConfig.formFields;
+  const allowedTypes = parseAllowedTypes(formCfg.allowedFileTypes);
+  const maxMb = Number(formCfg.maxUploadSizeMb) || 5;
+  const paymentTypes = formCfg.paymentTypes?.length ? formCfg.paymentTypes : ['Bank Transfer', 'UPI', 'Razorpay', 'Other'];
+  const [fileError, setFileError] = useState<string | null>(null);
+  const setField = (key: keyof typeof defaultFormState, value: string) => setFormData((f) => ({ ...f, [key]: value }));
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const inputs = form.querySelectorAll('input, select, textarea');
-    const name = (inputs[0] as HTMLInputElement).value;
-    const mobile = (inputs[1] as HTMLInputElement).value;
-    const amount = (inputs[2] as HTMLInputElement).value;
-    const service = (inputs[3] as HTMLSelectElement).value;
-    const transactionId = (inputs[4] as HTMLInputElement).value;
-    const notes = (form.querySelector('textarea') as HTMLTextAreaElement)?.value ?? '';
-
+    if (formCfg.requireScreenshot && !formData.screenshot) {
+      setFileError('Please upload your payment screenshot.');
+      return;
+    }
     setSubmitting(true);
     try {
       let screenshotUrl: string | undefined;
-      if (formData.screenshot) {
-        if (isSupabaseConfigured) {
-          screenshotUrl = await uploadPaymentProof(formData.screenshot as File);
-        }
+      if (formData.screenshot && isSupabaseConfigured) {
+        screenshotUrl = await uploadPaymentProof(formData.screenshot);
       }
       if (isSupabaseConfigured) {
-        await submitPayment({ name, mobile, amount, service, transaction_id: transactionId, notes, screenshot_url: screenshotUrl });
+        const notes = [formData.notes, formData.paymentDate ? `Payment date: ${formData.paymentDate}` : ''].filter(Boolean).join('\n');
+        const row = {
+          name: formData.name,
+          mobile: formData.mobile,
+          amount: formData.amount,
+          service: formData.service,
+          transaction_id: formData.transactionId,
+          notes,
+          screenshot_url: screenshotUrl,
+          payment_type: formData.paymentType,
+        };
+        try {
+          await submitPayment(row);
+        } catch (err) {
+          // Databases that have not added payment_type yet reject the column — save everything else.
+          if (err instanceof Error && /payment_type/i.test(err.message)) {
+            const { payment_type: _omit, ...rest } = row;
+            void _omit;
+            await submitPayment(rest);
+          } else {
+            throw err;
+          }
+        }
       }
       setIsSubmitted(true);
     } catch (err) {
@@ -106,9 +136,20 @@ export default function Payment() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFormData({ ...formData, screenshot: e.target.files[0] as any });
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (allowedTypes.length && !allowedTypes.includes(ext)) {
+      setFileError(`Unsupported file type. Allowed: ${allowedTypes.join(', ').toUpperCase()}.`);
+      return;
     }
+    if (file.size > maxMb * 1024 * 1024) {
+      setFileError(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed is ${maxMb} MB.`);
+      return;
+    }
+    setFileError(null);
+    setFormData((f) => ({ ...f, screenshot: file }));
   };
 
   return (
@@ -155,7 +196,9 @@ export default function Payment() {
                   { label: 'A/C No', value: paymentConfig.bankTransfer.accountNumber, id: 'acc' },
                   { label: 'A/C Name', value: paymentConfig.bankTransfer.accountName, id: 'name' },
                   { label: 'IFSC Code', value: paymentConfig.bankTransfer.ifscCode, id: 'ifsc' },
-                ].map((item) => (
+                  { label: 'Bank', value: paymentConfig.bankTransfer.bankName ?? '', id: 'bank' },
+                  { label: 'Branch', value: paymentConfig.bankTransfer.branch ?? '', id: 'branch' },
+                ].filter((item) => item.value).map((item) => (
                   <div key={item.id} className="flex items-baseline gap-2 text-slate-700 text-sm py-1.5 border-b border-slate-50 last:border-0 hover:bg-slate-50 rounded px-2 transition-colors">
                     <span className="font-bold text-slate-600 min-w-[100px]">{item.label}:</span>
                     <span className="font-mono text-slate-900 font-semibold">{item.value}</span>
@@ -345,9 +388,9 @@ export default function Payment() {
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
                       <CheckCircle2 className="w-10 h-10 text-green-500" />
                     </div>
-                    <h3 className="text-3xl text-slate-900 mb-4 font-serif" style={{ fontFamily: 'Marcellus, serif' }}>Payment Details Received!</h3>
+                    <h3 className="text-3xl text-slate-900 mb-4 font-serif" style={{ fontFamily: 'Marcellus, serif' }}>{formCfg.successTitle}</h3>
                     <p className="text-slate-600 text-base leading-relaxed max-w-md mx-auto mb-8">
-                      Our team will verify your payment within 2 business hours and send confirmation to your contact details.
+                      {formCfg.successMessage}
                     </p>
                     <div className="flex gap-4 w-full md:w-auto">
                       <button onClick={handleShare} className="btn-outline flex-1 md:flex-none px-6 py-3 font-semibold rounded-xl">Share Page</button>
@@ -357,46 +400,26 @@ export default function Payment() {
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <input
-                        required
-                        type="text"
-                        placeholder="Full Name *"
-                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                      />
-                      <input
-                        required
-                        type="tel"
-                        placeholder="Mobile Number *"
-                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                      />
-                      <input
-                        required
-                        type="number"
-                        placeholder="Amount Paid ₹ *"
-                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                      />
-                      <select
-                        required
-                        defaultValue=""
-                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
-                      >
+                      <input required type="text" placeholder="Full Name *" value={formData.name} onChange={(e) => setField('name', e.target.value)} className={inputCls} />
+                      <input required type="tel" placeholder="Mobile Number *" value={formData.mobile} onChange={(e) => setField('mobile', e.target.value)} className={inputCls} />
+                      <input required type="number" min="0" placeholder="Amount Paid ₹ *" value={formData.amount} onChange={(e) => setField('amount', e.target.value)} className={inputCls} />
+                      <select required value={formData.service} onChange={(e) => setField('service', e.target.value)} className={`${inputCls} appearance-none`}>
                         <option value="" disabled>Select Service *</option>
                         {paymentConfig.services.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
-                      <input
-                        type="text"
-                        placeholder="Transaction ID / Ref No."
-                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                      />
-                      <input
-                        type="date"
-                        className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                      />
+                      <select required value={formData.paymentType} onChange={(e) => setField('paymentType', e.target.value)} className={`${inputCls} appearance-none`}>
+                        <option value="" disabled>Payment Type *</option>
+                        {paymentTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                      <input type="text" placeholder="Transaction ID / Ref No." value={formData.transactionId} onChange={(e) => setField('transactionId', e.target.value)} className={inputCls} />
+                      <input type="date" aria-label="Payment date" value={formData.paymentDate} onChange={(e) => setField('paymentDate', e.target.value)} className={inputCls} />
                     </div>
 
                     <textarea
                       rows={3}
                       placeholder="Notes / Additional Info"
+                      value={formData.notes}
+                      onChange={(e) => setField('notes', e.target.value)}
                       className="w-full bg-slate-50 border border-slate-700 rounded-xl px-4 py-3.5 text-slate-800 text-sm placeholder:text-slate-600 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                     />
 
@@ -415,7 +438,7 @@ export default function Payment() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => setFormData({ ...formData, screenshot: null })}
+                          onClick={() => { setFormData({ ...formData, screenshot: null }); setFileError(null); }}
                           className="w-8 h-8 flex items-center justify-center bg-white rounded-full text-slate-700 hover:text-red-500 border border-slate-700 shadow-sm transition-colors"
                         >
                           ✕
@@ -424,11 +447,12 @@ export default function Payment() {
                     ) : (
                       <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-primary/50 rounded-2xl p-8 cursor-pointer transition-colors bg-slate-50 hover:bg-primary/5">
                         <Upload className="w-8 h-8 text-slate-700 mb-3" />
-                        <span className="font-semibold text-slate-600 text-sm">Upload Payment Screenshot</span>
-                        <span className="text-slate-700 text-xs mt-1">JPG, PNG, PDF — Max 10MB</span>
-                        <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileChange} />
+                        <span className="font-semibold text-slate-600 text-sm">Upload Payment Screenshot{formCfg.requireScreenshot ? ' *' : ''}</span>
+                        <span className="text-slate-700 text-xs mt-1">{allowedTypes.length ? allowedTypes.join(', ').toUpperCase() : 'JPG, PNG, PDF'} — Max {maxMb}MB</span>
+                        <input type="file" className="hidden" accept={allowedTypes.length ? allowedTypes.map((t) => `.${t}`).join(',') : 'image/*,.pdf'} onChange={handleFileChange} />
                       </label>
                     )}
+                    {fileError && <p role="alert" className="text-sm text-red-600 -mt-3">{fileError}</p>}
 
                     <button
                       type="submit"
@@ -436,7 +460,7 @@ export default function Payment() {
                       className="w-full bg-primary hover:bg-primary/90 text-white text-lg py-4 rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 mt-2 font-serif disabled:opacity-50"
                       style={{ fontFamily: 'Marcellus, serif' }}
                     >
-                      <Send className="w-5 h-5" /> {submitting ? 'Submitting...' : 'Submit Payment Details'}
+                      <Send className="w-5 h-5" /> {submitting ? 'Submitting...' : formCfg.submitLabel}
                     </button>
                   </form>
                 )}

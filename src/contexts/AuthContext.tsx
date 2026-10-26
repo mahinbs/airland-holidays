@@ -3,9 +3,11 @@ import type { Session, User } from '@supabase/supabase-js';
 import { PRIMARY_ADMIN_EMAIL, type AdminAccessStatus } from '../lib/adminConfig';
 import {
   fetchAdminAccessRequest,
-  fetchAdminUser,
+  fetchAdminProfile,
   rpcRequestAdminAccess,
+  type AdminProfile,
 } from '../lib/adminAccess';
+import { resolvePermissions, type PermissionKey, type Role } from '../admin/config/permissions';
 import { getSupabaseOrNull, isSupabaseConfigured } from '../lib/supabase';
 
 interface SignUpResult {
@@ -19,6 +21,13 @@ interface AuthContextValue {
   loading: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  /** false when a super admin has deactivated this account */
+  isActive: boolean;
+  role: Role | null;
+  /** Effective permissions (role defaults + per-user overrides). Super admins pass every check. */
+  permissions: Record<PermissionKey, boolean>;
+  profile: AdminProfile | null;
+  can: (permission: PermissionKey) => boolean;
   accessStatus: AdminAccessStatus;
   signIn: (email: string, password: string) => Promise<AdminAccessStatus>;
   signUp: (email: string, password: string, fullName?: string) => Promise<SignUpResult>;
@@ -56,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [accessStatus, setAccessStatus] = useState<AdminAccessStatus>('none');
 
   async function loadAccessState(
@@ -64,21 +74,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!userId) {
       setIsAdmin(false);
       setIsSuperAdmin(false);
+      setProfile(null);
       setAccessStatus('none');
       return { isAdmin: false, isSuperAdmin: false, accessStatus: 'none' };
     }
 
-    const adminRow = await fetchAdminUser(userId);
+    const adminProfile = await fetchAdminProfile(userId);
 
-    if (adminRow) {
+    if (adminProfile) {
       setIsAdmin(true);
-      setIsSuperAdmin(Boolean(adminRow.is_super_admin));
+      setIsSuperAdmin(adminProfile.isSuperAdmin);
+      setProfile(adminProfile);
       setAccessStatus('approved');
-      return { isAdmin: true, isSuperAdmin: Boolean(adminRow.is_super_admin), accessStatus: 'approved' };
+      return { isAdmin: true, isSuperAdmin: adminProfile.isSuperAdmin, accessStatus: 'approved' };
     }
 
     setIsAdmin(false);
     setIsSuperAdmin(false);
+    setProfile(null);
 
     const requestRow = await fetchAdminAccessRequest(userId);
 
@@ -189,8 +202,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setIsAdmin(false);
     setIsSuperAdmin(false);
+    setProfile(null);
     setAccessStatus('none');
   }
+
+  const role: Role | null = profile?.role ?? (isSuperAdmin ? 'Super Admin' : null);
+  const permissions = profile?.permissions ?? resolvePermissions(role ?? 'Admin', null);
+  const can = (permission: PermissionKey) => isSuperAdmin || permissions[permission] === true;
 
   return (
     <AuthContext.Provider
@@ -200,6 +218,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         isAdmin,
         isSuperAdmin,
+        isActive: profile?.active ?? true,
+        role,
+        permissions,
+        profile,
+        can,
         accessStatus,
         signIn,
         signUp,

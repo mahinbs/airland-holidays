@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Clock, Map, Calendar, Users, Maximize, Share2, Volume2, VolumeX, ShieldCheck, Download,
     Coffee, Moon, ShoppingBag, Info, Plane, Hotel, MessageCircle, CheckCircle2, XCircle, ChevronDown,
-    Send, ArrowRight, Phone, Camera, Briefcase, ChevronLeft, ChevronRight, FileText
+    Send, ArrowRight, Phone, Camera, Briefcase, ChevronLeft, ChevronRight, FileText, Star, Play, Quote
 } from 'lucide-react';
 import { useKeenSlider } from 'keen-slider/react';
 import VisualExperience from '../components/common/VisualExperience';
@@ -13,8 +13,10 @@ import LabeledImageCarousel from '../components/common/LabeledImageCarousel';
 import SectionStickyNav from '../components/common/SectionStickyNav';
 import { useSectionScrollSpy } from '../hooks/useSectionScrollSpy';
 import { normalizeLabeledImages, type PackageLabeledImage } from '../types/packageDetail';
-import { usePackage, usePackages } from '../hooks/useContent';
-import { buildPackageDetailView } from '../lib/mapContent';
+import { useModuleFaqs, usePackage, usePackages, useTestimonials } from '../hooks/useContent';
+import { buildPackageDetailView, mapTestimonialToCard } from '../lib/mapContent';
+import RichContent from '../components/common/RichContent';
+import { useSeo, readSeo } from '../hooks/useSeo';
 import { submitPackageEnquiry } from '../services/submissions';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -161,12 +163,91 @@ const staticPackageData = {
 };
 
 // 1. HERO SECTION
-type PackageDetailData = typeof staticPackageData;
+type PackageDetailData = typeof staticPackageData & {
+    /** CMS extras (optional) */
+    gallery?: string[];
+    seo?: { title?: string; description?: string };
+    slug?: string;
+};
+
+type RawItineraryDay = {
+    day?: number;
+    title?: string;
+    desc?: string;
+    description?: string;
+    attractions?: string[];
+    activities?: string[];
+    images?: (string | { src: string; title: string })[];
+    image?: string;
+};
+
+/** Accepts both the CMS itinerary shape (description / activities / image) and the legacy page shape. Array order = display order. */
+function normalizeItinerary(raw: unknown): { day: number; title: string; desc: string; attractions: string[]; images: (string | { src: string; title: string })[] }[] {
+    if (!Array.isArray(raw)) return [];
+    return (raw as RawItineraryDay[]).map((d, i) => ({
+        day: d.day ?? i + 1,
+        title: d.title ?? '',
+        desc: d.desc ?? d.description ?? '',
+        attractions: (d.attractions ?? d.activities ?? []).filter(Boolean),
+        images: d.images?.length ? d.images : d.image ? [d.image] : [],
+    }));
+}
+
+/** Hero + package gallery images without duplicates. */
+function galleryPool(data?: PackageDetailData): string[] {
+    const all = [...(data?.gallery ?? []), ...(data?.images ?? []).slice(1)].filter(Boolean);
+    return Array.from(new Set(all));
+}
+
+/** Hero slider: cross-fades through every hero image uploaded in the CMS (falls back to the hero video). */
+const HeroBackground = ({ images, videoUrl }: { images: string[]; videoUrl?: string }) => {
+    const slides = images.filter(Boolean);
+    const [index, setIndex] = useState(0);
+
+    React.useEffect(() => {
+        if (slides.length < 2) return;
+        const timer = window.setInterval(() => setIndex((i) => (i + 1) % slides.length), 5000);
+        return () => window.clearInterval(timer);
+    }, [slides.length]);
+
+    if (!slides.length && videoUrl) {
+        return <video src={videoUrl} className="absolute inset-0 w-full h-full object-cover opacity-[0.95]" autoPlay loop muted playsInline />;
+    }
+    return (
+        <>
+            <AnimatePresence initial={false}>
+                <motion.img
+                    key={slides[index] ?? 'empty'}
+                    src={slides[index]}
+                    alt="Hero"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.95 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1 }}
+                    className="absolute inset-0 w-full h-full object-cover"
+                />
+            </AnimatePresence>
+            {slides.length > 1 && (
+                <div className="absolute bottom-4 right-6 z-20 flex gap-1.5">
+                    {slides.map((_, i) => (
+                        <button
+                            key={i}
+                            type="button"
+                            onClick={() => setIndex(i)}
+                            aria-label={`Show image ${i + 1}`}
+                            className={`h-1.5 rounded-full transition-all ${i === index ? 'w-6 bg-secondary' : 'w-1.5 bg-white/50'}`}
+                        />
+                    ))}
+                </div>
+            )}
+        </>
+    );
+};
 
 const HeroSection = ({ data, scrollToForm }: { data?: PackageDetailData, scrollToForm?: () => void, [key: string]: unknown }) => {
     return (
         <section className="relative min-h-[75vh] md:min-h-[85vh] w-full flex items-center bg-primary-dark overflow-hidden pb-10">
-            <img src={data?.images[0]} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-[0.95]" />
+            <HeroBackground images={data?.images ?? []} videoUrl={data?.videoUrl} />
             <div className="absolute inset-0 bg-gradient-to-r from-[#0a1628]/85 via-[#0a1628]/40 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628]/50 via-transparent to-transparent" />
 
@@ -239,6 +320,7 @@ const detailNavItems = [
     { id: 'inclusions', label: 'Inclusions/Exclusions' },
     { id: 'insights', label: 'Travel Information' },
     { id: 'faq', label: 'FAQ' },
+    { id: 'reviews', label: 'Guest Reviews' },
     { id: 'experiences', label: 'Guest Experiences' }
 ];
 
@@ -254,8 +336,11 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof staticPackag
         }
     };
 
+    const sideImages = galleryPool(data).slice(0, 2);
+
     const toggleFullScreen = () => {
-        if (data?.videoUrl) onMediaClick(data.videoUrl);
+        const src = data?.videoUrl || data?.images?.[0];
+        if (src) onMediaClick(src);
     };
 
     const handleShare = async () => {
@@ -275,21 +360,32 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof staticPackag
         <div className="flex flex-col gap-8 pt-4">
             <div className="space-y-4 max-w-4xl">
                 <h2 className="text-3xl font-marcellus text-primary mb-2">The Experience</h2>
-                <p className="text-slate-700 leading-relaxed text-lg font-medium">{data?.overview}</p>
+                <RichContent html={data?.overview} className="text-lg" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2 relative rounded-3xl overflow-hidden shadow-xl group bg-slate-900 aspect-[4/3] md:aspect-auto md:h-[400px] border border-slate-100">
-                    <video
-                        ref={videoRef}
-                        src={data?.videoUrl}
-                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
-                        autoPlay loop muted playsInline
-                    />
+                <div className={`${sideImages.length ? 'md:col-span-2' : 'md:col-span-3'} relative rounded-3xl overflow-hidden shadow-xl group bg-slate-900 aspect-[4/3] md:aspect-auto md:h-[400px] border border-slate-100`}>
+                    {data?.videoUrl ? (
+                        <video
+                            ref={videoRef}
+                            src={data.videoUrl}
+                            className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
+                            autoPlay loop muted playsInline
+                        />
+                    ) : (
+                        <img
+                            src={data?.images?.[0]}
+                            alt={data?.title}
+                            onClick={() => data?.images?.[0] && onMediaClick(data.images[0])}
+                            className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-700"
+                        />
+                    )}
                     <div className="absolute bottom-4 right-4 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <button onClick={toggleMute} className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-secondary transition-colors" title="Toggle Sound">
-                            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                        </button>
+                        {data?.videoUrl && (
+                            <button onClick={toggleMute} className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-secondary transition-colors" title="Toggle Sound">
+                                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                            </button>
+                        )}
                         <button onClick={toggleFullScreen} className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-secondary transition-colors" title="Full Screen">
                             <Maximize className="w-5 h-5" />
                         </button>
@@ -299,26 +395,22 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof staticPackag
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-1 gap-4 h-[200px] md:h-[400px]">
-                    <div
-                        onClick={() => onMediaClick("https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=2000")}
-                        className="rounded-3xl overflow-hidden border border-slate-100 relative group cursor-pointer"
-                    >
-                        <img src="https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Experience preview" />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Camera className="text-white w-6 h-6" />
-                        </div>
+                {sideImages.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-1 gap-4 h-[200px] md:h-[400px]">
+                        {sideImages.map((src) => (
+                            <div
+                                key={src}
+                                onClick={() => onMediaClick(src)}
+                                className="rounded-3xl overflow-hidden border border-slate-100 relative group cursor-pointer"
+                            >
+                                <img src={src} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Experience preview" loading="lazy" />
+                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Camera className="text-white w-6 h-6" />
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div
-                        onClick={() => onMediaClick("https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80&w=2000")}
-                        className="rounded-3xl overflow-hidden border border-slate-100 relative group cursor-pointer"
-                    >
-                        <img src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Experience preview" />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Camera className="text-white w-6 h-6" />
-                        </div>
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );
@@ -327,11 +419,12 @@ const OverviewExperience = ({ data, onMediaClick }: { data?: typeof staticPackag
 // 3.5 ACCOMMODATION
 const Accommodation = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
     if (!data?.accommodation) return null;
+    if (!data.accommodation.options.length && !data.accommodation.desc) return null;
     return (
         <div className="flex flex-col gap-8 pt-4">
             <div className="space-y-4 max-w-4xl">
                 <h2 className="text-3xl font-marcellus text-primary mb-2">{data.accommodation.title}</h2>
-                <p className="text-slate-700 leading-relaxed text-lg font-medium">{data.accommodation.desc}</p>
+                <RichContent html={data.accommodation.desc} className="text-lg" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {data.accommodation.options.map((option: { name: string, desc: string, image: string }, i: number) => (
@@ -341,7 +434,7 @@ const Accommodation = ({ data }: { data?: typeof staticPackageData, [key: string
                         </div>
                         <div className="p-6">
                             <h4 className="font-bold text-slate-900 mb-2 text-xl font-['Marcellus']">{option.name}</h4>
-                            <p className="text-slate-600 leading-relaxed">{option.desc}</p>
+                            <RichContent html={option.desc} />
                         </div>
                     </div>
                 ))}
@@ -350,9 +443,32 @@ const Accommodation = ({ data }: { data?: typeof staticPackageData, [key: string
     );
 };
 
+// 3.6 PACKAGE GALLERY (CMS "Package Gallery" + extra hero images)
+const PackageGallery = ({ data, onMediaClick }: { data?: PackageDetailData, onMediaClick: (src: string) => void }) => {
+    const images = galleryPool(data);
+    if (images.length < 3) return null;
+    return (
+        <div className="flex flex-col gap-6 pt-4">
+            <h2 className="text-3xl font-marcellus text-primary">Package Gallery</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {images.map((src, i) => (
+                    <button
+                        key={src}
+                        type="button"
+                        onClick={() => onMediaClick(src)}
+                        className={`relative overflow-hidden rounded-2xl group ${i === 0 ? 'col-span-2 row-span-2' : ''} aspect-[4/3]`}
+                    >
+                        <img src={src} alt={`${data?.title ?? 'Package'} gallery ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 // 4. ITINERARY
 const Itinerary = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
-    const [openDay, setOpenDay] = useState<number | null>(1);
+    const [openDay, setOpenDay] = useState<number | null>(0);
 
     const handleDownload = () => {
         alert("Downloading itinerary PDF... (Simulation)");
@@ -374,24 +490,24 @@ const Itinerary = ({ data }: { data?: typeof staticPackageData, [key: string]: u
             </div>
 
             <div className="space-y-4">
-                {data?.itinerary.map((day: { day: number; title: string; desc: string; attractions: string[]; images: (string | { src: string; title: string })[] }) => {
+                {normalizeItinerary(data?.itinerary).map((day, dayIdx) => {
                     const dayImages = normalizeLabeledImages(day.images);
                     return (
-                    <div key={day.day} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${openDay === day.day ? 'border-primary/30 shadow-md ring-1 ring-primary/10' : 'border-slate-200 shadow-sm hover:border-slate-300'}`}>
+                    <div key={dayIdx} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${openDay === dayIdx ? 'border-primary/30 shadow-md ring-1 ring-primary/10' : 'border-slate-200 shadow-sm hover:border-slate-300'}`}>
                         <button
                             className="w-full flex items-center justify-between p-5 text-left focus:outline-none group bg-white"
-                            onClick={() => setOpenDay(openDay === day.day ? null : day.day)}
+                            onClick={() => setOpenDay(openDay === dayIdx ? null : dayIdx)}
                         >
                             <div className="flex items-center gap-5">
-                                <div className={`font-bold text-sm px-4 py-2.5 rounded-xl shrink-0 transition-colors ${openDay === day.day ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-600 group-hover:bg-primary/10 group-hover:text-primary'}`}>
+                                <div className={`font-bold text-sm px-4 py-2.5 rounded-xl shrink-0 transition-colors ${openDay === dayIdx ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-600 group-hover:bg-primary/10 group-hover:text-primary'}`}>
                                     Day {day.day}
                                 </div>
-                                <h3 className={`font-bold text-lg md:text-xl transition-colors ${openDay === day.day ? 'text-primary' : 'text-slate-800 group-hover:text-primary'}`}>{day.title}</h3>
+                                <h3 className={`font-bold text-lg md:text-xl transition-colors ${openDay === dayIdx ? 'text-primary' : 'text-slate-800 group-hover:text-primary'}`}>{day.title}</h3>
                             </div>
-                            <ChevronDown className={`w-5 h-5 transition-transform duration-300 shrink-0 ${openDay === day.day ? 'rotate-180 text-primary' : 'text-slate-400 group-hover:text-primary'}`} />
+                            <ChevronDown className={`w-5 h-5 transition-transform duration-300 shrink-0 ${openDay === dayIdx ? 'rotate-180 text-primary' : 'text-slate-400 group-hover:text-primary'}`} />
                         </button>
                         <AnimatePresence>
-                            {openDay === day.day && (
+                            {openDay === dayIdx && (
                                 <motion.div
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
@@ -404,7 +520,7 @@ const Itinerary = ({ data }: { data?: typeof staticPackageData, [key: string]: u
                                         )}
 
                                         <div className="flex-1 md:pl-1">
-                                            <p className="text-slate-700 leading-relaxed mb-6">{day.desc}</p>
+                                            <RichContent html={day.desc} className="mb-6" />
                                             <div className="flex flex-wrap gap-2 mb-2">
                                                 {day.attractions.map((attr: string, idx: number) => (
                                                     <span key={idx} className="bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-slate-100 transition-colors">
@@ -517,19 +633,49 @@ function getInsightPanel(
 }
 
 // 6. DESTINATION INSIGHTS & TERMS
-const DestinationInsights = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
-    const tabs = [
-        { id: 'food', icon: Coffee, label: 'Local Cuisine' },
-        { id: 'nightlife', icon: Moon, label: 'Nightlife' },
-        { id: 'shopping', icon: ShoppingBag, label: 'Shopping' },
-        { id: 'tips', icon: Info, label: 'Travel Tips' },
-        { id: 'essentials', icon: Briefcase, label: 'Local Essentials' },
-    ];
-    const [activeTab, setActiveTab] = useState(tabs[0].id);
+const ALL_INSIGHT_TABS = [
+    { id: 'food', icon: Coffee, label: 'Local Cuisine' },
+    { id: 'nightlife', icon: Moon, label: 'Nightlife' },
+    { id: 'shopping', icon: ShoppingBag, label: 'Shopping' },
+    { id: 'tips', icon: Info, label: 'Travel Tips' },
+    { id: 'essentials', icon: Briefcase, label: 'Local Essentials' },
+    { id: 'travelNotes', icon: FileText, label: 'Travel Notes' },
+];
+
+/** Panel content for a tab. `travelNotes` is the rich-text "Travel Notes" field from the CMS. */
+function getTabPanel(insights: PackageDetailData['insights'] | undefined, tabId: string): { text: string; gallery: PackageLabeledImage[] } {
+    if (tabId === 'travelNotes') {
+        const notes = (insights as unknown as { travelNotes?: unknown } | undefined)?.travelNotes;
+        return { text: typeof notes === 'string' ? notes : '', gallery: [] };
+    }
+    return getInsightPanel(insights, tabId);
+}
+
+function hasInsightContent(data?: PackageDetailData): boolean {
+    if (!data) return false;
+    const tabs = ALL_INSIGHT_TABS.filter((t) => {
+        const panel = getTabPanel(data.insights, t.id);
+        return panel.text.trim() || panel.gallery.length;
+    });
+    return tabs.length > 0 || Boolean(data.travelType || data.bestTime || data.visaInfo);
+}
+
+const DestinationInsights = ({ data }: { data?: PackageDetailData, [key: string]: unknown }) => {
+    const tabs = ALL_INSIGHT_TABS.filter((t) => {
+        const panel = getTabPanel(data?.insights, t.id);
+        return panel.text.trim() || panel.gallery.length;
+    });
+    const [activeTabId, setActiveTab] = useState(tabs[0]?.id ?? '');
     const [termsOpen, setTermsOpen] = useState(false);
 
-    const { text, gallery } = getInsightPanel(data?.insights, activeTab);
+    const activeTab = tabs.some((t) => t.id === activeTabId) ? activeTabId : tabs[0]?.id ?? '';
+    const { text, gallery } = getTabPanel(data?.insights, activeTab);
     const tabLabel = tabs.find((t) => t.id === activeTab)?.label ?? 'Travel information';
+    const facts = [
+        { label: 'Travel Type', value: data?.travelType, icon: Users },
+        { label: 'Best Time to Visit', value: data?.bestTime, icon: Calendar },
+        { label: 'Visa / Travel Information', value: data?.visaInfo, icon: ShieldCheck },
+    ].filter((f) => f.value);
 
     return (
         <div>
@@ -538,6 +684,21 @@ const DestinationInsights = ({ data }: { data?: typeof staticPackageData, [key: 
                 <p className="text-slate-600">Essential insights to make the most of your journey.</p>
             </div>
 
+            {facts.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    {facts.map((f) => (
+                        <div key={f.label} className="bg-white rounded-2xl border border-slate-200 p-4 flex items-start gap-3">
+                            <f.icon className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{f.label}</p>
+                                <p className="text-slate-800 font-medium">{f.value}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {tabs.length > 0 && (
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow mb-6">
                 <div className="flex flex-wrap border-b border-slate-100 bg-slate-100/80 rounded-t-3xl overflow-hidden">
                     {tabs.map((tab) => (
@@ -563,13 +724,14 @@ const DestinationInsights = ({ data }: { data?: typeof staticPackageData, [key: 
                             {gallery.length > 0 && (
                                 <LabeledImageCarousel items={gallery} ariaLabel={tabLabel} />
                             )}
-                            <p className="text-slate-700 leading-relaxed text-lg max-h-[380px] overflow-y-auto custom-scrollbar">
-                                {text}
-                            </p>
+                            <div className="max-h-[480px] overflow-y-auto custom-scrollbar pr-1">
+                                <RichContent html={text} className="text-lg" />
+                            </div>
                         </motion.div>
                     </AnimatePresence>
                 </div>
             </div>
+            )}
 
             {/* Collapsible Terms and Conditions */}
             <div className="bg-amber-50/50 rounded-2xl border border-amber-100/50 overflow-hidden">
@@ -607,6 +769,9 @@ const DestinationInsights = ({ data }: { data?: typeof staticPackageData, [key: 
 // 7. FAQ SECTION
 const FAQSection = ({ data }: { data?: typeof staticPackageData, [key: string]: unknown }) => {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
+    const { faqs: moduleFaqs } = useModuleFaqs('package');
+    const ownFaqs: { question: string, answer: string }[] = data?.faqs ?? [];
+    const faqs = [...ownFaqs, ...moduleFaqs.filter((m) => !ownFaqs.some((f) => f.question.trim() === m.question.trim()))];
 
     return (
         <div>
@@ -615,7 +780,7 @@ const FAQSection = ({ data }: { data?: typeof staticPackageData, [key: string]: 
                 <p className="text-slate-600">Everything you need to know about this package.</p>
             </div>
             <div className="space-y-3">
-                {data?.faqs.map((faq: { question: string, answer: string }, idx: number) => (
+                {faqs.map((faq: { question: string, answer: string }, idx: number) => (
                     <div key={idx} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:border-primary/30 transition-colors">
                         <button
                             onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
@@ -632,8 +797,8 @@ const FAQSection = ({ data }: { data?: typeof staticPackageData, [key: string]: 
                                     exit={{ height: 0, opacity: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="px-5 pb-5 pt-1 text-slate-600 leading-relaxed">
-                                        {faq.answer}
+                                    <div className="px-5 pb-5 pt-1">
+                                        <RichContent html={faq.answer} />
                                     </div>
                                 </motion.div>
                             )}
@@ -888,8 +1053,8 @@ const RelatedPackages = ({ data }: { data?: typeof staticPackageData, [key: stri
                         }}
                         className="pb-10 pt-4 px-2"
                     >
-                        {(data?.related || []).map((p) => (
-                            <SwiperSlide key={p.id} className="h-auto">
+                        {(data?.related || []).map((p, relIdx) => (
+                            <SwiperSlide key={`${p.id}-${relIdx}`} className="h-auto">
                                 <div className="aspect-[4/5] w-full h-full relative group cursor-pointer rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-200">
                                     <img
                                         src={p.images[0]}
@@ -918,7 +1083,7 @@ const RelatedPackages = ({ data }: { data?: typeof staticPackageData, [key: stri
                                             Starting Price <span className="text-secondary font-bold">${p.price}</span>
                                         </p>
                                         <a
-                                            href={`/packages/${p.id}`}
+                                            href={`/packages/${(p as { slug?: string }).slug ?? p.id}`}
                                             className="block w-full bg-secondary/90 hover:bg-secondary text-white py-3 rounded-xl font-bold backdrop-blur-sm transition-all shadow-lg shadow-black/20 hover:-translate-y-1"
                                         >
                                             Explore Package
@@ -931,6 +1096,52 @@ const RelatedPackages = ({ data }: { data?: typeof staticPackageData, [key: stri
                 </div>
             </div>
         </section>
+    );
+};
+
+// 11.5 GUEST REVIEWS (written + video testimonials from the CMS)
+const PackageTestimonials = () => {
+    const { data: rows = [] } = useTestimonials();
+    const items = rows.slice(0, 6).map(mapTestimonialToCard);
+    if (!items.length) return null;
+
+    return (
+        <div>
+            <div className="border-b border-slate-200 pb-4 mb-8 flex items-end justify-between gap-4">
+                <div>
+                    <h2 className="text-3xl font-marcellus text-primary mb-2">Guest Reviews</h2>
+                    <p className="text-slate-600">What travellers say about travelling with Airland Holidays.</p>
+                </div>
+                <Link to="/testimonials" className="text-sm font-bold text-primary hover:text-secondary shrink-0">View all →</Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {items.map((t) => (
+                    <div key={t.id} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col gap-3">
+                        {t.type === 'video' && t.videoUrl ? (
+                            <a href={t.videoUrl} target="_blank" rel="noreferrer" className="relative block rounded-xl overflow-hidden aspect-video bg-slate-900 group">
+                                <img src={t.avatar} alt={t.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" loading="lazy" />
+                                <span className="absolute inset-0 flex items-center justify-center">
+                                    <span className="w-12 h-12 rounded-full bg-secondary text-white flex items-center justify-center shadow-lg"><Play className="w-5 h-5 ml-0.5" /></span>
+                                </span>
+                            </a>
+                        ) : (
+                            <Quote className="w-6 h-6 text-secondary/60" />
+                        )}
+                        {t.text && <p className="text-slate-700 leading-relaxed line-clamp-5">{t.text}</p>}
+                        <div className="mt-auto flex items-center gap-3 pt-2">
+                            <img src={t.avatar} alt="" className="w-10 h-10 rounded-full object-cover" loading="lazy" />
+                            <div className="flex-1 min-w-0">
+                                <p className="font-bold text-slate-900 text-sm truncate">{t.name}</p>
+                                {t.location && <p className="text-xs text-slate-500 truncate">{t.location}</p>}
+                            </div>
+                            <div className="flex gap-0.5 text-secondary">
+                                {Array.from({ length: Math.round(t.rating) }, (_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
     );
 };
 
@@ -1016,7 +1227,7 @@ const MediaModal = ({
                         ) : (
                             <img src={currentItem.src} alt="Enlarged view" className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl" />
                         )}
-                        <p className="text-white/80 mt-4 text-center max-w-2xl font-medium tracking-wide">"{currentItem.text}"</p>
+                        {currentItem.text && <p className="text-white/80 mt-4 text-center max-w-2xl font-medium tracking-wide">"{currentItem.text}"</p>}
                     </motion.div>
                 </motion.div>
             )}
@@ -1029,6 +1240,7 @@ export default function PackageDetail() {
     const packageId = useParams().id ?? 'preview';
     const { data: cmsPackage, isLoading } = usePackage(packageId);
     const { data: allPackages = [] } = usePackages();
+    const { data: testimonialRows = [] } = useTestimonials();
 
     const packageData = React.useMemo((): PackageDetailData => {
         if (cmsPackage) {
@@ -1047,14 +1259,41 @@ export default function PackageDetail() {
         return staticPackageData;
     }, [cmsPackage, packageId, allPackages]);
 
+    const navItems = React.useMemo(
+        () =>
+            detailNavItems.filter((item) => {
+                if (item.id === 'insights') return hasInsightContent(packageData);
+                if (item.id === 'experiences') return packageData.socialGallery.length > 0;
+                if (item.id === 'itinerary') return normalizeItinerary(packageData.itinerary).length > 0;
+                if (item.id === 'inclusions') return packageData.inclusions.length > 0 || packageData.exclusions.length > 0;
+                if (item.id === 'reviews') return testimonialRows.length > 0;
+                return true;
+            }),
+        [packageData, testimonialRows.length]
+    );
     const { activeSection, scrollToSection } = useSectionScrollSpy(
-        detailNavItems.map((item) => item.id),
+        navItems.map((item) => item.id),
         { initialSection: 'overview', topOffset: 200 }
     );
-    const [lightbox, setLightbox] = useState<{ isOpen: boolean, index: number }>({
+    const [lightbox, setLightbox] = useState<{ isOpen: boolean, index: number, source: 'social' | 'gallery' }>({
         isOpen: false,
-        index: 0
+        index: 0,
+        source: 'social'
     });
+
+    const seo = readSeo({ seo: packageData.seo });
+    useSeo({
+        title: seo.title || (packageData.title && packageData.title !== 'Package' ? `${packageData.title} | Airland Holidays` : undefined),
+        description: seo.description || packageData.subtitle || undefined,
+        image: packageData.images[0],
+    });
+
+    const poolItems = React.useMemo(
+        () => [packageData.videoUrl && { type: 'video', src: packageData.videoUrl, user: '', text: '' }, ...packageData.images.filter(Boolean).map((src) => ({ type: 'image', src, user: '', text: '' })), ...galleryPool(packageData).map((src) => ({ type: 'image', src, user: '', text: '' }))]
+            .filter((i): i is { type: string; src: string; user: string; text: string } => Boolean(i))
+            .filter((item, idx, arr) => arr.findIndex((o) => o.src === item.src) === idx),
+        [packageData]
+    );
 
     if (isLoading && isSupabaseConfigured) {
         return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" /></div>;
@@ -1079,13 +1318,14 @@ export default function PackageDetail() {
         }
     };
 
-    const handleGalleryTrigger = (index: number) => {
-        setLightbox({ isOpen: true, index });
-    };
-
     const handleMediaClick = (src: string) => {
-        const idx = packageData.socialGallery.findIndex(item => item.src === src);
-        handleGalleryTrigger(idx !== -1 ? idx : 1);
+        const idx = poolItems.findIndex((item) => item.src === src);
+        if (idx !== -1) {
+            setLightbox({ isOpen: true, index: idx, source: 'gallery' });
+            return;
+        }
+        const socialIdx = packageData.socialGallery.findIndex((item) => item.src === src);
+        setLightbox({ isOpen: true, index: socialIdx !== -1 ? socialIdx : 0, source: 'social' });
     };
 
     return (
@@ -1095,7 +1335,7 @@ export default function PackageDetail() {
 
             {/* STICKY NAV LAYER */}
             <SectionStickyNav
-                items={detailNavItems}
+                items={navItems}
                 activeSection={activeSection}
                 onNavigate={scrollToSection}
             />
@@ -1111,24 +1351,40 @@ export default function PackageDetail() {
                         <div className="mt-16">
                             <Accommodation data={packageData} />
                         </div>
+                        <div className="mt-16">
+                            <PackageGallery data={packageData} onMediaClick={handleMediaClick} />
+                        </div>
                     </section>
 
-                    <section id="itinerary" className="scroll-mt-32">
-                        <Itinerary data={packageData} />
-                    </section>
+                    {navItems.some((n) => n.id === 'itinerary') && (
+                        <section id="itinerary" className="scroll-mt-32">
+                            <Itinerary data={packageData} />
+                        </section>
+                    )}
 
-                    <section id="inclusions" className="scroll-mt-32">
-                        <InclusionsExclusions data={packageData} />
-                    </section>
+                    {navItems.some((n) => n.id === 'inclusions') && (
+                        <section id="inclusions" className="scroll-mt-32">
+                            <InclusionsExclusions data={packageData} />
+                        </section>
+                    )}
 
-                    <section id="insights" className="scroll-mt-32">
-                        <DestinationInsights data={packageData} />
-                    </section>
+                    {navItems.some((n) => n.id === 'insights') && (
+                        <section id="insights" className="scroll-mt-32">
+                            <DestinationInsights data={packageData} />
+                        </section>
+                    )}
 
                     <section id="faq" className="scroll-mt-32">
                         <FAQSection data={packageData} />
                     </section>
 
+                    {testimonialRows.length > 0 && (
+                        <section id="reviews" className="scroll-mt-32">
+                            <PackageTestimonials />
+                        </section>
+                    )}
+
+                    {packageData.socialGallery.length > 0 && (
                     <section id="experiences" className="scroll-mt-32 -mx-4 md:-mx-8">
                         <VisualExperience 
                             items={packageData.socialGallery.map((item: { type: string, src: string }, i: number) => ({
@@ -1144,6 +1400,7 @@ export default function PackageDetail() {
                             subtitle="Real guest experiences and stories captured from this tour."
                         />
                     </section>
+                    )}
 
                 </div>
 
@@ -1164,7 +1421,7 @@ export default function PackageDetail() {
             <MediaModal
                 isOpen={lightbox.isOpen}
                 onClose={() => setLightbox({ ...lightbox, isOpen: false })}
-                gallery={packageData.socialGallery}
+                gallery={lightbox.source === 'gallery' ? poolItems : packageData.socialGallery}
                 currentIndex={lightbox.index}
                 onNavigate={(idx) => setLightbox({ ...lightbox, index: idx })}
             />

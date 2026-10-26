@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useServices, useServicesPageConfig } from '../hooks/useContent';
-import { defaultServicesPageConfig } from '../data/defaultCmsContent';
 import type { ServicesPageConfig } from '../types/cms';
 import { mapServiceToCard, type ServiceCardItem } from '../lib/mapContent';
 import { submitContact } from '../services/submissions';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { useKeenSlider } from 'keen-slider/react';
-import 'keen-slider/keen-slider.min.css';
+import { MARQUEE_ICONS } from '../components/layout/marqueeIcons';
 import {
     Plane,
     Banknote,
@@ -54,7 +52,7 @@ const staticTrustItems: {
 }[] = [
         { icon: Award, value: 'IATA', label: 'Certified Agency', numeric: false },
         { icon: Clock, value: '20+', label: 'Years of Experience', numeric: true, target: 20 },
-        { icon: Users, value: '10,000+', label: 'Happy Customers', numeric: true, target: 10000 },
+        { icon: Users, value: '20,000+', label: 'Happy Customers', numeric: true, target: 20000 },
         { icon: Globe, value: '100+', label: 'Countries Covered', numeric: true, target: 100 },
         { icon: Handshake, value: 'Global', label: 'Airline & Hotel Partnerships', numeric: false },
     ];
@@ -445,7 +443,9 @@ const promoSlides = [
   },
 ];
 
-function PromoCarousel({ slides }: { slides: typeof promoSlides }) {
+type PromoSlide = (typeof promoSlides)[number];
+
+function PromoCarousel({ slides }: { slides: PromoSlide[] }) {
   const [current, setCurrent] = useState(0);
   const [isShared, setIsShared] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -460,7 +460,7 @@ function PromoCarousel({ slides }: { slides: typeof promoSlides }) {
 
   if (!slides.length) return null;
 
-  const handleShare = async (slide: typeof promoSlides[0]) => {
+  const handleShare = async (slide: PromoSlide) => {
     try {
       if (navigator.share) {
         await navigator.share({ title: slide.title, url: window.location.origin + slide.shareUrl });
@@ -472,7 +472,7 @@ function PromoCarousel({ slides }: { slides: typeof promoSlides }) {
     } catch {}
   };
 
-  const slide = promoSlides[current];
+  const slide = slides[Math.min(current, slides.length - 1)];
 
   return (
     <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-white">
@@ -535,9 +535,10 @@ function PromoCarousel({ slides }: { slides: typeof promoSlides }) {
 
       <div className="p-5 flex items-center justify-between gap-4 bg-white">
         <div className="flex gap-1.5">
-          {promoSlides.map((_, i) => (
+          {slides.map((_, i) => (
             <button
               key={i}
+              aria-label={`Show promotion ${i + 1}`}
               onClick={() => setCurrent(i)}
               className={`w-2 h-2 rounded-full transition-colors ${i === current ? 'bg-primary' : 'bg-slate-200'}`}
             />
@@ -686,6 +687,39 @@ function SideLeadForm({ serviceOptions }: { serviceOptions: ServiceCardItem[] })
   );
 }
 
+function PartnerRow({ items, duration }: { items: { name: string; logo: string }[]; duration: number }) {
+    if (!items.length) return null;
+    // Repeat the list until the strip is comfortably wider than any viewport, then duplicate once for the seamless -50% loop.
+    const repeats = Math.max(1, Math.ceil(12 / items.length));
+    const base = Array.from({ length: repeats }, () => items).flat();
+    const loop = [...base, ...base];
+    return (
+        <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]">
+            <div className="partner-track-airlines flex w-max gap-4 sm:gap-6" style={{ animationDuration: `${duration * repeats}s` }}>
+                {loop.map((p, i) => (
+                    <div
+                        key={`${p.name}-${i}`}
+                        className="flex h-16 w-36 shrink-0 items-center justify-center rounded-xl bg-white px-4 py-2 shadow-sm sm:h-20 sm:w-44"
+                        title={p.name}
+                    >
+                        <img
+                            src={p.logo}
+                            alt={p.name}
+                            className="max-h-full max-w-full object-contain"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(e) => {
+                                // Hide a broken logo instead of showing a broken-image icon.
+                                (e.currentTarget.parentElement as HTMLElement).style.display = 'none';
+                            }}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function Services() {
     const { data: cmsServices } = useServices();
     const { data: cmsPage } = useServicesPageConfig<ServicesPageConfig>();
@@ -694,9 +728,9 @@ export default function Services() {
     const secondaryServices = useMemo(() => servicesList.filter((s) => !s.priority), [servicesList]);
 
     const heroContent = cmsPage?.hero ?? staticHeroContent;
-    const trustIconMap: Record<string, LucideIcon> = { Award, Clock, Users, Globe, Handshake };
+    const trustIconMap: Record<string, LucideIcon> = { ...MARQUEE_ICONS, Award, Clock, Users, Globe, Handshake };
     const trustItems = useMemo(() => {
-        const stats = cmsPage?.trustStats ?? defaultServicesPageConfig.trustStats;
+        const stats = (cmsPage?.trustStats ?? []).filter((s) => s.enabled !== false);
         if (!cmsPage?.trustStats?.length) return staticTrustItems;
         return stats.map((s) => ({
             icon: trustIconMap[s.icon] ?? Award,
@@ -705,94 +739,52 @@ export default function Services() {
             numeric: s.numeric,
             target: s.target,
         }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cmsPage]);
 
-    const promoSlidesResolved = useMemo(() => {
+    const promoSlidesResolved = useMemo<PromoSlide[]>(() => {
         const banners = cmsPage?.promoBanners?.filter((b) => b.enabled && b.title) ?? [];
         if (!banners.length) return promoSlides;
-        return banners.map((b, i) => ({
-            id: i + 1,
-            type: 'image' as const,
-            title: b.title,
-            subtitle: b.description,
-            badge: 'Promotion',
-            badgeColor: 'bg-primary',
-            cta: b.ctaLabel || 'Enquire Now',
-            ctaHref: b.ctaHref || '/contact',
-            image: b.image,
-            shareUrl: b.ctaHref || '/contact',
-        }));
+        const meta = {
+            airline: { badge: 'Airline Offer', badgeColor: 'bg-blue-600' },
+            hotel: { badge: 'Hotel Offer', badgeColor: 'bg-amber-600' },
+            resort: { badge: 'Resort Offer', badgeColor: 'bg-teal-600' },
+            insurance: { badge: 'Insurance', badgeColor: 'bg-emerald-600' },
+        } as const;
+        return banners.map((b, i) => {
+            const m = meta[b.category ?? 'airline'] ?? meta.airline;
+            return {
+                id: i + 1,
+                type: 'image' as const,
+                title: b.title,
+                subtitle: b.description,
+                badge: m.badge,
+                badgeColor: m.badgeColor,
+                cta: b.ctaLabel || 'Enquire Now',
+                ctaHref: b.ctaHref || '/contact',
+                image: b.image || promoSlides[0].image,
+                shareUrl: b.ctaHref || '/contact',
+            };
+        });
     }, [cmsPage]);
 
-    const partnerLogos = useMemo(() => {
+    type PartnerLogo = { name: string; logo: string };
+    const partnerGroups = useMemo(() => {
         const logos = cmsPage?.partnerLogos?.filter((p) => p.enabled && p.image) ?? [];
-        if (!logos.length) return partners;
-        const airlines = logos.filter((p) => p.category === 'airline').map((p) => ({ name: p.name, logo: p.image }));
-        const hotels = logos.filter((p) => ['hotel', 'resort'].includes(p.category)).map((p) => ({ name: p.name, logo: p.image }));
-        return {
-            airlines: airlines.length ? airlines : partners.airlines,
-            hotels: hotels.length ? hotels : partners.hotels,
-        };
+        const pick = (cats: string[]): PartnerLogo[] => logos.filter((p) => cats.includes(p.category)).map((p) => ({ name: p.name, logo: p.image }));
+        const airlines = pick(['airline']);
+        const hotels = pick(['hotel', 'resort']);
+        const insurance = pick(['insurance']);
+        // Empty categories fall back to the built-in logos so a section never renders blank.
+        return [
+            { key: 'airlines', label: 'Airline Partners', items: airlines.length ? airlines : partners.airlines, duration: 26 },
+            { key: 'hotels', label: 'Hotel & Resort Partners', items: hotels.length ? hotels : partners.hotels, duration: 32 },
+            ...(insurance.length ? [{ key: 'insurance', label: 'Insurance Partners', items: insurance, duration: 26 }] : []),
+        ];
     }, [cmsPage]);
 
     const trustRef = useRef(null);
     const trustInView = useInView(trustRef, { once: true, margin: '-80px' });
-
-    const [airlinesRef] = useKeenSlider<HTMLDivElement>(
-        {
-            loop: true,
-            renderMode: 'performance',
-            drag: false,
-            slides: { perView: 'auto', spacing: 56 },
-            created(s) {
-                s.moveToIdx(5, true, { duration: 15000, easing: (t) => t });
-            },
-            updated(s) {
-                s.moveToIdx(s.track.details.abs + 5, true, { duration: 15000, easing: (t) => t });
-            },
-            animationEnded(s) {
-                s.moveToIdx(s.track.details.abs + 5, true, { duration: 15000, easing: (t) => t });
-            },
-        },
-        [
-            (slider) => {
-                slider.container.addEventListener('mouseover', () => {
-                    slider.animator.stop();
-                });
-                slider.container.addEventListener('mouseout', () => {
-                    slider.moveToIdx(slider.track.details.abs + 5, true, { duration: 15000, easing: (t) => t });
-                });
-            },
-        ]
-    );
-
-    const [hotelsRef] = useKeenSlider<HTMLDivElement>(
-        {
-            loop: true,
-            renderMode: 'performance',
-            drag: false,
-            slides: { perView: 'auto', spacing: 56 },
-            created(s) {
-                s.moveToIdx(5, true, { duration: 20000, easing: (t) => t });
-            },
-            updated(s) {
-                s.moveToIdx(s.track.details.abs + 5, true, { duration: 20000, easing: (t) => t });
-            },
-            animationEnded(s) {
-                s.moveToIdx(s.track.details.abs + 5, true, { duration: 20000, easing: (t) => t });
-            },
-        },
-        [
-            (slider) => {
-                slider.container.addEventListener('mouseover', () => {
-                    slider.animator.stop();
-                });
-                slider.container.addEventListener('mouseout', () => {
-                    slider.moveToIdx(slider.track.details.abs + 5, true, { duration: 20000, easing: (t) => t });
-                });
-            },
-        ]
-    );
 
     return (
         <div className="bg-slate-50 min-h-screen overflow-x-clip pb-20 md:pb-0">
@@ -1051,49 +1043,15 @@ export default function Services() {
                         </p>
                     </motion.div>
 
-                    <p className="mb-6 text-center text-[11px] font-bold uppercase tracking-widest text-white/40">
-                        Airline Partners
-                    </p>
-                    <div className="overflow-hidden">
-                        <div ref={airlinesRef} className="keen-slider">
-                            {[...partnerLogos.airlines, ...partnerLogos.airlines].map((p, i) => (
-                                <div key={`${p.name}-${i}`} className="keen-slider__slide">
-                                    <div className="flex items-center justify-center h-16 px-4" style={{ minWidth: 160, maxWidth: 180 }}>
-                                        <img
-                                            src={p.logo}
-                                            alt={p.name}
-                                            className="h-10 md:h-12 w-full cursor-pointer object-contain opacity transition-all duration-500 hover:opacity-100 brightness-[1.8] contrast-125"
-                                            loading="lazy"
-                                            decoding="async"
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                    {partnerGroups.map((group, gi) => (
+                        <div key={group.key}>
+                            {gi > 0 && <div className="my-10 border-t border-white/10" />}
+                            <p className="mb-6 text-center text-[11px] font-bold uppercase tracking-widest text-white/40">
+                                {group.label}
+                            </p>
+                            <PartnerRow items={group.items} duration={group.duration} />
                         </div>
-                    </div>
-
-                    <div className="my-10 border-t border-white/10" />
-
-                    <p className="mb-6 text-center text-[11px] font-bold uppercase tracking-widest text-white/40">
-                        Hotel Partners
-                    </p>
-                    <div className="overflow-hidden">
-                        <div ref={hotelsRef} className="keen-slider">
-                            {[...partnerLogos.hotels, ...partnerLogos.hotels].map((p, i) => (
-                                <div key={`${p.name}-${i}`} className="keen-slider__slide">
-                                    <div className="flex items-center justify-center h-16 px-4" style={{ minWidth: 160, maxWidth: 180 }}>
-                                        <img
-                                            src={p.logo}
-                                            alt={p.name}
-                                            className="h-10 md:h-12 w-full cursor-pointer object-contain opacity transition-all duration-500 hover:opacity-100 brightness-[1.8] contrast-125"
-                                            loading="lazy"
-                                            decoding="async"
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </section>
 

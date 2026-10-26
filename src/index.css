@@ -117,3 +117,35 @@
 .swiper-button-next,.swiper-button-prev {
   @apply p-2
 }
+/* ───── CMS rich content (guide articles, overviews, previews) ───── */
+.cms-rich { color: #334155; line-height: 1.75; font-size: 1rem; overflow-wrap: anywhere; }
+.cms-rich > * + * { margin-top: 1rem; }
+.cms-rich h1, .cms-rich h2, .cms-rich h3, .cms-rich h4 { color: #0B3C49; font-weight: 700; line-height: 1.3; margin-top: 1.75rem; }
+.cms-rich h1 { font-size: 2rem; }
+.cms-rich h2 { font-size: 1.5rem; }
+.cms-rich h3 { font-size: 1.25rem; }
+.cms-rich h4 { font-size: 1.1rem; }
+.cms-rich a { color: #B8965A; text-decoration: underline; text-underline-offset: 2px; }
+.cms-rich a:hover { color: #967a48; }
+.cms-rich ul { list-style: disc; padding-left: 1.5rem; }
+.cms-rich ol { list-style: decimal; padding-left: 1.5rem; }
+.cms-rich li + li { margin-top: 0.35rem; }
+.cms-rich blockquote { border-left: 4px solid #B8965A; padding: 0.25rem 1rem; color: #475569; font-style: italic; background: #faf7f0; border-radius: 0 0.5rem 0.5rem 0; }
+.cms-rich img, .cms-rich video { max-width: 100%; height: auto; border-radius: 0.75rem; }
+.cms-rich figure { margin: 1.5rem 0; }
+.cms-rich figcaption { font-size: 0.8rem; color: #64748b; text-align: center; margin-top: 0.4rem; }
+.cms-rich table { width: 100%; border-collapse: collapse; font-size: 0.9rem; display: block; overflow-x: auto; }
+.cms-rich th, .cms-rich td { border: 1px solid #e2e8f0; padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; }
+.cms-rich th { background: #f1f5f9; color: #0B3C49; font-weight: 600; }
+.cms-rich hr { border: 0; border-top: 1px solid #e2e8f0; margin: 2rem 0; }
+.cms-rich iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 0.75rem; }
+.cms-rich details { border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem 1rem; background: #fff; }
+.cms-rich details + details { margin-top: 0.5rem; }
+.cms-rich summary { cursor: pointer; font-weight: 600; color: #0B3C49; }
+.cms-rich details[open] summary { margin-bottom: 0.5rem; }
+.cms-rich .cms-callout { border-radius: 0.75rem; padding: 1rem 1.25rem; border-left: 4px solid; }
+.cms-rich .cms-callout-info { background: #eff6ff; border-color: #3b82f6; color: #1e3a8a; }
+.cms-rich .cms-callout-tip { background: #ecfdf5; border-color: #10b981; color: #064e3b; }
+.cms-rich .cms-callout-warning { background: #fffbeb; border-color: #f59e0b; color: #78350f; }
+.cms-rich .cms-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; }
+.cms-rich .cms-gallery img { width: 100%; height: 160px; object-fit: cover; }

@@ -1,5 +1,6 @@
 import { getSupabaseOrNull } from '../lib/supabase';
 import type { ContentStatus } from '../types/database';
+import { isPreviewMode } from '../lib/previewMode';
 
 type TableName =
   | 'packages'
@@ -36,7 +37,9 @@ function table(supabase: NonNullable<ReturnType<typeof getSupabaseOrNull>>, name
 export async function fetchPublished<T>(tableName: TableName, orderBy = 'sort_order'): Promise<T[]> {
   const supabase = getSupabaseOrNull();
   if (!supabase) return [];
-  const { data, error } = await table(supabase, tableName).select('*').eq('status', 'published').order(orderBy, { ascending: true });
+  let query = table(supabase, tableName).select('*');
+  if (!isPreviewMode()) query = query.eq('status', 'published');
+  const { data, error } = await query.order(orderBy, { ascending: true });
   if (error) throw error;
   return (data ?? []) as T[];
 }
@@ -53,7 +56,7 @@ export async function fetchBySlug<T>(tableName: TableName, slug: string, admin =
   const supabase = getSupabaseOrNull();
   if (!supabase) return null;
   let query = table(supabase, tableName).select('*').eq('slug', slug);
-  if (!admin) query = query.eq('status', 'published');
+  if (!admin && !isPreviewMode()) query = query.eq('status', 'published');
   const { data, error } = await query.maybeSingle();
   if (error) throw error;
   return data as T | null;
@@ -101,7 +104,7 @@ export async function updateStatus(tableName: TableName, id: string, status: Con
 export async function fetchFaqWithItems() {
   const supabase = getSupabaseOrNull();
   if (!supabase) return [];
-  const { data: categories, error: catErr } = await table(supabase, 'faq_categories').select('*').eq('status', 'published').order('sort_order');
+  const { data: categories, error: catErr } = await (isPreviewMode() ? table(supabase, 'faq_categories').select('*') : table(supabase, 'faq_categories').select('*').eq('status', 'published')).order('sort_order');
   if (catErr) throw catErr;
   if (!categories?.length) return [];
 

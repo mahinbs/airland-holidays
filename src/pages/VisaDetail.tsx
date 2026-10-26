@@ -26,11 +26,13 @@ import {
 } from 'lucide-react';
 import SectionStickyNav from '../components/common/SectionStickyNav';
 import { useSectionScrollSpy } from '../hooks/useSectionScrollSpy';
-import { useVisaCountry } from '../hooks/useContent';
+import { useModuleFaqs, useVisaCountry } from '../hooks/useContent';
 import { mergeVisaDetailPage } from '../lib/mapContent';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { submitContact } from '../services/submissions';
 import { useHeaderConfig } from '../hooks/useHeaderConfig';
+import RichContent from '../components/common/RichContent';
+import { useSeo, readSeo } from '../hooks/useSeo';
 
 interface VisaType {
     name: string;
@@ -39,6 +41,8 @@ interface VisaType {
     validity: string;
     visaFee: string;
     serviceCharge: string;
+    /** Optional description from the CMS Visa Types editor */
+    desc?: string;
 }
 
 interface WhyChooseUs {
@@ -97,6 +101,55 @@ interface VisaData {
     visitUs?: { heading: string; lines: string[] };
     embassy?: { heading: string; address?: string; contact?: string; lines: string[]; linkLabel?: string; linkHref?: string };
     terms?: { q: string; a: string }[];
+    /** Rich-text blocks authored in the CMS (HTML) */
+    embassyHtml?: string;
+    termsHtml?: string;
+}
+
+const asRecord = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
+const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
+
+/** CMS "Visa Types" rows ({ name, duration, price, desc }) or legacy rows → page shape. */
+function normalizeVisaTypes(raw: unknown, fallback: VisaType[], defaultProcessing: string): VisaType[] {
+    if (!Array.isArray(raw) || raw.length === 0) return fallback;
+    return raw.map((r) => {
+        const v = asRecord(r);
+        return {
+            name: str(v.name) || 'Visa',
+            processingTime: str(v.processingTime) || defaultProcessing || '—',
+            stayPeriod: str(v.stayPeriod ?? v.duration) || '—',
+            validity: str(v.validity) || 'As per embassy',
+            visaFee: str(v.visaFee ?? v.price) || 'Contact us',
+            serviceCharge: str(v.serviceCharge),
+            desc: str(v.desc),
+        };
+    });
+}
+
+/** CMS documentation rows ({ name, required, notes }) or legacy strings/{label,desc} → { label, desc }[] */
+function normalizeDocuments(raw: unknown): { label: string; desc: string; required: boolean }[] | undefined {
+    if (!Array.isArray(raw) || raw.length === 0) return undefined;
+    return raw.map((r) => {
+        if (typeof r === 'string') return { label: r, desc: 'Original document required.', required: true };
+        const d = asRecord(r);
+        const req = str(d.required).trim().toLowerCase();
+        return {
+            label: str(d.label ?? d.name),
+            desc: str(d.desc ?? d.notes),
+            required: !['no', 'false', 'optional', 'n'].includes(req),
+        };
+    }).filter((d) => d.label);
+}
+
+function normalizeVisaFaqs(raw: unknown, fallback: Faq[]): Faq[] {
+    if (!Array.isArray(raw) || raw.length === 0) return fallback;
+    return raw
+        .filter((f) => asRecord(f).enabled !== false)
+        .map((f) => {
+            const x = asRecord(f);
+            return { q: str(x.q ?? x.question), a: str(x.a ?? x.answer) };
+        })
+        .filter((f) => f.q);
 }
 
 const visaData: Record<string, VisaData> = {
@@ -473,6 +526,7 @@ export default function VisaDetail() {
     const { data: cmsVisa, isLoading } = useVisaCountry(countryKey);
     const { config: headerConfig } = useHeaderConfig();
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
+    const { faqs: moduleFaqs } = useModuleFaqs('visa');
     const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
     const [enquirySent, setEnquirySent] = useState(false);
     const [enquiryLoading, setEnquiryLoading] = useState(false);
@@ -489,22 +543,44 @@ export default function VisaDetail() {
                 ? (cmsVisa.detail as Record<string, unknown>)
                 : {};
         const rawWhy = detail.whyChooseUs as { title: string; desc: string }[] | undefined;
+
+        const docs = normalizeDocuments(detail.documents);
+        const mandatory = docs?.filter((d) => d.required);
+        const supportive = docs?.filter((d) => !d.required);
+
+        const embassyRaw = detail.embassy;
+        const termsRaw = detail.terms;
+
         return {
             ...merged,
-            visaTypes: (detail.visaTypes as VisaType[]) ?? merged.visaTypes,
+            visaTypes: normalizeVisaTypes(detail.visaTypes, merged.visaTypes, str(detail.processingTime) || merged.processingTime),
             process: (detail.process as ProcessStep[]) ?? merged.process,
-            faqs: (detail.faqs as Faq[]) ?? merged.faqs,
-            documents: (detail.documents as string[]) ?? merged.documents,
-            mandatoryDocuments: (detail.mandatoryDocuments as VisaData['mandatoryDocuments']) ?? merged.mandatoryDocuments,
-            supportiveDocumentsList: (detail.supportiveDocumentsList as VisaData['supportiveDocumentsList']) ?? merged.supportiveDocumentsList,
+            faqs: normalizeVisaFaqs(detail.faqs, merged.faqs),
+            documents: Array.isArray(detail.documents) && typeof detail.documents[0] === 'string' ? (detail.documents as string[]) : merged.documents,
+            mandatoryDocuments: docs
+                ? mandatory!.map((d) => ({ label: d.label, desc: d.desc || 'Required as per standard embassy guidelines.' }))
+                : ((detail.mandatoryDocuments as VisaData['mandatoryDocuments']) ?? merged.mandatoryDocuments),
+            supportiveDocumentsList: docs
+                ? supportive!.map((d) => ({ label: d.label, desc: d.desc || 'Optional but recommended for a stronger application.' }))
+                : ((detail.supportiveDocumentsList as VisaData['supportiveDocumentsList']) ?? merged.supportiveDocumentsList),
             attractions: (detail.attractions as Attraction[]) ?? merged.attractions,
-            embassy: (detail.embassy as VisaData['embassy']) ?? merged.embassy,
-            terms: (detail.terms as Faq[]) ?? merged.terms,
+            // Rich text from the CMS arrives as a string; legacy template data is an object / array.
+            embassy: typeof embassyRaw === 'string' ? undefined : ((embassyRaw as VisaData['embassy']) ?? merged.embassy),
+            embassyHtml: typeof embassyRaw === 'string' ? embassyRaw : undefined,
+            terms: typeof termsRaw === 'string' ? undefined : Array.isArray(termsRaw) ? normalizeVisaFaqs(termsRaw, merged.terms ?? []) : merged.terms,
+            termsHtml: typeof termsRaw === 'string' ? termsRaw : undefined,
             reviews: (detail.reviews as ReviewItem[]) ?? merged.reviews,
             introExtra: (detail.introExtra as string[]) ?? merged.introExtra,
             whyChooseUs: rawWhy?.length ? hydrateWhyChooseUs(rawWhy) : merged.whyChooseUs,
         };
     }, [cmsVisa, countryKey, country]);
+
+    const cmsSeo = readSeo(cmsVisa?.detail);
+    useSeo({
+        title: cmsSeo.title || `${data.name} Visa Services | Airland Holidays`,
+        description: cmsSeo.description,
+        image: data.bgImage,
+    });
 
     const { activeSection, scrollToSection } = useSectionScrollSpy(
         navLinks.map((item) => item.id),
@@ -664,10 +740,10 @@ export default function VisaDetail() {
                             <h2 className="text-4xl text-slate-900 mb-8 tracking-tight" >
                                 The Premium {data.name} Experience
                             </h2>
-                            <div className="prose prose-lg prose-slate max-w-none text-slate-600 leading-relaxed">
-                                <p className="text-xl font-medium text-slate-800 mb-6">{data.intro}</p>
+                            <div className="max-w-none text-slate-600 leading-relaxed">
+                                <RichContent html={data.intro} className="text-lg" />
                                 {data.introExtra?.map((para, i) => (
-                                    <p key={i}>{para}</p>
+                                    <p key={i} className="mt-4">{para}</p>
                                 ))}
                             </div>
 
@@ -703,7 +779,11 @@ export default function VisaDetail() {
                                     >
                                         <div className="flex-1">
                                             <h3 className="text-2xl font-bold text-primary mb-2 group-hover:text-secondary transition-colors">{visa.name}</h3>
-                                            <p className="text-slate-500 mb-8 font-medium">Ideal for {visa.name.includes('Tourist') ? 'tourism and leisure travel' : 'business meetings and conferences'}.</p>
+                                            {visa.desc ? (
+                                                <RichContent html={visa.desc} className="mb-8 text-sm" />
+                                            ) : (
+                                                <p className="text-slate-500 mb-8 font-medium">Ideal for {visa.name.includes('Tourist') ? 'tourism and leisure travel' : 'business meetings and conferences'}.</p>
+                                            )}
 
                                             <div className="space-y-5">
                                                 <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100">
@@ -950,7 +1030,7 @@ export default function VisaDetail() {
                         >
                             <h2 className="text-4xl text-slate-900 mb-10 tracking-tight font-medium" >Frequently Asked Questions</h2>
                             <div className="space-y-4">
-                                {data.faqs.map((faq, idx) => (
+                                {[...data.faqs, ...moduleFaqs.filter((m) => !data.faqs.some((f) => f.q.trim() === m.question.trim())).map((m) => ({ q: m.question, a: m.answer }))].map((faq, idx) => (
                                     <div key={idx} className="bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden hover:bg-white hover:shadow-xl transition-all duration-300">
                                         <button
                                             className="w-full px-8 py-6 text-left flex justify-between items-center focus:outline-none group"
@@ -969,8 +1049,8 @@ export default function VisaDetail() {
                                                     exit={{ height: 0, opacity: 0 }}
                                                     className="overflow-hidden"
                                                 >
-                                                    <div className="px-8 pb-8 text-slate-500 leading-relaxed border-t border-slate-100 pt-6 text-lg font-medium">
-                                                        {faq.a}
+                                                    <div className="px-8 pb-8 border-t border-slate-100 pt-6">
+                                                        <RichContent html={faq.a} />
                                                     </div>
                                                 </motion.div>
                                             )}
@@ -1065,9 +1145,13 @@ export default function VisaDetail() {
                         >
                             <h2 className="text-4xl text-slate-900 mb-10 tracking-tight font-medium">Embassy & Official Information</h2>
                             <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 md:p-10 space-y-6">
+                                {data.embassyHtml ? (
+                                    <RichContent html={data.embassyHtml} />
+                                ) : (
                                 <p className="text-slate-600 leading-relaxed">
                                     {data.embassy?.heading ?? `${data.name} embassy and official references`}
                                 </p>
+                                )}
 
                                 {data.embassy?.address && (
                                     <div>
@@ -1115,6 +1199,11 @@ export default function VisaDetail() {
                             className="scroll-mt-32"
                         >
                             <h2 className="text-4xl text-slate-900 mb-10 tracking-tight font-medium" >Terms & Policies</h2>
+                            {data.termsHtml ? (
+                                <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 md:p-10">
+                                    <RichContent html={data.termsHtml} />
+                                </div>
+                            ) : (
                             <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] divide-y divide-slate-200 overflow-hidden">
                                 {data.terms?.map((term, idx) => (
                                     <div key={idx} className="hover:bg-white transition-colors group">
@@ -1133,8 +1222,8 @@ export default function VisaDetail() {
                                                     exit={{ height: 0, opacity: 0 }}
                                                     className="overflow-hidden"
                                                 >
-                                                    <div className="px-8 pb-5 text-slate-500 text-sm font-medium">
-                                                        {term.a}
+                                                    <div className="px-8 pb-5">
+                                                        <RichContent html={term.a} className="text-sm" />
                                                     </div>
                                                 </motion.div>
                                             )}
@@ -1142,6 +1231,7 @@ export default function VisaDetail() {
                                     </div>
                                 ))}
                             </div>
+                            )}
                         </motion.section>
 
                     </main>

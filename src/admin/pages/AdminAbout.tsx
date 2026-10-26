@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Save, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Save, Plus, Trash2 } from 'lucide-react';
 import { fetchSingleton, upsertSingleton } from '../../services/content';
 import { defaultAboutContent } from '../../data/defaultCmsContent';
 import type { AboutPageContent } from '../../types/cms';
 import StringListField from '../components/fields/StringListField';
 import RichTextField from '../components/fields/RichTextField';
 import RepeatableField from '../components/fields/RepeatableField';
-import { inputClass } from '../components/fields/shared';
+import { inputClass, moveItem, ReorderButtons, Toggle, useSortable } from '../components/fields/shared';
 import { uploadMedia } from '../../services/storage';
 
 type Tab = 'hero' | 'story' | 'founder' | 'credentials' | 'network' | 'promise' | 'team' | 'recognition' | 'cta';
@@ -30,8 +30,13 @@ export default function AdminAbout() {
 
   const save = async () => {
     setSaving(true);
-    if (rowId) await upsertSingleton('about_page', { content }, rowId);
-    else await upsertSingleton('about_page', { content });
+    // Rewrite display order from the current (drag & drop) order so the website matches the CMS.
+    const normalized: AboutPageContent = {
+      ...content,
+      recognition: content.recognition.map((r, i) => ({ ...r, id: r.id || `r${Date.now().toString(36)}${i}`, sortOrder: i, active: r.active !== false })),
+    };
+    if (rowId) await upsertSingleton('about_page', { content: normalized }, rowId);
+    else await upsertSingleton('about_page', { content: normalized });
     await qc.invalidateQueries({ queryKey: ['about_page'] });
     setSaving(false);
     alert('About page saved!');
@@ -149,11 +154,14 @@ export default function AdminAbout() {
 
         {tab === 'founder' && (
           <>
+            <Toggle checked={content.founder.active !== false} onChange={(v) => setContent({ ...content, founder: { ...content.founder, active: v } })} label={content.founder.active !== false ? 'Display Status: shown on the About page' : 'Display Status: hidden'} />
             <Field label="Founder Name"><input className={inputClass} value={content.founder.name} onChange={(e) => setContent({ ...content, founder: { ...content.founder, name: e.target.value } })} /></Field>
             <Field label="Designation"><input className={inputClass} value={content.founder.title} onChange={(e) => setContent({ ...content, founder: { ...content.founder, title: e.target.value } })} /></Field>
             <RichTextField label="About Founder" value={content.founder.about} onChange={(v) => setContent({ ...content, founder: { ...content.founder, about: v } })} />
-            <StringListField label="Leadership Points" value={content.founder.leadershipPoints} onChange={(v) => setContent({ ...content, founder: { ...content.founder, leadershipPoints: v } })} />
-            <RichTextField label="Global Network Content" value={content.founder.networkDesc} onChange={(v) => setContent({ ...content, founder: { ...content.founder, networkDesc: v } })} />
+            <Field label="Leadership & Industry Influence — Heading"><input className={inputClass} value={content.founder.leadershipTitle} onChange={(e) => setContent({ ...content, founder: { ...content.founder, leadershipTitle: e.target.value } })} /></Field>
+            <StringListField label="Leadership & Industry Influence Content" value={content.founder.leadershipPoints} onChange={(v) => setContent({ ...content, founder: { ...content.founder, leadershipPoints: v } })} />
+            <Field label="Strategic Strength & Global Network — Heading"><input className={inputClass} value={content.founder.networkTitle} onChange={(e) => setContent({ ...content, founder: { ...content.founder, networkTitle: e.target.value } })} /></Field>
+            <RichTextField label="Strategic Strength & Global Network Content" value={content.founder.networkDesc} onChange={(v) => setContent({ ...content, founder: { ...content.founder, networkDesc: v } })} />
             <Field label="Founder Vision / Quote"><textarea className={inputClass} rows={2} value={content.founder.vision} onChange={(e) => setContent({ ...content, founder: { ...content.founder, vision: e.target.value } })} /></Field>
             <Field label="Founder Portrait">
               <input className={inputClass} value={content.founder.portraitSrc} onChange={(e) => setContent({ ...content, founder: { ...content.founder, portraitSrc: e.target.value } })} />
@@ -166,63 +174,7 @@ export default function AdminAbout() {
           <>
             <Field label="Section Title"><input className={inputClass} value={content.team.title} onChange={(e) => setContent({ ...content, team: { ...content.team, title: e.target.value } })} /></Field>
             <Field label="Description"><textarea className={inputClass} rows={2} value={content.team.desc} onChange={(e) => setContent({ ...content, team: { ...content.team, desc: e.target.value } })} /></Field>
-            <div className="space-y-3">
-              {content.team.members.map((member, i) => (
-                <div key={i} className="p-4 border border-slate-200 rounded-xl space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex gap-1">
-                      <button type="button" disabled={i === 0} onClick={() => {
-                        const members = [...content.team.members];
-                        [members[i - 1], members[i]] = [members[i], members[i - 1]];
-                        setContent({ ...content, team: { ...content.team, members } });
-                      }} className="p-1 text-slate-400 hover:text-primary disabled:opacity-30"><ChevronUp className="w-4 h-4" /></button>
-                      <button type="button" disabled={i === content.team.members.length - 1} onClick={() => {
-                        const members = [...content.team.members];
-                        [members[i], members[i + 1]] = [members[i + 1], members[i]];
-                        setContent({ ...content, team: { ...content.team, members } });
-                      }} className="p-1 text-slate-400 hover:text-primary disabled:opacity-30"><ChevronDown className="w-4 h-4" /></button>
-                    </div>
-                    <span className="text-xs font-semibold text-slate-500 flex-1">Member {i + 1}</span>
-                    <label className="flex items-center gap-1.5 text-sm text-slate-600">
-                      <input type="checkbox" checked={member.active !== false} onChange={(e) => {
-                        const members = [...content.team.members];
-                        members[i] = { ...members[i], active: e.target.checked };
-                        setContent({ ...content, team: { ...content.team, members } });
-                      }} className="rounded" />
-                      Active
-                    </label>
-                    <button type="button" onClick={() => setContent({ ...content, team: { ...content.team, members: content.team.members.filter((_, idx) => idx !== i) } })} className="text-red-500 hover:bg-red-50 p-1 rounded"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                  <Field label="Team Title"><input className={inputClass} value={member.role} onChange={(e) => {
-                    const members = [...content.team.members];
-                    members[i] = { ...members[i], role: e.target.value };
-                    setContent({ ...content, team: { ...content.team, members } });
-                  }} /></Field>
-                  <Field label="Description"><textarea className={inputClass} rows={2} value={member.desc} onChange={(e) => {
-                    const members = [...content.team.members];
-                    members[i] = { ...members[i], desc: e.target.value };
-                    setContent({ ...content, team: { ...content.team, members } });
-                  }} /></Field>
-                  <Field label="Team Image">
-                    <input className={inputClass} value={member.image} onChange={(e) => {
-                      const members = [...content.team.members];
-                      members[i] = { ...members[i], image: e.target.value };
-                      setContent({ ...content, team: { ...content.team, members } });
-                    }} placeholder="Image URL" />
-                    <input type="file" accept="image/*" className="text-xs mt-1" onChange={async (e) => {
-                      const f = e.target.files?.[0];
-                      if (!f) return;
-                      const url = await uploadMedia(f, 'team');
-                      const members = [...content.team.members];
-                      members[i] = { ...members[i], image: url };
-                      setContent({ ...content, team: { ...content.team, members } });
-                    }} />
-                    {member.image && <img src={member.image} alt="" className="h-20 rounded-lg object-cover mt-2" />}
-                  </Field>
-                </div>
-              ))}
-            </div>
-            <button type="button" className="text-sm text-primary flex items-center gap-1" onClick={() => setContent({ ...content, team: { ...content.team, members: [...content.team.members, { role: '', desc: '', image: '', active: true }] } })}><Plus className="w-4 h-4" /> Add Team Member</button>
+            <TeamEditor members={content.team.members} onChange={(members) => setContent({ ...content, team: { ...content.team, members } })} />
           </>
         )}
 
@@ -230,19 +182,58 @@ export default function AdminAbout() {
           <RepeatableField
             label="Recognition & Industry Presence"
             value={content.recognition}
+            defaultItem={{ id: '', image: '', eventName: '', title: '', location: '', year: '', description: '', sortOrder: 0, active: true }}
             onChange={(v) => setContent({ ...content, recognition: v as AboutPageContent['recognition'] })}
             columns={[
-              { key: 'image', label: 'Image', type: 'image' },
+              { key: 'image', label: 'Image Upload', type: 'image' },
               { key: 'eventName', label: 'Event Name' },
               { key: 'title', label: 'Recognition Title' },
               { key: 'location', label: 'Location' },
               { key: 'year', label: 'Year' },
               { key: 'description', label: 'Description', type: 'textarea' },
+              { key: 'active', label: 'Active', type: 'boolean' },
             ]}
           />
         )}
       </div>
     </div>
+  );
+}
+
+function TeamEditor({ members, onChange }: { members: AboutPageContent['team']['members']; onChange: (m: AboutPageContent['team']['members']) => void }) {
+  const sortable = useSortable(members, onChange);
+  const patch = (i: number, p: Partial<AboutPageContent['team']['members'][number]>) => onChange(members.map((m, idx) => (idx === i ? { ...m, ...p } : m)));
+
+  return (
+    <>
+      <p className="text-xs text-slate-400">Drag the handle to reorder. Inactive members are hidden on the About page.</p>
+      <div className="space-y-3">
+        {members.map((member, i) => (
+          <div key={i} {...sortable.rowProps(i)} className={`flex gap-2 p-4 border border-slate-200 rounded-xl transition-opacity ${member.active === false ? 'opacity-60' : ''} ${sortable.rowClass(i)}`}>
+            <ReorderButtons index={i} total={members.length} onMove={(f, t) => onChange(moveItem(members, f, t))} handleProps={sortable.handleProps(i)} />
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-semibold text-slate-500">Member {i + 1}</span>
+                <Toggle checked={member.active !== false} onChange={(v) => patch(i, { active: v })} label={member.active !== false ? 'Active' : 'Inactive'} />
+              </div>
+              <Field label="Team Title"><input className={inputClass} value={member.role} onChange={(e) => patch(i, { role: e.target.value })} /></Field>
+              <Field label="Team Description"><textarea className={inputClass} rows={2} value={member.desc} onChange={(e) => patch(i, { desc: e.target.value })} /></Field>
+              <Field label="Team Image">
+                <input className={inputClass} value={member.image} onChange={(e) => patch(i, { image: e.target.value })} placeholder="Image URL" />
+                <input type="file" accept="image/*" className="text-xs mt-1" onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  if (!f) return;
+                  patch(i, { image: await uploadMedia(f, 'team') });
+                }} />
+                {member.image && <img src={member.image} alt="" className="h-20 rounded-lg object-cover mt-2" />}
+              </Field>
+            </div>
+            <button type="button" onClick={() => onChange(members.filter((_, idx) => idx !== i))} className="text-red-500 hover:bg-red-50 p-1.5 rounded self-start" aria-label="Remove member"><Trash2 className="w-4 h-4" /></button>
+          </div>
+        ))}
+      </div>
+      <button type="button" className="text-sm text-primary flex items-center gap-1" onClick={() => onChange([...members, { role: '', desc: '', image: '', active: true }])}><Plus className="w-4 h-4" /> Add Team Member</button>
+    </>
   );
 }
 

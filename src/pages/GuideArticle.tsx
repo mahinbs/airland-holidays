@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, User, ArrowLeft } from 'lucide-react';
-import { useGuideArticle } from '../hooks/useContent';
+import { Calendar, User, ArrowLeft, ChevronDown, Tag } from 'lucide-react';
+import { useGuideArticle, useGuideArticles } from '../hooks/useContent';
+import { useSeo } from '../hooks/useSeo';
 import { mapGuideToArticle } from '../lib/mapContent';
 import { isSupabaseConfigured } from '../lib/supabase';
+import RichContent from '../components/common/RichContent';
 
 const staticArticles: Record<
   string,
@@ -38,12 +40,28 @@ const staticArticles: Record<
   },
 };
 
+type ArticleView = {
+  title: string;
+  category: string;
+  date: string;
+  author: string;
+  img: string;
+  content: string;
+  excerpt?: string;
+  tags: string[];
+  faqs: { question: string; answer: string }[];
+  seoTitle?: string;
+  seoDescription?: string;
+};
+
 export default function GuideArticle() {
   const { id } = useParams();
   const slug = id ?? '';
   const { data: cmsArticle, isLoading } = useGuideArticle(slug);
+  const { data: allArticles = [] } = useGuideArticles();
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const article = useMemo(() => {
+  const article = useMemo<ArticleView | null>(() => {
     if (cmsArticle) {
       const mapped = mapGuideToArticle(cmsArticle as unknown as Record<string, unknown>);
       return {
@@ -54,10 +72,29 @@ export default function GuideArticle() {
         img: mapped.img,
         content: mapped.body,
         excerpt: mapped.excerpt,
+        tags: mapped.tags,
+        faqs: mapped.faqs,
+        seoTitle: mapped.seoTitle,
+        seoDescription: mapped.seoDescription,
       };
     }
-    return slug ? staticArticles[slug] : null;
+    const fallback = slug ? staticArticles[slug] : null;
+    return fallback ? { ...fallback, tags: [], faqs: [] } : null;
   }, [cmsArticle, slug]);
+
+  const related = useMemo(() => {
+    const mapped = allArticles
+      .map((a) => mapGuideToArticle(a as unknown as Record<string, unknown>))
+      .filter((a) => a.id !== slug);
+    const sameCategory = mapped.filter((a) => article && a.category && a.category === article.category);
+    return [...sameCategory, ...mapped.filter((a) => !sameCategory.includes(a))].slice(0, 3);
+  }, [allArticles, article, slug]);
+
+  useSeo({
+    title: article ? article.seoTitle || `${article.title} | Airland Holidays` : undefined,
+    description: article ? article.seoDescription || article.excerpt : undefined,
+    image: article?.img,
+  });
 
   if (isLoading && isSupabaseConfigured) {
     return (
@@ -80,8 +117,6 @@ export default function GuideArticle() {
     );
   }
 
-  const isHtml = article.content.trim().startsWith('<');
-
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
       <article className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16">
@@ -90,29 +125,85 @@ export default function GuideArticle() {
         </Link>
 
         <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-100">
-          <div className="aspect-video md:aspect-[21/9]">
-            <img src={article.img} alt={article.title} className="w-full h-full object-cover" />
-          </div>
-          <div className="p-8 md:p-12">
-            <span className="text-primary font-bold text-sm uppercase tracking-wider">{article.category}</span>
-            <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mt-2 mb-6">{article.title}</h1>
-            <div className="flex gap-6 text-slate-600 text-sm mb-8">
-              <span className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" /> {article.date}
-              </span>
-              <span className="flex items-center gap-2">
-                <User className="w-4 h-4" /> {article.author}
-              </span>
+          {article.img && (
+            <div className="aspect-video md:aspect-[21/9]">
+              <img src={article.img} alt={article.title} className="w-full h-full object-cover" />
             </div>
-            <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed">
-              {isHtml ? (
-                <div dangerouslySetInnerHTML={{ __html: article.content }} />
-              ) : (
-                <p>{article.content}</p>
+          )}
+          <div className="p-8 md:p-12">
+            {article.category && <span className="text-primary font-bold text-sm uppercase tracking-wider">{article.category}</span>}
+            <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mt-2 mb-6">{article.title}</h1>
+            <div className="flex flex-wrap gap-6 text-slate-600 text-sm mb-6">
+              {article.date && (
+                <span className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" /> {article.date}
+                </span>
+              )}
+              {article.author && (
+                <span className="flex items-center gap-2">
+                  <User className="w-4 h-4" /> {article.author}
+                </span>
               )}
             </div>
+            {article.excerpt && <p className="text-lg text-slate-600 border-l-4 border-secondary pl-4 mb-8 italic">{article.excerpt}</p>}
+            <RichContent html={article.content} />
+
+            {article.tags.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-slate-100">
+                <Tag className="w-4 h-4 text-slate-400" />
+                {article.tags.map((tag) => (
+                  <span key={tag} className="bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1 rounded-full">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {article.faqs.length > 0 && (
+              <section className="mt-12">
+                <h2 className="text-2xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h2>
+                <div className="space-y-3">
+                  {article.faqs.map((faq, i) => (
+                    <div key={i} className="border border-slate-200 rounded-2xl overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                        className="w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-semibold text-slate-800 hover:bg-slate-50"
+                        aria-expanded={openFaq === i}
+                      >
+                        {faq.question}
+                        <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                      </button>
+                      {openFaq === i && (
+                        <div className="px-5 pb-5">
+                          <RichContent html={faq.answer} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
+
+        {related.length > 0 && (
+          <section className="mt-16">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Keep Reading</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {related.map((r) => (
+                <Link key={r.id} to={`/guide/${r.id}`} className="group bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-lg transition-all">
+                  {r.img && <img src={r.img} alt={r.title} className="w-full aspect-[16/10] object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />}
+                  <div className="p-5">
+                    {r.category && <span className="text-xs font-bold uppercase tracking-wide text-primary">{r.category}</span>}
+                    <h3 className="font-bold text-slate-900 mt-1 group-hover:text-primary transition-colors">{r.title}</h3>
+                    {r.excerpt && <p className="text-sm text-slate-500 mt-2 line-clamp-2">{r.excerpt}</p>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </article>
     </div>
   );

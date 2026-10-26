@@ -151,23 +151,51 @@ export function useMediaEvents() {
   return useQuery({ queryKey: ['media_events'], queryFn: () => fetchPublished<MediaEventRow>('media_events') });
 }
 
-export function useFaq(options?: { module?: 'global' | 'package' | 'visa' | 'cruise' | 'service' | 'destination' | 'payment' }) {
+export type FaqModule = 'global' | 'package' | 'visa' | 'cruise' | 'service' | 'destination' | 'payment';
+
+type FaqCategoryWithItems = {
+  id: string;
+  name: string;
+  questions: { id: string; question: string; answer: string; enabled?: boolean | null }[];
+  [key: string]: unknown;
+};
+
+/**
+ * Central FAQ library, filtered to one module.
+ * A question's effective module is its own override (`faq_item_module_mapping`) or else its
+ * category's module (`faq_module_mapping`, default "global"). Disabled questions are hidden.
+ */
+export function useFaq(options?: { module?: FaqModule }) {
+  const module = options?.module ?? 'global';
   return useQuery({
-    queryKey: ['faq', options?.module ?? 'global'],
+    queryKey: ['faq', module],
     queryFn: async () => {
-      const [categories, mapping] = await Promise.all([
-        fetchFaqWithItems(),
+      const [categories, catMap, itemMap] = await Promise.all([
+        fetchFaqWithItems() as Promise<FaqCategoryWithItems[]>,
         fetchSiteSetting<Record<string, string>>('faq_module_mapping'),
+        fetchSiteSetting<Record<string, string>>('faq_item_module_mapping'),
       ]);
-      if (!options?.module || options.module === 'global') {
-        return categories.filter((cat: { id: string }) => {
-          const mod = mapping?.[cat.id];
-          return !mod || mod === 'global';
-        });
-      }
-      return categories.filter((cat: { id: string }) => mapping?.[cat.id] === options.module);
+      return categories
+        .map((cat) => ({
+          ...cat,
+          questions: cat.questions.filter((q) => {
+            if (q.enabled === false) return false;
+            const effective = itemMap?.[q.id] || catMap?.[cat.id] || 'global';
+            return effective === module;
+          }),
+        }))
+        .filter((cat) => cat.questions.length > 0);
     },
   });
+}
+
+/** Flat list of the FAQs assigned to a module (e.g. `useModuleFaqs('payment')` on the payment page). */
+export function useModuleFaqs(module: FaqModule) {
+  const query = useFaq({ module });
+  const faqs = (query.data ?? []).flatMap((cat) =>
+    cat.questions.map((q) => ({ id: q.id, category: cat.name, question: q.question, answer: q.answer }))
+  );
+  return { ...query, faqs };
 }
 
 export function useJourneyBanner() {

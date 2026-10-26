@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { uploadMedia } from '../../../services/storage';
-import { AddButton, DeleteButton, FieldLabel, ReorderButtons, inputClass, moveItem, parseArray } from './shared';
+import { AddButton, DeleteButton, FieldLabel, ReorderButtons, inputClass, moveItem, parseArray, useSortable } from './shared';
 
 export default function ImageGalleryField({
   label,
@@ -11,6 +12,8 @@ export default function ImageGalleryField({
   onChange: (v: string[]) => void;
 }) {
   const items = parseArray<string>(value, []);
+  const sortable = useSortable(items, onChange);
+  const [uploading, setUploading] = useState(false);
 
   const update = (index: number, url: string) => {
     const next = [...items];
@@ -27,13 +30,27 @@ export default function ImageGalleryField({
     }
   };
 
+  const uploadMany = async (files: FileList) => {
+    setUploading(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        urls.push(await uploadMedia(file, 'gallery'));
+      }
+      onChange([...items.filter(Boolean), ...urls]);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    }
+    setUploading(false);
+  };
+
   return (
     <div>
-      <FieldLabel label={label} hint="Drag to reorder with arrows. Upload or paste image URLs." />
+      <FieldLabel label={label} hint="Drag to reorder. Upload several images at once or paste image URLs." />
       <div className="space-y-3">
         {items.map((url, i) => (
-          <div key={i} className="flex items-start gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-            <ReorderButtons index={i} total={items.length} onMove={(f, t) => onChange(moveItem(items, f, t))} />
+          <div key={i} {...sortable.rowProps(i)} className={`flex items-start gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 transition-opacity ${sortable.rowClass(i)}`}>
+            <ReorderButtons index={i} total={items.length} onMove={(f, t) => onChange(moveItem(items, f, t))} handleProps={sortable.handleProps(i)} />
             <div className="flex-1 space-y-2">
               <input className={inputClass} value={url} placeholder="Image URL" onChange={(e) => update(i, e.target.value)} />
               <input type="file" accept="image/*" className="text-xs" onChange={(e) => e.target.files?.[0] && upload(i, e.target.files[0])} />
@@ -43,7 +60,23 @@ export default function ImageGalleryField({
           </div>
         ))}
       </div>
-      <AddButton label="Add image" onClick={() => onChange([...items, ''])} />
+      <div className="flex flex-wrap items-center gap-4">
+        <AddButton label="Add image" onClick={() => onChange([...items, ''])} />
+        <label className="flex items-center gap-1.5 text-sm text-primary hover:underline mt-2 cursor-pointer">
+          {uploading ? 'Uploading…' : 'Upload multiple images'}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            disabled={uploading}
+            onChange={(e) => {
+              if (e.target.files?.length) void uploadMany(e.target.files);
+              e.target.value = '';
+            }}
+          />
+        </label>
+      </div>
     </div>
   );
 }

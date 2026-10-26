@@ -107,7 +107,7 @@ export default function ContactUs() {
                                 <div>
                                     <h3 className="font-semibold text-slate-800 mb-1">Call Us</h3>
                                     {phoneLinks.map((phone, i) => (
-                                        <span key={phone}>
+                                        <span key={`${phone}-${i}`}>
                                             {i > 0 && <span className="text-slate-400 mx-2">|</span>}
                                             <a href={`tel:${phone.replace(/\s/g, '')}`} className="text-slate-700 hover:text-primary transition-colors font-medium">
                                                 {phone}

@@ -10,8 +10,9 @@ import VideoField from './VideoField';
 import RepeatableField from './RepeatableField';
 import PackageSelectField from './PackageSelectField';
 import CruiseSelectField from './CruiseSelectField';
+import MultiSelectField from './MultiSelectField';
 import { uploadMedia } from '../../../services/storage';
-import { inputClass } from './shared';
+import { Toggle, inputClass } from './shared';
 
 export function AdminFieldInput({
   field,
@@ -50,7 +51,18 @@ export function AdminFieldInput({
     return <CruiseSelectField label={field.label} value={value} onChange={onChange} />;
   }
   if (field.type === 'repeatable' && field.columns) {
-    return <RepeatableField label={field.label} value={value} onChange={onChange} columns={field.columns} />;
+    return <RepeatableField label={field.label} value={value} onChange={onChange} columns={field.columns} withEnabled={field.withEnabled} />;
+  }
+  if (field.type === 'multi-select') {
+    return (
+      <MultiSelectField
+        label={field.label}
+        value={value}
+        onChange={onChange}
+        options={field.options ?? []}
+        allowCustom={field.allowCustom}
+      />
+    );
   }
   if (field.type === 'policy-table') {
     return (
@@ -110,14 +122,7 @@ export function AdminFieldInput({
   }
 
   if (field.type === 'boolean') {
-    return (
-      <input
-        type="checkbox"
-        checked={Boolean(value)}
-        onChange={(e) => onChange(e.target.checked)}
-        className="w-5 h-5 rounded border-slate-300 text-primary"
-      />
-    );
+    return <Toggle checked={Boolean(value)} onChange={onChange} label={Boolean(value) ? 'Yes' : 'No'} />;
   }
 
   if (field.type === 'number') {
@@ -163,7 +168,7 @@ export function AdminFieldInput({
 
   return (
     <input
-      type={field.type === 'datetime' ? 'datetime-local' : 'text'}
+      type={field.type === 'datetime' ? 'datetime-local' : field.type === 'date' ? 'date' : 'text'}
       className={inputClass}
       value={(value as string) ?? ''}
       onChange={(e) => onChange(e.target.value)}

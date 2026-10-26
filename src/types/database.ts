@@ -111,6 +111,7 @@ export interface CruiseRow {
   accommodation?: unknown;
   gallery?: unknown;
   faqs?: unknown;
+  detail?: unknown;
   sort_order?: number | null;
   status: ContentStatus;
 }
@@ -171,6 +172,8 @@ export interface FestivalEventRow {
   cta_href?: string | null;
   trending?: boolean | null;
   event_type?: 'international' | 'india' | null;
+  /** Extra CMS fields: eventDate, gallery, videos */
+  detail?: unknown;
   sort_order?: number | null;
   status: ContentStatus;
 }
@@ -191,6 +194,11 @@ export interface FixedDepartureRow {
   micro_info?: unknown;
   seats_left?: number | null;
   href?: string | null;
+  /** Added by migration 004_cms_enhancements.sql */
+  destination?: string | null;
+  featured_image?: string | null;
+  banner_image?: string | null;
+  availability_status?: 'available' | 'limited' | 'sold-out' | null;
   sort_order?: number | null;
   status: ContentStatus;
 }
@@ -233,6 +241,8 @@ export interface FaqItemRow {
   question: string;
   answer: string;
   sort_order?: number | null;
+  /** Added by migration 004_cms_enhancements.sql — null/true means visible */
+  enabled?: boolean | null;
 }
 
 export interface GalleryItemRow {
@@ -288,6 +298,8 @@ export interface PaymentSubmissionRow {
   transaction_id?: string | null;
   notes?: string | null;
   screenshot_url?: string | null;
+  email?: string | null;
+  payment_type?: string | null;
   status: SubmissionStatus;
   admin_notes?: string | null;
   created_at?: string;
@@ -297,6 +309,7 @@ export interface PackageEnquiryRow {
   id: string;
   package_slug?: string | null;
   package_title?: string | null;
+  destination?: string | null;
   name: string;
   email?: string | null;
   phone?: string | null;
@@ -313,6 +326,12 @@ export interface AdminUserRow {
   user_id: string;
   email: string;
   is_super_admin?: boolean;
+  /** Added by supabase/migrations/005_admin_roles_and_proofs.sql — falls back to site_settings when absent. */
+  name?: string | null;
+  mobile?: string | null;
+  role?: string | null;
+  permissions?: Record<string, boolean> | null;
+  active?: boolean | null;
   created_at?: string;
 }
 

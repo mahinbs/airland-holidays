@@ -21,7 +21,7 @@ const item = {
     show: { opacity: 1, y: 0 },
 };
 
-function BlogCard({ post }: { post: { title: string; date: string; image: string; slug: string; span: string } }) {
+function BlogCard({ post }: { post: { title: string; date: string; image: string; slug: string; span: string; category?: string } }) {
     return (
         <motion.a
             href={`/guide/${post.slug}`}
@@ -31,7 +31,7 @@ function BlogCard({ post }: { post: { title: string; date: string; image: string
             <img src={post.image} alt={post.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5">
-                <p className="text-white/70 text-xs mb-1">{post.date}</p>
+                <p className="text-white/70 text-xs mb-1">{post.category ? `${post.category} • ` : ''}{post.date}</p>
                 <h3 className="text-white font-bold text-lg leading-snug group-hover:text-secondary transition-colors">{post.title}</h3>
             </div>
         </motion.a>
@@ -49,6 +49,7 @@ export default function TravelBlog() {
                 date: mapped.date || 'Recent',
                 image: mapped.img || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800',
                 slug: mapped.id,
+                category: mapped.category,
                 span: spans[i % spans.length],
             };
         })

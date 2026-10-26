@@ -1,9 +1,38 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Instagram } from 'lucide-react';
 import PackageCardStack from '../common/PackageCardStack';
-import { useMediaVideos } from '../../hooks/useContent';
+import { useMediaVideos, useSiteSetting } from '../../hooks/useContent';
 import { mapMediaVideo } from '../../lib/mapContent';
+import { defaultInstagramReelsConfig } from '../../data/defaultCmsContent';
+import type { InstagramReelsConfig } from '../../types/cms';
+
+type Reel = { id: string | number; title: string; thumb: string; href: string; video?: string };
+
+/** Thumbnail that plays its video on hover (desktop) while keeping the image as poster. */
+function ReelMedia({ reel, className }: { reel: Reel; className: string }) {
+    const ref = useRef<HTMLVideoElement>(null);
+    if (!reel.video) return <img src={reel.thumb} alt={reel.title} className={className} loading="lazy" />;
+    return (
+        <video
+            ref={ref}
+            src={reel.video}
+            poster={reel.thumb}
+            muted
+            loop
+            playsInline
+            preload="none"
+            className={className}
+            onMouseEnter={() => void ref.current?.play().catch(() => undefined)}
+            onMouseLeave={() => {
+                if (ref.current) {
+                    ref.current.pause();
+                    ref.current.currentTime = 0;
+                }
+            }}
+        />
+    );
+}
 
 const staticReels = [
     { id: 1, title: 'Bali Sunrise', thumb: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=800', href: '#' },
@@ -20,7 +49,16 @@ function youtubeThumb(id: string) {
 
 export default function InstagramReels() {
     const { data: cmsVideos } = useMediaVideos();
-    const reels = useMemo(() => {
+    const { data: cmsConfig } = useSiteSetting<InstagramReelsConfig>('instagram_reels');
+    const config: InstagramReelsConfig = { ...defaultInstagramReelsConfig, ...(cmsConfig ?? {}) };
+
+    const reels = useMemo<Reel[]>(() => {
+        // 1) Reels managed in CMS → Instagram Reels (enabled only, in saved order)
+        const managed = (cmsConfig?.reels ?? []).filter((r) => r.enabled !== false && (r.image || r.video));
+        if (managed.length) {
+            return managed.map((r) => ({ id: r.id, title: r.caption, thumb: r.image, href: r.href || '#', video: r.video || undefined }));
+        }
+        // 2) Published media videos  3) built-in highlights
         if (cmsVideos?.length) {
             return cmsVideos.map((v) => {
                 const mapped = mapMediaVideo(v);
@@ -33,7 +71,7 @@ export default function InstagramReels() {
             });
         }
         return staticReels;
-    }, [cmsVideos]);
+    }, [cmsVideos, cmsConfig]);
 
     return (
         <section className="section-padding bg-white">
@@ -45,8 +83,18 @@ export default function InstagramReels() {
                     className="text-center mb-14"
                 >
                     <span className="text-secondary font-bold tracking-wider uppercase text-sm mb-2 block">Follow Our Journey</span>
-                    <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">Instagram Reels & Travel Highlights</h2>
-                    <p className="text-slate-600 max-w-2xl mx-auto">Explore our latest travel moments and customer travel clips.</p>
+                    <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">{config.title}</h2>
+                    <p className="text-slate-600 max-w-2xl mx-auto">{config.subtitle}</p>
+                    {config.ctaLabel && config.ctaHref && (
+                        <a
+                            href={config.ctaHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="btn-primary inline-flex items-center gap-2 mt-6"
+                        >
+                            <Instagram className="w-4 h-4" /> {config.ctaLabel}
+                        </a>
+                    )}
                 </motion.div>
 
                 <motion.div
@@ -66,11 +114,11 @@ export default function InstagramReels() {
                                     className="block w-[280px] rounded-2xl overflow-hidden shadow-xl bg-white"
                                 >
                                     <div className="relative aspect-[9/16]">
-                                        <img src={r.thumb} alt={r.title} className="w-full h-full object-cover" />
+                                        <ReelMedia reel={r} className="w-full h-full object-cover" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
                                         <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2 text-white">
                                             <Instagram className="w-5 h-5 shrink-0" />
-                                            <span className="font-semibold text-sm">{r.title}</span>
+                                            <span className="font-semibold text-sm">{r.title || 'Watch on Instagram'}</span>
                                         </div>
                                     </div>
                                 </a>
@@ -87,15 +135,11 @@ export default function InstagramReels() {
                                 rel="noreferrer"
                                 className="group relative rounded-2xl overflow-hidden aspect-[9/16] shadow-lg hover:shadow-xl transition-shadow"
                             >
-                                <img
-                                    src={r.thumb}
-                                    alt={r.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
+                                <ReelMedia reel={r} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
                                 <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2 text-white">
                                     <Instagram className="w-5 h-5 shrink-0" />
-                                    <span className="font-semibold text-sm line-clamp-2">{r.title}</span>
+                                    <span className="font-semibold text-sm line-clamp-2">{r.title || 'Watch on Instagram'}</span>
                                 </div>
                             </a>
                         ))}

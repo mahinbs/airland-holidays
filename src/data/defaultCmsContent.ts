@@ -1,4 +1,4 @@
-import type { AboutPageContent, FooterConfig, HomepageConfig, PaymentPageConfig, ServicesPageConfig } from '../types/cms';
+import type { AboutPageContent, FooterConfig, HomepageConfig, InstagramReelsConfig, PaymentPageConfig, ServicesPageConfig } from '../types/cms';
 import { paymentConfig, headerConfig } from './paymentConfig';
 
 export const defaultFooterConfig: FooterConfig = {
@@ -44,6 +44,11 @@ export const defaultPaymentPageConfig: PaymentPageConfig = {
   formFields: {
     allowedFileTypes: 'jpg, jpeg, png, pdf',
     maxUploadSizeMb: 5,
+    requireScreenshot: false,
+    paymentTypes: ['Bank Transfer', 'UPI', 'Razorpay', 'Other'],
+    submitLabel: 'Submit Payment Details',
+    successTitle: 'Payment Details Received!',
+    successMessage: 'Our team will verify your payment within 2 business hours and send confirmation to your contact details.',
   },
 };
 
@@ -206,4 +211,12 @@ export const defaultAboutContent: AboutPageContent = {
     primary: { label: 'Plan Your Journey With Experts', href: '/contact' },
     secondary: { label: 'Connect With Our Team', href: '/contact' },
   },
+};
+
+export const defaultInstagramReelsConfig: InstagramReelsConfig = {
+  title: 'Instagram Reels & Travel Highlights',
+  subtitle: 'Explore our latest travel moments and customer travel clips.',
+  ctaLabel: 'Follow us on Instagram',
+  ctaHref: 'https://instagram.com/airlandholidays',
+  reels: [],
 };
