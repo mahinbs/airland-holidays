@@ -469,7 +469,9 @@ function PromoCarousel({ slides }: { slides: PromoSlide[] }) {
         setIsShared(true);
         setTimeout(() => setIsShared(false), 2000);
       }
-    } catch {}
+    } catch {
+      /* best-effort: ignore storage failures */
+    }
   };
 
   const slide = slides[Math.min(current, slides.length - 1)];

@@ -13,6 +13,7 @@ import { uploadPaymentProof } from '../services/storage';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { useSiteSetting } from '../hooks/useContent';
 import { useHeaderConfig } from '../hooks/useHeaderConfig';
+import ModuleFaqs from '../components/common/ModuleFaqs';
 
 const defaultFormState = {
   name: '', mobile: '', amount: '', service: '', paymentType: '', transactionId: '', paymentDate: '', notes: '', screenshot: null as File | null,
@@ -80,7 +81,9 @@ export default function Payment() {
         setShowToast(true);
         setTimeout(() => setShowToast(false), 2500);
       }
-    } catch { }
+    } catch {
+      /* best-effort: ignore storage/clipboard failures */
+    }
   };
 
   const formCfg = paymentConfig.formFields;
@@ -509,6 +512,8 @@ export default function Payment() {
 
         </div>
       </div>
+
+      <ModuleFaqs module="payment" />
 
       {/* MOBILE BOTTOM STICKY ACTIONS */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-700 p-4 flex gap-3 md:hidden shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">

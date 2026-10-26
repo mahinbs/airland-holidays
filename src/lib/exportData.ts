@@ -190,6 +190,7 @@ function zipStore(entries: ZipEntry[]): Uint8Array {
   return out;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function buildXlsx(sheets: ExportSheet<any>[]): Uint8Array {
   const used = new Set<string>();
   const names = sheets.map((s) => sheetName(s.name, used));
@@ -239,6 +240,7 @@ export function buildXlsx(sheets: ExportSheet<any>[]): Uint8Array {
   return zipStore(files);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function downloadXlsx(sheets: ExportSheet<any>[], filename: string) {
   const bytes = buildXlsx(sheets);
   downloadBlob(

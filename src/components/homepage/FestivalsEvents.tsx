@@ -27,6 +27,9 @@ type EventMedia =
 type EventItem = {
     /** Formatted Event Date from the CMS (optional) */
     eventDate?: string;
+    /** Extra event photos / videos managed in the CMS (optional) */
+    gallery?: string[];
+    videos?: string[];
     id: string;
     tag: string;
     name: string;
@@ -217,6 +220,55 @@ const months = [
 
 type TabType = 'international' | 'india';
 
+function videoEmbed(url: string): { kind: 'iframe' | 'video'; src: string } {
+    const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+    if (yt) return { kind: 'iframe', src: `https://www.youtube-nocookie.com/embed/${yt[1]}` };
+    const vimeo = url.match(/vimeo\.com\/(\d+)/);
+    if (vimeo) return { kind: 'iframe', src: `https://player.vimeo.com/video/${vimeo[1]}` };
+    return { kind: 'video', src: url };
+}
+
+/** Lightbox with the event photos and videos managed in the CMS. */
+function EventGalleryModal({ event, onClose }: { event: EventItem | null; onClose: () => void }) {
+    useEffect(() => {
+        if (!event) return;
+        const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [event, onClose]);
+
+    if (!event) return null;
+    return (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4" onClick={onClose} role="dialog" aria-modal="true" aria-label={`${event.name} gallery`}>
+            <div className="relative max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-5 md:p-7" onClick={(e) => e.stopPropagation()}>
+                <button type="button" onClick={onClose} className="absolute right-3 top-3 rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-200">
+                    Close
+                </button>
+                <h3 className="mb-4 pr-20 font-['Marcellus'] text-2xl text-slate-900">{event.name}</h3>
+                {!!event.videos?.length && (
+                    <div className="mb-5 grid gap-4 md:grid-cols-2">
+                        {event.videos.map((url) => {
+                            const v = videoEmbed(url);
+                            return v.kind === 'iframe' ? (
+                                <iframe key={url} src={v.src} title={event.name} className="aspect-video w-full rounded-xl" allowFullScreen loading="lazy" />
+                            ) : (
+                                <video key={url} src={v.src} controls preload="metadata" className="aspect-video w-full rounded-xl bg-black" />
+                            );
+                        })}
+                    </div>
+                )}
+                {!!event.gallery?.length && (
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                        {event.gallery.map((src) => (
+                            <img key={src} src={src} alt={event.name} loading="lazy" className="h-44 w-full rounded-xl object-cover" />
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function EventCardMedia({ media, name, isActive }: { media: EventMedia; name: string; isActive: boolean }) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -293,6 +345,7 @@ export default function FestivalsEvents() {
     const [activeTab, setActiveTab] = useState<TabType>('international');
     const [activeMonth, setActiveMonth] = useState<number>(0);
     const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
+    const [galleryEvent, setGalleryEvent] = useState<EventItem | null>(null);
     const currentMonth = new Date().getMonth() + 1;
 
     const currentEvents = activeTab === 'international' ? internationalEvents : indiaEvents;
@@ -457,6 +510,20 @@ export default function FestivalsEvents() {
                                                 >
                                                     <EventCardMedia media={event.media} name={event.name} isActive={isActive} />
 
+                                                    {((event.gallery?.length ?? 0) + (event.videos?.length ?? 0)) > 0 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                setGalleryEvent(event);
+                                                            }}
+                                                            className="absolute right-3 top-14 z-10 rounded-full bg-black/55 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm hover:bg-black/75 md:right-5"
+                                                        >
+                                                            Photos &amp; videos ({(event.gallery?.length ?? 0) + (event.videos?.length ?? 0)})
+                                                        </button>
+                                                    )}
+
                                                     {/* Desktop tags — top corner, minimal footprint */}
                                                     <div className="absolute left-0 right-0 top-0 hidden p-4 md:flex md:items-start md:justify-between md:p-5">
                                                         <span className="rounded-full border border-white/30 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/90 backdrop-blur-sm">
@@ -542,6 +609,8 @@ export default function FestivalsEvents() {
                         )}
                     </motion.div>
                 </AnimatePresence>
+
+                <EventGalleryModal event={galleryEvent} onClose={() => setGalleryEvent(null)} />
 
                 <style>{`
                     .festivals-events-swiper .swiper-pagination {

@@ -4,7 +4,7 @@ import { AddButton, DeleteButton, FieldLabel, ReorderButtons, Toggle, inputClass
 export type RepeatableColumn = {
   key: string;
   label: string;
-  type?: 'text' | 'textarea' | 'image' | 'number' | 'boolean' | 'select';
+  type?: 'text' | 'textarea' | 'image' | 'video' | 'number' | 'boolean' | 'select';
   options?: { value: string; label: string }[];
 };
 
@@ -35,7 +35,7 @@ export default function RepeatableField({
 
   const upload = async (index: number, key: string, file: File) => {
     try {
-      const url = await uploadMedia(file, 'uploads');
+      const url = await uploadMedia(file, file.type.startsWith('video/') ? 'videos' : 'uploads');
       update(index, key, url);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Upload failed');
@@ -83,6 +83,11 @@ export default function RepeatableField({
                         {typeof item[col.key] === 'string' && item[col.key] ? (
                           <img src={String(item[col.key])} alt="" className="h-14 rounded-lg object-cover mt-1" />
                         ) : null}
+                      </div>
+                    ) : col.type === 'video' ? (
+                      <div>
+                        <input className={inputClass} value={String(item[col.key] ?? '')} placeholder="Paste a YouTube / video URL, or upload" onChange={(e) => update(i, col.key, e.target.value)} />
+                        <input type="file" accept="video/*" className="text-xs mt-1" onChange={(e) => e.target.files?.[0] && upload(i, col.key, e.target.files[0])} />
                       </div>
                     ) : col.type === 'number' ? (
                       <input type="number" className={inputClass} value={Number(item[col.key] ?? 0)} onChange={(e) => update(i, col.key, Number(e.target.value))} />

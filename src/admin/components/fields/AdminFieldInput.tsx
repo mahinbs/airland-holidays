@@ -122,7 +122,7 @@ export function AdminFieldInput({
   }
 
   if (field.type === 'boolean') {
-    return <Toggle checked={Boolean(value)} onChange={onChange} label={Boolean(value) ? 'Yes' : 'No'} />;
+    return <Toggle checked={Boolean(value)} onChange={onChange} label={value ? 'Yes' : 'No'} />;
   }
 
   if (field.type === 'number') {

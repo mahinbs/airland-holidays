@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import VisualExperience, { type VisualItem } from '../components/common/VisualExperience';
 import RichContent from '../components/common/RichContent';
+import ModuleFaqs from '../components/common/ModuleFaqs';
 import LabeledImageCarousel from '../components/common/LabeledImageCarousel';
 import type { PackageLabeledImage } from '../types/packageDetail';
 import { useDestination, usePackages } from '../hooks/useContent';
@@ -1398,6 +1399,8 @@ export default function DestinationDetail() {
                             ))}
                         </motion.div>
                     </section>
+
+                    <ModuleFaqs module="destination" className="!px-0" />
 
                     <DestinationConversionSection destinationName={data.name} />
 

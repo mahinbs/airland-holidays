@@ -13,6 +13,7 @@ import {
   type Role,
 } from '../admin/config/permissions';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type UntypedClient = SupabaseClient<any>;
 
 const MIGRATION_003_HINT =

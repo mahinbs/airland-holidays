@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { cruisePackages as staticCruises, type CruisePackage } from '../data/cruiseData';
 import { useCruise, useCruises, useModuleFaqs } from '../hooks/useContent';
+import { printItinerary } from '../lib/printItinerary';
 import { mapCruiseToDetail } from '../lib/mapContent';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { submitContact } from '../services/submissions';
@@ -222,7 +223,7 @@ export default function CruiseDetail() {
                                     <div className="flex justify-between items-center mb-6">
                                     <h2 className="text-2xl font-bold text-slate-900 font-['Marcellus']">Overview</h2>
                                     <div className="flex gap-3">
-                                        <button onClick={() => alert('Downloading itinerary PDF... (Simulation)')} className="flex items-center gap-2 text-primary font-bold text-sm hover:text-secondary transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 shrink-0">
+                                        <button onClick={() => printItinerary({ title: cruise.name, subtitle: [cruise.duration, cruise.departureLocation].filter(Boolean).join(' · '), days: cruise.itinerary.map((d) => ({ label: d.day, title: d.title, description: d.desc, activities: d.attractions })), inclusions: cruise.inclusions, exclusions: cruise.exclusions }) || window.print()} className="flex items-center gap-2 text-primary font-bold text-sm hover:text-secondary transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 shrink-0">
                                             <Download className="w-4 h-4" /> PDF
                                         </button>
                                         <button onClick={async () => {

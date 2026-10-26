@@ -194,7 +194,7 @@ export default function EntityEdit({ entityKey }: { entityKey: string }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [form, setForm] = useState<Record<string, unknown>>({ status: 'draft' });
-  const [loading, setLoading] = useState(!isNew);
+  const [loading, setLoading] = useState(!isNew && Boolean(getSupabaseOrNull()));
   const [saving, setSaving] = useState<null | 'save' | 'publish' | 'preview'>(null);
   const [dirty, setDirty] = useState(false);
   const [notice, setNotice] = useState<{ type: 'ok' | 'warn' | 'err'; text: string } | null>(null);
@@ -205,10 +205,7 @@ export default function EntityEdit({ entityKey }: { entityKey: string }) {
   useEffect(() => {
     if (!config || isNew) return;
     const supabase = getSupabaseOrNull();
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
+    if (!supabase) return;
     supabase
       .from(config.table as 'packages')
       .select('*')

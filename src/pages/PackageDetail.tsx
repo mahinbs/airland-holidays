@@ -24,6 +24,7 @@ import { Navigation, Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
+import { printItinerary } from '../lib/printItinerary';
 
 const staticPackageData = {
     title: 'Bali 5 Nights / 6 Days – Premium Island Escape',
@@ -471,7 +472,15 @@ const Itinerary = ({ data }: { data?: typeof staticPackageData, [key: string]: u
     const [openDay, setOpenDay] = useState<number | null>(0);
 
     const handleDownload = () => {
-        alert("Downloading itinerary PDF... (Simulation)");
+        const days = normalizeItinerary(data?.itinerary);
+        const opened = printItinerary({
+            title: String((data as { title?: string } | undefined)?.title ?? 'Itinerary'),
+            subtitle: String((data as { duration?: string } | undefined)?.duration ?? ''),
+            days: days.map((d) => ({ label: `Day ${d.day}`, title: d.title, description: d.desc, activities: d.attractions })),
+            inclusions: (data as { inclusions?: string[] } | undefined)?.inclusions,
+            exclusions: (data as { exclusions?: string[] } | undefined)?.exclusions,
+        });
+        if (!opened) window.print();
     };
 
     return (

@@ -249,6 +249,7 @@ export default function RichTextField({
             <option value="h3">Heading 3</option>
             <option value="h4">Heading 4</option>
           </select>
+          {/* eslint-disable-next-line react-hooks/refs -- tool callbacks read refs only inside click handlers */}
           {tools.map((t, i) =>
             t === 'sep' ? (
               <span key={`s${i}`} className="w-px h-5 bg-slate-300 mx-1" />

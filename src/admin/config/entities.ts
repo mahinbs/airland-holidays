@@ -48,7 +48,7 @@ export type FieldType =
 export type RepeatableColumnDef = {
   key: string;
   label: string;
-  type?: 'text' | 'textarea' | 'image' | 'number' | 'boolean' | 'select';
+  type?: 'text' | 'textarea' | 'image' | 'video' | 'number' | 'boolean' | 'select';
   options?: { value: string; label: string }[];
 };
 
@@ -590,9 +590,9 @@ export const entityConfigs: EntityConfig[] = [
       { name: 'trending', label: 'Trending', type: 'boolean' },
       { name: 'media', label: 'Hero Banner (Image/Video)', type: 'media', fullWidth: true },
       { name: '_gallery', label: 'Event Gallery', type: 'image-gallery', fullWidth: true, storageKey: 'gallery' },
-      { name: '_event_videos', label: 'Event Videos (paste a YouTube / video URL)', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'eventVideos', columns: [
+      { name: '_event_videos', label: 'Event Videos', type: 'repeatable', fullWidth: true, withEnabled: true, storageKey: 'eventVideos', columns: [
         { key: 'title', label: 'Video Title' },
-        { key: 'url', label: 'Video URL' },
+        { key: 'url', label: 'Video (URL or upload)', type: 'video' },
       ] },
       { name: 'event_type', label: 'Category', type: 'select', options: [{ value: 'international', label: 'International' }, { value: 'india', label: 'India' }] },
       { name: 'status', label: 'Status', type: 'select', options: [{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }] },

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
 
 export const SOCIAL_PLATFORMS = ['Facebook', 'Instagram', 'YouTube', 'LinkedIn', 'X', 'Pinterest'] as const;
